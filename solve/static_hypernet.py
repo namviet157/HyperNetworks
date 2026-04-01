@@ -25,25 +25,25 @@ class Solver(object):
             raise NotImplementedError
 
         self.model_name = model
-        self.hyper_mode = kwargs.pop('hyper_mode', True)
+        self.hyper_mode = kwargs.pop('hyper_mode', False)
 
         x_shape = getattr(self.dataset, 'x_train').shape
-        self.x_dim = kwargs.pop('x_dim', int(x_shape[1]))
-        self.c_dim = kwargs.pop('c_dim', int(x_shape[3]))
-        self.num_classes = kwargs.pop('num_classes', int(self.dataset.num_classes))
-        self.batch_size = kwargs.pop('batch_size', 1024)
+        self.x_dim = int(x_shape[1])
+        self.c_dim = int(x_shape[3])
+        self.num_classes = int(self.dataset.num_classes)
+        self.batch_size = 1024
         self.max_epoch = kwargs.pop('max_epoch', 50)
-        self.learning_rate = kwargs.pop('learning_rate', 0.0005)
-        self.lr_decay = kwargs.pop('lr_decay', 0.99)
-        self.grad_clip = kwargs.pop('grad_clip', 100.0)
+        self.learning_rate = 0.0005
+        self.lr_decay = 0.99
+        self.grad_clip = 100.0
         self.optimize_method = kwargs.pop('optimizer', 'adam')
         self.logpath = kwargs.pop('logpath', 'log')
         self.val_split = kwargs.pop('val_split', 0.1)
         self.save_dir = kwargs.pop('save_dir', 'checkpoints')
-        self.save_best_only = kwargs.pop('save_best_only', False)
-        self.resume = kwargs.pop('resume', False)
+        self.save_best_only = True
+        self.resume = False
         self.eval_only = kwargs.pop('eval_only', False)
-        self.seed = kwargs.pop('seed', 42)
+        self.seed = 42
         self.show_sample = kwargs.pop('show_sample', False)
         self.show_filters = kwargs.pop('show_filters', False)
 
@@ -380,5 +380,5 @@ class Solver(object):
 
 
 if __name__ == '__main__':
-    solver = Solver(model='simplecnn', dataset='mnist', max_epoch=10)
+    solver = Solver(model='simplecnn', dataset='mnist', max_epoch=10, hyper_mode=True)
     solver.train()
