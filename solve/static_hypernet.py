@@ -7,6 +7,8 @@ from pathlib import Path
 import numpy as np
 import tensorflow as tf
 
+import model
+
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
@@ -16,8 +18,19 @@ from datasets import Mnist, Cifar10, SVHN, FashionMnist
 from utils.visualize import show_filter, show_image
 
 
+# Literature baselines for reproducibility notes (your preprocessing / split may differ).
+# WRN-40-2: Zagoruyko & Komodakis, "Wide Residual Networks", Table 4, CIFAR-10 test error.
+REFERENCE_TEST_METRICS = {
+    ('cifar10', 'wrn40_2', False): {
+        'test_error_pct': 5.33,
+        'citation': 'Zagoruyko & Komodakis (2016), arXiv:1605.07146, Table 4 (WRN-40-2, ZCA)',
+    },
+}
+
+
 class Solver(object):
     def __init__(self, dataset='mnist', model='simplecnn', **kwargs):
+        self.dataset_key = dataset
         if dataset == 'mnist':
             self.dataset = Mnist()
         elif dataset == 'cifar10':
@@ -51,6 +64,7 @@ class Solver(object):
         self.seed = 42
         self.show_sample = kwargs.pop('show_sample', False)
         self.show_filters = kwargs.pop('show_filters', False)
+        self.run_final_test_from_best = kwargs.pop('run_final_test_from_best', True)
 
         self._validate_config()
         self._prepare_output_dirs()
@@ -152,12 +166,24 @@ class Solver(object):
             from model.resnet import Resnet50
 
             model = Resnet50(num_classes=self.num_classes, hyper_mode=self.hyper_mode).build_model()
+        elif self.model_name == 'wrn40_2':
+            from model.resnet import WideResnet40_2
+
+            model = WideResnet40_2(
+                num_classes=self.num_classes, hyper_mode=self.hyper_mode
+            ).build_model()
         else:
             raise NotImplementedError
 
-        dummy_inputs = tf.zeros((1, self.x_dim, self.x_dim, self.c_dim), dtype=tf.float32)
-        model(dummy_inputs, training=False)
-        print(model.summary())
+        input_shape = (None, self.x_dim, self.x_dim, self.c_dim)
+        model.build(input_shape=input_shape)
+        
+        # Sử dụng expand_nested=True để thấy cả các lớp bên trong Bottleneck
+        print(model.summary(expand_nested=True))
+        
+        # dummy_inputs = tf.zeros((1, self.x_dim, self.x_dim, self.c_dim), dtype=tf.float32)
+        # model(dummy_inputs, training=False)
+        # print(model.summary())
         return model
 
     def _visualize_sample(self):
@@ -218,6 +244,17 @@ class Solver(object):
     def _find_checkpoint(self):
         return self.latest_manager.latest_checkpoint or self.best_manager.latest_checkpoint
 
+    def _restore_best_checkpoint(self):
+        checkpoint = self.best_manager.latest_checkpoint
+        if checkpoint is None:
+            raise ValueError(
+                'No best checkpoint found under %s. Train with validation split so best weights are saved.'
+                % self.best_dir
+            )
+        status = self.checkpoint.restore(checkpoint)
+        status.expect_partial()
+        return checkpoint
+
     def _restore_checkpoint(self):
         checkpoint = self._find_checkpoint()
         if checkpoint is None:
@@ -225,6 +262,61 @@ class Solver(object):
         status = self.checkpoint.restore(checkpoint)
         status.expect_partial()
         return checkpoint
+
+    def _evaluate_test_with_best_weights(self):
+        """Load weights from best_manager (best validation metric) and return test loss / accuracy."""
+        checkpoint = self.best_manager.latest_checkpoint
+        if checkpoint is None:
+            return None, None
+        self.checkpoint.restore(checkpoint).expect_partial()
+        return self.evaluate_in_batch(self.x_test, self.y_test)
+
+    def _reference_lookup(self):
+        return REFERENCE_TEST_METRICS.get(
+            (self.dataset_key, self.model_name, self.hyper_mode)
+        )
+
+    def _print_final_test_report(self, test_loss, test_acc):
+        test_acc_pct = 100.0 * test_acc
+        print(
+            '\n=== Final test evaluation (best validation checkpoint) ===\n'
+            'Test loss: %.6f\n'
+            'Test accuracy: %.2f%%' % (test_loss, test_acc_pct)
+        )
+        ref = self._reference_lookup()
+        if ref is None:
+            ref = REFERENCE_TEST_METRICS.get((self.dataset_key, self.model_name, False))
+        print(
+            '\n--- Comparison with published baseline (read carefully: data prep. may differ) ---'
+        )
+        print(
+            '%-12s  %-10s  %-14s  %-18s  %s'
+            % ('Setting', 'Test loss', 'Test acc (%)', 'Paper test acc (%)', 'Citation / note')
+        )
+        print('-' * 100)
+        note = '—'
+        paper_acc_str = '—'
+        if ref is not None:
+            paper_err = ref['test_error_pct']
+            paper_acc = 100.0 - paper_err
+            paper_acc_str = '%.2f (from %.2f%% err)' % (paper_acc, paper_err)
+            note = ref['citation']
+        elif (self.dataset_key, self.model_name) == ('cifar10', 'wrn40_2') and self.hyper_mode:
+            note = 'WRN table is for standard conv; hypernet variant has no row in that table.'
+        print(
+            '%-12s  %-10.6f  %-14.2f  %-18s  %s'
+            % (
+                '%s / %s' % (self.dataset_key, self.model_name),
+                test_loss,
+                test_acc_pct,
+                paper_acc_str,
+                note,
+            )
+        )
+        print(
+            '\nLarge gaps are expected if augmentation, epochs, LR schedule, or normalization '
+            'differ from the paper.'
+        )
 
     def _save_checkpoint(self, epoch, is_best):
         self.epoch_var.assign(epoch)
@@ -315,8 +407,8 @@ class Solver(object):
             self._visualize_sample()
 
         if self.eval_only:
-            checkpoint = self._restore_checkpoint()
-            print('Restored checkpoint from %s' % checkpoint)
+            checkpoint = self._restore_best_checkpoint()
+            print('Restored best checkpoint from %s' % checkpoint)
             state = self._load_training_state()
             start_epoch = state['completed_epochs']
             best_metric = state['best_metric']
@@ -328,6 +420,8 @@ class Solver(object):
                 'test': self.evaluate_in_batch(self.x_test, self.y_test),
             }
             self._print_epoch_metrics('Eval', start_epoch, metrics, None, False, best_metric)
+            if metrics['test'][0] is not None:
+                self._print_final_test_report(metrics['test'][0], metrics['test'][1])
             if self.show_filters:
                 self._visualize_filters()
             return
@@ -363,6 +457,10 @@ class Solver(object):
             self._print_epoch_metrics('Epoch', epoch_id, metrics, learning_rate, is_best, best_metric)
 
         print('Best %s %.6f at epoch %d' % (self.metric_name, best_metric, best_epoch))
+        if self.run_final_test_from_best:
+            test_loss, test_acc = self._evaluate_test_with_best_weights()
+            if test_loss is not None and test_acc is not None:
+                self._print_final_test_report(test_loss, test_acc)
         if self.show_filters:
             self._visualize_filters()
 

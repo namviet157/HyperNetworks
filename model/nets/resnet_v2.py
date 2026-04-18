@@ -3,6 +3,78 @@ import tensorflow as tf
 from model.nets import resnet_utils
 from model.utils import SharedHyperConvMLP, hyper_config
 
+# WRN stages use 32/64/128 filters (k=2); out_block_size=64 is incompatible with 32.
+_WRN_SHARED_IN_BLOCK = 16
+_WRN_SHARED_OUT_BLOCK = 16
+_WRN_SHARED_Z_DIM = 64
+
+
+class BasicBlock(tf.keras.layers.Layer):
+    """Pre-activation basic block (two 3×3 convs), WRN-style widths."""
+
+    def __init__(self, filters, stride=1, hyper_params=None, **kwargs):
+        super().__init__(**kwargs)
+        self.filters = int(filters)
+        self.stride = int(stride)
+        self.hyper_params = hyper_params
+
+        self.bn1 = tf.keras.layers.BatchNormalization(epsilon=1e-5, momentum=0.9)
+        self.bn2 = tf.keras.layers.BatchNormalization(epsilon=1e-5, momentum=0.9)
+
+        self.conv1 = resnet_utils.make_conv_layer(
+            filters=self.filters,
+            kernel_size=3,
+            strides=self.stride,
+            padding='same',
+            use_bias=False,
+            hyper_params=hyper_params,
+            name='conv1',
+        )
+        self.conv2 = resnet_utils.make_conv_layer(
+            filters=self.filters,
+            kernel_size=3,
+            strides=1,
+            padding='same',
+            use_bias=False,
+            hyper_params=hyper_params,
+            name='conv2',
+        )
+        self.shortcut_pool = None
+        self.shortcut_conv = None
+
+    def build(self, input_shape):
+        input_channels = int(input_shape[-1])
+        if self.stride != 1 and input_channels == self.filters:
+            self.shortcut_pool = tf.keras.layers.AveragePooling2D(pool_size=1, strides=self.stride)
+        elif input_channels != self.filters:
+            self.shortcut_conv = resnet_utils.make_conv_layer(
+                filters=self.filters,
+                kernel_size=1,
+                strides=self.stride,
+                padding='same',
+                use_bias=False,
+                hyper_params=self.hyper_params,
+                name='shortcut',
+            )
+        super().build(input_shape)
+
+    def call(self, inputs, training=False):
+        x = self.bn1(inputs, training=training)
+        x = tf.nn.relu(x)
+
+        if self.shortcut_conv is not None:
+            shortcut = self.shortcut_conv(x)
+        elif self.shortcut_pool is not None:
+            shortcut = self.shortcut_pool(inputs)
+        else:
+            shortcut = inputs
+
+        x = self.conv1(x)
+        x = self.bn2(x, training=training)
+        x = tf.nn.relu(x)
+        x = self.conv2(x)
+        return shortcut + x
+
 
 class BottleneckBlock(tf.keras.layers.Layer):
     def __init__(self, depth, bottleneck_depth, stride=1, hyper_params=None, **kwargs):
@@ -167,3 +239,99 @@ class ResNetV2(tf.keras.Model):
 
 def build_resnet_v2_50(num_classes, hyper_mode=False, name='resnet_v2_50'):
     return ResNetV2([3, 4, 6, 3], num_classes=num_classes, hyper_mode=hyper_mode, name=name)
+
+
+class WideResNet40_2(tf.keras.Model):
+    """WRN-40-2 for CIFAR-scale inputs: stem 3×3/16, three stages (6 blocks each), width k=2."""
+
+    def __init__(self, num_classes, hyper_mode=False, n=6, k=2, **kwargs):
+        super().__init__(**kwargs)
+        self.num_classes = num_classes
+        self.hyper_mode = hyper_mode
+        self.n = int(n)
+        self.k = int(k)
+
+        if hyper_mode:
+            self.shared_hyper_conv = SharedHyperConvMLP(
+                _WRN_SHARED_IN_BLOCK,
+                _WRN_SHARED_OUT_BLOCK,
+                _WRN_SHARED_Z_DIM,
+                max_kernel_spatial=3,
+                name='shared_hyper_conv',
+            )
+            shared_hyper_params = {
+                **hyper_config(
+                    _WRN_SHARED_IN_BLOCK, _WRN_SHARED_OUT_BLOCK, _WRN_SHARED_Z_DIM
+                ),
+                'shared_hypernet': self.shared_hyper_conv,
+                'layer_embedding': True,
+            }
+        else:
+            self.shared_hyper_conv = None
+            shared_hyper_params = None
+
+        self.stem_conv = tf.keras.layers.Conv2D(
+            16,
+            kernel_size=3,
+            strides=1,
+            padding='same',
+            use_bias=False,
+            kernel_initializer=tf.keras.initializers.HeNormal(),
+            name='stem_conv',
+        )
+
+        f1 = 16 * self.k
+        f2 = 32 * self.k
+        f3 = 64 * self.k
+        self.stages = []
+        stage_defs = [
+            (f1, self.n, 1),
+            (f2, self.n, 2),
+            (f3, self.n, 2),
+        ]
+        for stage_index, (filters, num_units, first_stride) in enumerate(stage_defs, start=1):
+            blocks = []
+            for unit_index in range(num_units):
+                stride = first_stride if unit_index == 0 else 1
+                blocks.append(
+                    BasicBlock(
+                        filters=filters,
+                        stride=stride,
+                        hyper_params=shared_hyper_params,
+                        name='block%d_unit%d' % (stage_index, unit_index + 1),
+                    )
+                )
+            self.stages.append(blocks)
+
+        self.post_bn = tf.keras.layers.BatchNormalization(
+            epsilon=1e-5, momentum=0.9, name='post_bn'
+        )
+        self.global_pool = tf.keras.layers.GlobalAveragePooling2D(name='avg_pool')
+        self.classifier = tf.keras.layers.Dense(num_classes, name='classifier')
+
+    def call(self, inputs, training=False, return_endpoints=False):
+        endpoints = {}
+        x = self.stem_conv(inputs)
+        endpoints['stem'] = x
+
+        for stage_index, blocks in enumerate(self.stages, start=1):
+            for block in blocks:
+                x = block(x, training=training)
+            endpoints['block%d' % stage_index] = x
+
+        x = self.post_bn(x, training=training)
+        x = tf.nn.relu(x)
+        endpoints['postnorm'] = x
+        x = self.global_pool(x)
+        logits = self.classifier(x)
+        endpoints['logits'] = logits
+        endpoints['predictions'] = tf.nn.softmax(logits)
+        if return_endpoints:
+            return logits, endpoints
+        return logits
+
+
+def build_wrn_40_2(num_classes, hyper_mode=False, name='wrn_40_2'):
+    return WideResNet40_2(
+        num_classes=num_classes, hyper_mode=hyper_mode, n=6, k=2, name=name
+    )

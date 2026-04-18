@@ -3,11 +3,17 @@ import numpy as np
 
 
 def show_image(image):
-    plt.figure(figsize=(1, 1))
-    plt.imshow(np.reshape(image, (28, 28)), cmap='Greys', interpolation='nearest')
+    shape = image.shape
+    
+    plt.figure(figsize=(2, 2))
+    
+    if shape[-1] == 1:
+        plt.imshow(np.reshape(image, (shape[0], shape[1])), cmap='gray', interpolation='nearest')
+    else:
+        plt.imshow(image, interpolation='nearest')
+        
     plt.axis('off')
     plt.show()
-
 
 def show_filter(w_orig):
     w = w_orig.T
