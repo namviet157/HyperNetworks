@@ -2,9 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-# show image of mnist
 def show_image(image):
-    plt.subplot(1, 1, 1)
+    plt.figure(figsize=(1, 1))
     plt.imshow(np.reshape(image, (28, 28)), cmap='Greys', interpolation='nearest')
     plt.axis('off')
     plt.show()

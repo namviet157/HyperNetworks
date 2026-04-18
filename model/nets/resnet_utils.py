@@ -54,5 +54,7 @@ def make_conv_layer(
         in_block_size=hyper_params['in_block_size'],
         out_block_size=hyper_params['out_block_size'],
         z_dim=hyper_params['z_dim'],
+        layer_embedding=hyper_params.get('layer_embedding', False),
+        shared_hypernet=hyper_params.get('shared_hypernet'),
         name=name,
     )

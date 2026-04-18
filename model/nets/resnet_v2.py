@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 from model.nets import resnet_utils
-from model.utils import hyper_config
+from model.utils import SharedHyperConvMLP, hyper_config
 
 
 class BottleneckBlock(tf.keras.layers.Layer):
@@ -88,7 +88,22 @@ class ResNetV2(tf.keras.Model):
         super().__init__(**kwargs)
         self.num_classes = num_classes
         self.hyper_mode = hyper_mode
-        shared_hyper_params = hyper_config(64, 64, 64) if hyper_mode else None
+        if hyper_mode:
+            self.shared_hyper_conv = SharedHyperConvMLP(
+                64,
+                64,
+                64,
+                max_kernel_spatial=3,
+                name='shared_hyper_conv',
+            )
+            shared_hyper_params = {
+                **hyper_config(64, 64, 64),
+                'shared_hypernet': self.shared_hyper_conv,
+                'layer_embedding': True,
+            }
+        else:
+            self.shared_hyper_conv = None
+            shared_hyper_params = None
 
         self.stem_conv = tf.keras.layers.Conv2D(
             64,

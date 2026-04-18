@@ -113,3 +113,4 @@ checkpoint
 *.ckpt.meta
 *.ckpt.data-*
 runs/
+data/

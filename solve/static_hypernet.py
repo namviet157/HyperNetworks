@@ -10,8 +10,9 @@ import tensorflow as tf
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-from datasets import Mnist, Cifar10
+from datasets import Mnist, Cifar10, SVHN, FashionMnist
 from utils.visualize import show_filter, show_image
 
 
@@ -21,6 +22,10 @@ class Solver(object):
             self.dataset = Mnist()
         elif dataset == 'cifar10':
             self.dataset = Cifar10()
+        elif dataset == 'fashion_mnist':
+            self.dataset = FashionMnist()
+        elif dataset == 'svhn':
+            self.dataset = SVHN()
         else:
             raise NotImplementedError
 
@@ -40,8 +45,8 @@ class Solver(object):
         self.logpath = kwargs.pop('logpath', 'log')
         self.val_split = kwargs.pop('val_split', 0.1)
         self.save_dir = kwargs.pop('save_dir', 'checkpoints')
-        self.save_best_only = True
-        self.resume = False
+        self.save_best_only = kwargs.pop('save_best_only', True)
+        self.resume = kwargs.pop('resume', False)
         self.eval_only = kwargs.pop('eval_only', False)
         self.seed = 42
         self.show_sample = kwargs.pop('show_sample', False)
@@ -152,10 +157,11 @@ class Solver(object):
 
         dummy_inputs = tf.zeros((1, self.x_dim, self.x_dim, self.c_dim), dtype=tf.float32)
         model(dummy_inputs, training=False)
+        print(model.summary())
         return model
 
     def _visualize_sample(self):
-        sample = self.x_train[0]
+        sample = self.x_train[1]
         show_image(sample)
 
     def _get_first_conv_kernel(self):
@@ -168,7 +174,7 @@ class Solver(object):
             if kernel is not None:
                 return kernel.numpy()
         return None
-
+            
     def _visualize_filters(self):
         kernel = self._get_first_conv_kernel()
         if kernel is None:
@@ -301,15 +307,14 @@ class Solver(object):
         print(', '.join(parts))
 
     def train(self):
-        state = self._load_training_state()
         start_epoch = 0
-        best_metric = state['best_metric']
-        best_epoch = state['best_epoch']
+        best_metric = None
+        best_epoch = 0
 
         if self.show_sample:
             self._visualize_sample()
 
-        if self.resume or self.eval_only:
+        if self.eval_only:
             checkpoint = self._restore_checkpoint()
             print('Restored checkpoint from %s' % checkpoint)
             state = self._load_training_state()
@@ -317,7 +322,6 @@ class Solver(object):
             best_metric = state['best_metric']
             best_epoch = state['best_epoch']
 
-        if self.eval_only:
             metrics = {
                 'train': self.evaluate_in_batch(self.x_train, self.y_train),
                 'val': self.evaluate_in_batch(self.x_val, self.y_val),
