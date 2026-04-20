@@ -14,7 +14,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-from datasets import Mnist, Cifar10, SVHN, FashionMnist
+from my_datasets import Mnist, Cifar10, SVHN, FashionMnist
 from utils.visualize import show_filter, show_image
 
 
