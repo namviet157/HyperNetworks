@@ -1,20 +1,28 @@
 # HyperNetworks
 
-TensorFlow 2 project for studying **static hypernetworks** in image classification.  
-The repository contains baseline CNN / ResNet-style models and hypernetwork-based convolution layers that generate weights from learned embeddings, plus a custom training loop for running controlled experiments on small vision datasets.
+This repository studies **hypernetworks** along two complementary lines:
 
-## What This Project Covers
+1. **Static hypernetworks (TensorFlow 2)** — convolution layers whose kernels are generated from learned embeddings for small-scale image classification.
+2. **Dynamic hypernetworks (PyTorch)** — a classroom-ready **HyperLSTM** demo (Ha et al., Appendix A.2.2) for character-level sequence modeling, compared to a vanilla LSTM.
+
+The two tracks use **different stacks** (TensorFlow vs PyTorch). Install and run the part you need using the sections below.
+
+---
+
+## Part 1 — Static hypernetworks (TensorFlow, vision)
+
+TensorFlow 2 code for **static hypernetworks** in image classification: baseline CNN / ResNet-style models, hypernetwork-based convolutions, a custom training loop, and controlled experiments on compact vision datasets.
+
+### What this part covers
 
 - Standard convolutions and hypernetwork-generated convolutions
 - A lightweight `SimpleCNN` baseline
 - A ResNet-v2 style `resnet50`
 - A CIFAR-style `wrn40_2` (WideResNet-40-2) with `BasicBlock`
 - Training, validation, checkpointing, TensorBoard logging, and test evaluation
-- Reproducibility reporting from the **best validation checkpoint**
+- Reporting from the **best validation checkpoint**
 
-## Installation
-
-Create and activate a virtual environment, then install dependencies:
+### Installation (TensorFlow)
 
 ```powershell
 python -m venv venv
@@ -23,109 +31,32 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-`requirements.txt` currently pins:
+`requirements.txt` pins: `tensorflow==2.15.0`, `numpy==1.26.4`, `matplotlib==3.8.4`, `tensorboard==2.15.1`, `scipy`.
 
-- `tensorflow==2.15.0`
-- `numpy==1.26.4`
-- `matplotlib==3.8.4`
-- `tensorboard==2.15.1`
-- `scipy`
-
-## Datasets
+### Datasets (vision)
 
 Supported datasets:
 
-- `mnist`
-- `fashion_mnist`
-- `cifar10`
-- `svhn`
+- `mnist`, `fashion_mnist`, `cifar10` — via `tf.keras.datasets`
+- `svhn` — `.mat` files under `../data/svhn` by default (`train_32x32.mat`, `test_32x32.mat`)
 
-Dataset loaders live in `my_datasets/`.
+Loaders live in `my_datasets/`. Labels are one-hot; images are normalized to `[0, 1]`.
 
-### Notes
+### Vision models
 
-- `mnist`, `fashion_mnist`, and `cifar10` are loaded from `tf.keras.datasets`
-- `svhn` expects `.mat` files at `../data/svhn` by default:
-  - `train_32x32.mat`
-  - `test_32x32.mat`
-- Labels are converted to one-hot vectors in the dataset loaders
-- Images are normalized to `[0, 1]`
+| Model | Summary |
+|--------|---------|
+| `simplecnn` | Two conv layers (the second can be `HyperConv2D`), pooling, dense head; grayscale `28×28×1` or RGB `32×32×3` |
+| `resnet50` | Subclassed ResNet-v2 with `BottleneckBlock` |
+| `wrn40_2` | WideResNet-40-2: 3×3 stem, 16 channels, 3 stages, 6 `BasicBlock`s per stage, widths 32→64→128 |
 
-## Models
+Hypernetwork pieces are in `model/utils.py`: `HyperConv2D`, `SharedHyperConvMLP`. With `hyper_mode=True`, selected layers use hyper-convolutions instead of plain `Conv2D`.
 
-### `simplecnn`
+### Running experiments (TensorFlow)
 
-A compact 2-convolution classifier:
+**Notebook:** open `static_hypernetwork.ipynb`.
 
-- `conv1`: standard `Conv2D`
-- `conv2`: standard `Conv2D` or `HyperConv2D`
-- max pooling after each convolution
-- dense classifier head
-
-This model works with both grayscale (`28x28x1`) and RGB (`32x32x3`) inputs.
-
-### `resnet50`
-
-A Keras subclassed ResNet-v2 style network built from `BottleneckBlock`.
-
-### `wrn40_2`
-
-A WideResNet-40-2 style network for CIFAR-sized inputs:
-
-- stem `3x3` convolution with 16 channels
-- 3 stages
-- 6 `BasicBlock`s per stage
-- widths `32 -> 64 -> 128`
-- downsampling in the first block of stages 2 and 3
-
-## Hypernetwork Components
-
-The main hypernetwork pieces are implemented in `model/utils.py`:
-
-- `HyperConv2D`: generates convolution kernels from learned block embeddings
-- `SharedHyperConvMLP`: shared two-layer MLP used across multiple hyper-convolution layers
-
-When `hyper_mode=True`, supported models replace selected convolution layers with hypernetwork-based convolutions instead of standard `Conv2D`.
-
-## Project Structure
-
-```text
-HyperNetworks/
-|- model/
-|  |- simple_cnn.py
-|  |- resnet.py
-|  |- utils.py
-|  `- nets/
-|     |- resnet_utils.py
-|     `- resnet_v2.py
-|- my_datasets/
-|  |- mnist.py
-|  |- fashion_mnist.py
-|  |- cifar10.py
-|  `- svhn.py
-|- solve/
-|  `- static_hypernet.py
-|- utils/
-|  `- visualize.py
-|- static_hypernetwork.ipynb
-`- requirements.txt
-```
-
-## Running Experiments
-
-### Option 1: Notebook
-
-Open `static_hypernetwork.ipynb` and run the cells for the dataset / model combination you want.
-
-The notebook already includes helper code such as:
-
-- random seed setup
-- output path generation under `runs/`
-- example training runs for baseline and hypernetwork variants
-
-### Option 2: Use `Solver` Directly
-
-Example:
+**Or use `Solver`:**
 
 ```python
 from pathlib import Path
@@ -159,44 +90,11 @@ solver = Solver(
 solver.train()
 ```
 
-## `Solver` Configuration
+Main `Solver` arguments (`solve/static_hypernet.py`): `dataset` (`mnist` \| `fashion_mnist` \| `cifar10` \| `svhn`), `model` (`simplecnn` \| `resnet50` \| `wrn40_2`), `max_epoch`, `hyper_mode`, `logpath`, `save_dir`, `val_split` (default `0.1`), `resume`, `eval_only`, `show_sample`, `show_filters`, `run_final_test_from_best`.
 
-Main constructor arguments in `solve/static_hypernet.py`:
+Useful defaults: batch size `1024`, Adam, initial LR `5e-4`, exponential decay `0.99`, global gradient clip norm `100.0`, seed `42`.
 
-- `dataset`: `mnist`, `fashion_mnist`, `cifar10`, or `svhn`
-- `model`: `simplecnn`, `resnet50`, or `wrn40_2`
-- `max_epoch`: total training epochs
-- `hyper_mode`: enable hypernetwork convolutions where supported
-- `logpath`: TensorBoard output directory
-- `save_dir`: checkpoint directory
-- `val_split`: validation split ratio, default `0.1`
-- `resume`: resume from the latest checkpoint
-- `eval_only`: skip training and evaluate saved weights
-- `show_sample`: visualize a training image
-- `show_filters`: visualize the first convolution filters when available
-- `run_final_test_from_best`: after training, reload the best validation checkpoint and report final test metrics
-
-Important built-in defaults:
-
-- batch size: `1024`
-- optimizer: `Adam`
-- initial learning rate: `5e-4`
-- exponential decay: `0.99`
-- gradient clipping: global norm `100.0`
-- seed: `42`
-
-## Checkpoints and Logging
-
-Each run writes artifacts under the `save_dir` you provide:
-
-- `latest/`: rolling checkpoint for continuing interrupted training
-- `best/`: best checkpoint based on validation accuracy
-- `history/`: optional history checkpoints
-- `training_state.json`: metadata such as completed epoch and best metric
-
-TensorBoard logs are written to `logpath`.
-
-To inspect them:
+**TensorBoard:**
 
 ```powershell
 tensorboard --logdir runs
@@ -204,60 +102,114 @@ tensorboard --logdir runs
 
 Then open [http://localhost:6006](http://localhost:6006).
 
-## Evaluation Protocol
+### Checkpoints and evaluation (TensorFlow)
 
-The training loop tracks:
+Under `save_dir`: `latest/`, `best/`, `history/`, `training_state.json`. After training, the solver can reload the **best validation** checkpoint and report test metrics. `REFERENCE_TEST_METRICS` includes a small reference table (e.g. CIFAR-10 + WRN-40-2 baseline); exact matching depends on augmentation, splits, schedules, etc.
 
-- train loss / accuracy
-- validation loss / accuracy
-- test loss / accuracy
-- learning rate
+**Practical notes:** Keras may show `Output Shape: multiple` for subclassed models; TF 2.15 can emit internal deprecation warnings; SVHN needs local `.mat` files; `wrn40_2` is the natural CIFAR-style choice over `resnet50` for many setups.
 
-After training, the solver can automatically:
+**Suggested starting points:** `simplecnn` on `mnist` for a quick sanity check; `wrn40_2` on `cifar10` for main experiments; compare `hyper_mode=False` vs `True` under identical settings.
 
-1. reload the checkpoint stored by `best_manager`
-2. evaluate on the **test split**
-3. print final **test loss** and **test accuracy (%)**
+---
 
-When `eval_only=True`, the solver restores the **best checkpoint** and reports evaluation metrics without further training.
+## Part 2 — HyperLSTM demo (PyTorch, char-level)
 
-## Reproducibility Notes
+PyTorch demo of [*HyperNetworks*](https://arxiv.org/abs/1609.09106), focused on the **HyperLSTM** dynamic hypernetwork (Appendix A.2.2). Train, compare to LSTM, save checkpoints and logs, generate text samples, and run a polished CLI demo.
 
-The solver includes a small reference table for published results in `REFERENCE_TEST_METRICS`.
+### Layout (PyTorch demo)
 
-At the moment, the built-in paper comparison covers:
+| Path | Role |
+|------|------|
+| `dynamic_hypernetwork/hyperlstm.py` | `HyperLSTMCell` and `HyperLSTM` |
+| `dynamic_hypernetwork/models.py` | Character-level `LSTM` and `HyperLSTM` with one interface |
+| `dynamic_hypernetwork/data.py` | Built-in corpus loader and optional Tiny Shakespeare download |
+| `dynamic_hypernetwork/training.py` | Training loop, evaluation, checkpoint I/O, sampling |
+| `run_char_experiment.py` | CLI for training and generation |
+| `compare_models.py` | Side-by-side LSTM vs HyperLSTM |
+| `demo_commands.sh` | Canned commands for live demo |
+| `BAO_CAO_DEMO_VI.md` | Vietnamese write-up you can adapt for submission |
 
-- `cifar10` + `wrn40_2` + `hyper_mode=False`
+**Paper alignment:** HyperLSTM follows the efficient modulation idea in Eq. (10)–(13): a smaller hyper LSTM reads `[h_{t-1}, x_t]`, produces embeddings `z`, and generates scaling (and dynamic biases) for the main LSTM’s projections so effective weights vary in time **without** materializing a full new weight matrix every step.
 
-Reference used:
+### Installation (PyTorch)
 
-- Zagoruyko and Komodakis, *Wide Residual Networks*, arXiv:1605.07146, Table 4
+**Conda (recommended for the demo):**
 
-Important: direct metric matching is not guaranteed unless your setup matches the paper, including:
+```bash
+conda env create -f environment.yml
+conda activate hypernetwork-demo
+```
 
-- preprocessing / normalization
-- data augmentation
-- validation split policy
-- learning-rate schedule
-- number of epochs
-- checkpoint selection rule
+**pip only** (use a **separate** virtualenv; do not use the TensorFlow `requirements.txt` for this track):
 
-## Known Practical Notes
+```bash
+python -m venv venv-pt
+# Windows: .\venv-pt\Scripts\activate
+pip install "torch>=1.12"
+```
 
-- Keras may display `Output Shape: multiple` in `model.summary()` for subclassed models; this is expected behavior
-- TensorFlow / Keras 2.15 can print deprecation warnings from internal APIs; these do not necessarily come from your own model code
-- `SVHN` requires local `.mat` files and is not auto-downloaded in the current implementation
-- `resnet50` exists for experimentation, but `wrn40_2` is the more natural CIFAR-style architecture in this repo
+### Quick start (PyTorch)
 
-## Suggested Starting Points
+Train HyperLSTM quickly on the built-in corpus:
 
-- Use `simplecnn` on `mnist` to verify the training loop quickly
-- Use `wrn40_2` on `cifar10` for the main WideResNet-style experiments
-- Compare `hyper_mode=False` vs `hyper_mode=True` under the same run settings
+```bash
+python run_char_experiment.py train \
+  --model hyperlstm \
+  --device cpu \
+  --output-dir artifacts/hyperlstm_quick_demo \
+  --steps 120 \
+  --eval-every 30 \
+  --sample-every 60
+```
 
-## License / Citation
+Compare on Tiny Shakespeare:
 
-If you use this repository in a report or thesis, cite the original papers behind the implemented ideas, especially:
+```bash
+python compare_models.py \
+  --download-tinyshakespeare \
+  --device cpu \
+  --output-dir artifacts/shakespeare_comparison \
+  --steps 300 \
+  --eval-every 50 \
+  --sample-every 150 \
+  --prompt "ROMEO:"
+```
 
-- HyperNetworks
-- Wide Residual Networks
+Generate from the best checkpoint:
+
+```bash
+python run_char_experiment.py generate \
+  --checkpoint artifacts/shakespeare_comparison/hyperlstm/best.pt \
+  --device cpu \
+  --prompt "ROMEO:" \
+  --length 400
+```
+
+### Output artifacts (PyTorch)
+
+Each run can save: `config.json`, `history.jsonl`, `best.pt`, `last.pt`, `summary.json`, `final_sample.txt`, `samples/sample_step_*.txt`.
+
+**Suggested submission flow:** run `compare_models.py` → open `artifacts/.../comparison.md` → show samples from both models → use `BAO_CAO_DEMO_VI.md` as the written explanation.
+
+**Notes:** Educational PyTorch code, faithful to the HyperLSTM idea but not a line-by-line port of the original research code. For stronger results, use a larger corpus and increase `steps`, `hidden-size`, and `hyper-hidden-size`.
+
+---
+
+## Repository layout (overview)
+
+```text
+HyperNetworks/
+├── dynamic_hypernetwork/     # PyTorch: HyperLSTM demo
+├── model/                    # TensorFlow: CNN / ResNet / utils
+├── my_datasets/              # TensorFlow: loaders
+├── solve/
+│   └── static_hypernet.py    # TensorFlow: Solver
+├── utils/
+├── static_hypernetwork.ipynb
+├── run_char_experiment.py
+├── compare_models.py
+├── demo_commands.sh
+├── environment.yml           # Conda env for PyTorch demo
+├── requirements.txt          # pip deps for TensorFlow vision
+└── BAO_CAO_DEMO_VI.md
+```
