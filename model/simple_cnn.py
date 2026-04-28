@@ -57,7 +57,11 @@ class SimpleCNN(tf.keras.Model):
                 bias_initializer='zeros',
                 name='conv2',
             )
-        self.pool = tf.keras.layers.MaxPool2D(pool_size=2, strides=2, padding='valid')
+        # self.pool = tf.keras.layers.MaxPool2D(pool_size=2, strides=2, padding='valid')
+        self.pool1 = tf.keras.layers.MaxPool2D(pool_size=2, strides=2, padding='valid', name='pool1')
+        self.pool2 = tf.keras.layers.MaxPool2D(pool_size=2, strides=2, padding='valid', name='pool2')
+        self.relu1 = tf.keras.layers.ReLU(name='relu1')
+        self.relu2 = tf.keras.layers.ReLU(name='relu2')
         self.flatten = tf.keras.layers.Flatten()
         self.classifier = tf.keras.layers.Dense(
             units=num_classes,
@@ -70,10 +74,18 @@ class SimpleCNN(tf.keras.Model):
     def call(self, inputs, training=False):
         del training
         x = self.conv1(inputs)
-        x = tf.nn.relu(x)
-        x = self.pool(x)
+        # x = tf.nn.relu(x)
+        x = self.relu1(x)
+        # x = self.pool(x)
+        x = self.pool1(x)
         x = self.conv2(x)
-        x = tf.nn.relu(x)
-        x = self.pool(x)
+        # x = tf.nn.relu(x)
+        x = self.relu2(x)
+        # x = self.pool(x)
+        x = self.pool2(x)
         x = self.flatten(x)
         return self.classifier(x)
+
+    def build_graph(self, input_shape):
+        x = tf.keras.Input(shape=input_shape)
+        return tf.keras.Model(inputs=[x], outputs=self.call(x))

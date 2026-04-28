@@ -18,15 +18,9 @@ def show_image(image):
 def show_filter(w_orig):
     w = w_orig.T
     the_shape = w_orig.shape
-    print(the_shape)
     f_size = the_shape[0]
     in_dim = the_shape[2]
     out_dim = the_shape[3]
-    print("mean =", np.mean(w))
-    print("stddev =", np.std(w))
-    print("max =", np.max(w))
-    print("min =", np.min(w))
-    print("median =", np.median(w))
     canvas = np.zeros(((f_size + 1) * out_dim, (f_size + 1) * in_dim))
     for i in range(out_dim):
         for j in range(in_dim):

@@ -12,7 +12,9 @@ import model
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+    
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 from my_datasets import Mnist, Cifar10, SVHN, FashionMnist
 from utils.visualize import show_filter, show_image
@@ -49,11 +51,11 @@ class Solver(object):
         self.x_dim = int(x_shape[1])
         self.c_dim = int(x_shape[3])
         self.num_classes = int(self.dataset.num_classes)
-        self.batch_size = 1024
+        self.batch_size = kwargs.pop('batch_size', 1024)
         self.max_epoch = kwargs.pop('max_epoch', 50)
-        self.learning_rate = 0.0005
-        self.lr_decay = 0.99
-        self.grad_clip = 100.0
+        self.learning_rate = kwargs.pop('learning_rate', 0.0005)
+        self.lr_decay = kwargs.pop('lr_decay', 0.99)
+        self.grad_clip = kwargs.pop('grad_clip', 100.0)
         self.optimize_method = kwargs.pop('optimizer', 'adam')
         self.logpath = kwargs.pop('logpath', 'log')
         self.val_split = kwargs.pop('val_split', 0.1)
@@ -64,7 +66,6 @@ class Solver(object):
         self.seed = 42
         self.show_sample = kwargs.pop('show_sample', False)
         self.show_filters = kwargs.pop('show_filters', False)
-        self.run_final_test_from_best = kwargs.pop('run_final_test_from_best', True)
 
         self._validate_config()
         self._prepare_output_dirs()
@@ -175,15 +176,14 @@ class Solver(object):
         else:
             raise NotImplementedError
 
-        input_shape = (None, self.x_dim, self.x_dim, self.c_dim)
-        model.build(input_shape=input_shape)
+        # input_shape = (None, self.x_dim, self.x_dim, self.c_dim)
+        # model.build(input_shape=input_shape)
         
-        # Sử dụng expand_nested=True để thấy cả các lớp bên trong Bottleneck
-        print(model.summary(expand_nested=True))
+        # print(model.summary(expand_nested=True))
+
+        input_shape = (self.x_dim, self.x_dim, self.c_dim)
+        print(model.build_graph(input_shape).summary())
         
-        # dummy_inputs = tf.zeros((1, self.x_dim, self.x_dim, self.c_dim), dtype=tf.float32)
-        # model(dummy_inputs, training=False)
-        # print(model.summary())
         return model
 
     def _visualize_sample(self):
@@ -241,9 +241,6 @@ class Solver(object):
             learning_rate = learning_rate(self.optimizer.iterations)
         return float(tf.keras.backend.get_value(learning_rate))
 
-    def _find_checkpoint(self):
-        return self.latest_manager.latest_checkpoint or self.best_manager.latest_checkpoint
-
     def _restore_best_checkpoint(self):
         checkpoint = self.best_manager.latest_checkpoint
         if checkpoint is None:
@@ -255,68 +252,14 @@ class Solver(object):
         status.expect_partial()
         return checkpoint
 
-    def _restore_checkpoint(self):
-        checkpoint = self._find_checkpoint()
-        if checkpoint is None:
-            raise ValueError('No checkpoint found. Train once before using --resume or --eval-only.')
-        status = self.checkpoint.restore(checkpoint)
-        status.expect_partial()
-        return checkpoint
-
-    def _evaluate_test_with_best_weights(self):
-        """Load weights from best_manager (best validation metric) and return test loss / accuracy."""
-        checkpoint = self.best_manager.latest_checkpoint
-        if checkpoint is None:
-            return None, None
-        self.checkpoint.restore(checkpoint).expect_partial()
-        return self.evaluate_in_batch(self.x_test, self.y_test)
-
-    def _reference_lookup(self):
-        return REFERENCE_TEST_METRICS.get(
-            (self.dataset_key, self.model_name, self.hyper_mode)
-        )
-
-    def _print_final_test_report(self, test_loss, test_acc):
-        test_acc_pct = 100.0 * test_acc
-        print(
-            '\n=== Final test evaluation (best validation checkpoint) ===\n'
-            'Test loss: %.6f\n'
-            'Test accuracy: %.2f%%' % (test_loss, test_acc_pct)
-        )
-        ref = self._reference_lookup()
-        if ref is None:
-            ref = REFERENCE_TEST_METRICS.get((self.dataset_key, self.model_name, False))
-        print(
-            '\n--- Comparison with published baseline (read carefully: data prep. may differ) ---'
-        )
-        print(
-            '%-12s  %-10s  %-14s  %-18s  %s'
-            % ('Setting', 'Test loss', 'Test acc (%)', 'Paper test acc (%)', 'Citation / note')
-        )
-        print('-' * 100)
-        note = '—'
-        paper_acc_str = '—'
-        if ref is not None:
-            paper_err = ref['test_error_pct']
-            paper_acc = 100.0 - paper_err
-            paper_acc_str = '%.2f (from %.2f%% err)' % (paper_acc, paper_err)
-            note = ref['citation']
-        elif (self.dataset_key, self.model_name) == ('cifar10', 'wrn40_2') and self.hyper_mode:
-            note = 'WRN table is for standard conv; hypernet variant has no row in that table.'
-        print(
-            '%-12s  %-10.6f  %-14.2f  %-18s  %s'
-            % (
-                '%s / %s' % (self.dataset_key, self.model_name),
-                test_loss,
-                test_acc_pct,
-                paper_acc_str,
-                note,
-            )
-        )
-        print(
-            '\nLarge gaps are expected if augmentation, epochs, LR schedule, or normalization '
-            'differ from the paper.'
-        )
+    def evaluate_best_checkpoint(self):
+        checkpoint = self._restore_best_checkpoint()
+        return {
+            'checkpoint': checkpoint,
+            'train': self.evaluate_in_batch(self.x_train, self.y_train),
+            'val': self.evaluate_in_batch(self.x_val, self.y_val),
+            'test': self.evaluate_in_batch(self.x_test, self.y_test),
+        }
 
     def _save_checkpoint(self, epoch, is_best):
         self.epoch_var.assign(epoch)
@@ -420,8 +363,6 @@ class Solver(object):
                 'test': self.evaluate_in_batch(self.x_test, self.y_test),
             }
             self._print_epoch_metrics('Eval', start_epoch, metrics, None, False, best_metric)
-            if metrics['test'][0] is not None:
-                self._print_final_test_report(metrics['test'][0], metrics['test'][1])
             if self.show_filters:
                 self._visualize_filters()
             return
@@ -457,10 +398,7 @@ class Solver(object):
             self._print_epoch_metrics('Epoch', epoch_id, metrics, learning_rate, is_best, best_metric)
 
         print('Best %s %.6f at epoch %d' % (self.metric_name, best_metric, best_epoch))
-        if self.run_final_test_from_best:
-            test_loss, test_acc = self._evaluate_test_with_best_weights()
-            if test_loss is not None and test_acc is not None:
-                self._print_final_test_report(test_loss, test_acc)
+
         if self.show_filters:
             self._visualize_filters()
 
