@@ -1,11 +1,4 @@
 #!/usr/bin/env python3
-"""
-CLI equivalent of static_hypernetwork.ipynb: full grid train, eval, benchmark.
-
-Run from repository root:
-  python static_hypernetwork.py train --full-grid
-  python static_hypernetwork.py eval --full-grid --results-json runs/evaluation_results.json
-"""
 
 from __future__ import annotations
 
@@ -31,6 +24,37 @@ MODEL_TRAIN_DEFAULTS = {
     "simplecnn": {"max_epoch": 20, "learning_rate": 5e-4, "batch_size": 1024},
     "wrn40_2": {"max_epoch": 10, "learning_rate": 5e-4, "batch_size": 512},
     "resnet50": {"max_epoch": 10, "learning_rate": 5e-4, "batch_size": 256},
+}
+
+RESIDUAL_IMAGE_COMMON = {
+    "batch_size": 128,
+    "weight_decay": 5e-6,
+    "lr_schedule": "paper",
+    "paper_cifar_setup": True,
+    "augment_data": True,
+}
+RESIDUAL_IMAGE_BASELINE = {
+    **RESIDUAL_IMAGE_COMMON,
+    "learning_rate": 0.1,
+    "max_steps": 140000,
+    "optimizer": "sgd_nesterov",
+}
+RESIDUAL_IMAGE_HYPER = {
+    **RESIDUAL_IMAGE_COMMON,
+    "learning_rate": 0.002,
+    "max_steps": 672000,
+    "optimizer": "adam",
+}
+
+SIMPLECNN_GRAYSCALE = {
+    "max_epoch": 100,
+    "learning_rate": 1e-3,
+    "batch_size": 1000,
+    "optimizer": "adam",
+    "val_split": 5000,
+    "augment_data": True,
+    "augmentation": "mnist",
+    "early_stopping_patience": 10,
 }
 
 BENCHMARK_SETTINGS = [
@@ -173,12 +197,22 @@ def build_full_configs(
     for dataset in datasets:
         for model in models:
             for hyper_mode in hyper_modes:
+                paper_overrides = {}
+                if dataset in ("cifar10", "svhn") and model in ("wrn40_2", "resnet50"):
+                    paper_overrides = (
+                        RESIDUAL_IMAGE_HYPER
+                        if hyper_mode
+                        else RESIDUAL_IMAGE_BASELINE
+                    )
+                elif dataset in ("mnist", "fashion_mnist") and model == "simplecnn":
+                    paper_overrides = SIMPLECNN_GRAYSCALE
                 config = {
                     "dataset": dataset,
                     "model": model,
                     "hyper_mode": hyper_mode,
                     "setting_name": setting_name,
                     **MODEL_TRAIN_DEFAULTS[model],
+                    **paper_overrides,
                     **overrides,
                 }
                 configs.append(config)
@@ -186,11 +220,26 @@ def build_full_configs(
 
 
 def _solver_kwargs_from_config(config: dict) -> dict:
-    return {
+    keys = {
         "max_epoch": config["max_epoch"],
         "learning_rate": config["learning_rate"],
         "batch_size": config["batch_size"],
     }
+    optional_keys = (
+        "max_steps",
+        "optimizer",
+        "weight_decay",
+        "lr_schedule",
+        "paper_cifar_setup",
+        "augment_data",
+        "augmentation",
+        "val_split",
+        "early_stopping_patience",
+    )
+    for key in optional_keys:
+        if key in config:
+            keys[key] = config[key]
+    return keys
 
 
 def cmd_train(args: argparse.Namespace) -> None:
@@ -222,6 +271,7 @@ def cmd_train(args: argparse.Namespace) -> None:
             setting_name=None if sn == "main" else sn,
             show_sample=args.show_sample,
             show_filters=args.show_filters,
+            seed=args.seed,
             **c,
         )
         solver.train()
@@ -243,6 +293,7 @@ def cmd_eval(args: argparse.Namespace) -> None:
             c["model"],
             hyper_mode=c["hyper_mode"],
             setting_name=None if sn == "main" else sn,
+            seed=args.seed,
             **kw,
         )
         results.append(result)
@@ -284,6 +335,7 @@ def cmd_benchmark(args: argparse.Namespace) -> None:
             setting_name=sn,
             show_sample=args.show_sample,
             show_filters=args.show_filters,
+            seed=args.seed,
             **c,
         )
         solver.train()
