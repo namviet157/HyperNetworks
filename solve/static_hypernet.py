@@ -12,12 +12,21 @@ import model
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
-    
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 from my_datasets import Mnist, Cifar10, SVHN, FashionMnist
 from utils.visualize import show_filter, show_image
+
+SGD_LR_SCHEDULE = (
+    ((28000, 0.1), (56000, 0.02), (84000, 0.004), (112000, 0.0008)),
+    0.00016,
+)
+HYPER_LR_SCHEDULE = (
+    ((168000, 0.002), (336000, 0.001), (504000, 0.0002)),
+    0.00005,
+)
 
 
 class Solver(object):
@@ -43,12 +52,38 @@ class Solver(object):
         self.num_classes = int(self.dataset.num_classes)
         self.batch_size = kwargs.pop('batch_size', 1024)
         self.max_epoch = kwargs.pop('max_epoch', 50)
+        self.max_steps = kwargs.pop('max_steps', None)
         self.learning_rate = kwargs.pop('learning_rate', 0.0005)
-        self.lr_decay = kwargs.pop('lr_decay', 0.99)
-        self.grad_clip = kwargs.pop('grad_clip', 100.0)
-        self.optimize_method = kwargs.pop('optimizer', 'adam')
+        self.lr_decay = kwargs.pop('lr_decay', 1.0)
+        self.paper_cifar_setup = kwargs.pop(
+            'paper_cifar_setup',
+            model in ('wrn40_2', 'resnet50'),
+        )
+        self.grad_clip = kwargs.pop('grad_clip', None)
+        self.weight_decay = kwargs.pop(
+            'weight_decay',
+            5e-6 if self.paper_cifar_setup else 0.0,
+        )
+        self.label_smoothing = kwargs.pop('label_smoothing', 0.0)
+        self.min_learning_rate = kwargs.pop('min_learning_rate', 1e-6)
+        self.augment_data = kwargs.pop('augment_data', self.paper_cifar_setup)
+        self.augmentation = kwargs.pop(
+            'augmentation',
+            self._default_augmentation(),
+        )
+        self.early_stopping_patience = kwargs.pop('early_stopping_patience', None)
+        default_optimizer = (
+            'adam'
+            if self.hyper_mode or not self.paper_cifar_setup
+            else 'sgd_nesterov'
+        )
+        self.optimize_method = kwargs.pop('optimizer', default_optimizer)
+        self.lr_schedule_name = kwargs.pop(
+            'lr_schedule',
+            'paper' if self.paper_cifar_setup else 'exponential',
+        )
         self.logpath = kwargs.pop('logpath', 'log')
-        self.val_split = kwargs.pop('val_split', 0.1)
+        self.val_split = kwargs.pop('val_split', 5000)
         self.save_dir = kwargs.pop('save_dir', 'checkpoints')
         self.save_best_only = kwargs.pop('save_best_only', True)
         self.resume = kwargs.pop('resume', False)
@@ -60,18 +95,20 @@ class Solver(object):
         self._validate_config()
         self._prepare_output_dirs()
         self._prepare_data_splits()
+        if self.max_steps is not None:
+            self.max_epoch = max(
+                self.max_epoch,
+                int(ceil(float(self.max_steps) / float(self.n_iterations))),
+            )
         self.metric_name = 'val_acc' if self.x_val is not None else 'test_acc'
         self.model = self._create_model()
         self.loss_fn = tf.keras.losses.CategoricalCrossentropy(
             from_logits=True,
             reduction=tf.keras.losses.Reduction.NONE,
+            label_smoothing=self.label_smoothing,
         )
-        self.lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-            initial_learning_rate=self.learning_rate,
-            decay_steps=self.n_iterations,
-            decay_rate=self.lr_decay,
-        )
-        self.optimizer = tf.keras.optimizers.Adam(learning_rate=self.lr_schedule)
+        self.lr_schedule = self._create_learning_rate_schedule()
+        self.optimizer = self._create_optimizer()
         self.epoch_var = tf.Variable(0, trainable=False, dtype=tf.int64, name='epoch')
         self.checkpoint = tf.train.Checkpoint(
             model=self.model,
@@ -98,8 +135,8 @@ class Solver(object):
         )
 
     def _validate_config(self):
-        if not 0.0 <= self.val_split < 1.0:
-            raise ValueError('val_split must be in the range [0.0, 1.0).')
+        if self.val_split < 0:
+            raise ValueError('val_split must be a non-negative validation sample count.')
         if self.batch_size <= 0:
             raise ValueError('batch_size must be positive.')
         if self.max_epoch <= 0 and not self.eval_only:
@@ -123,8 +160,8 @@ class Solver(object):
         self.x_test = self.dataset.x_test
         self.y_test = self.dataset.y_test
 
-        if self.val_split > 0.0:
-            val_size = int(len(x_train) * self.val_split)
+        if self.val_split > 0:
+            val_size = int(self.val_split)
             val_size = max(1, val_size)
             if val_size >= len(x_train):
                 raise ValueError('val_split leaves no samples for the training split.')
@@ -165,34 +202,111 @@ class Solver(object):
 
         input_shape = (self.x_dim, self.x_dim, self.c_dim)
         if hasattr(model, 'build_graph'):
-            print(model.build_graph(input_shape).summary())
+            model.build_graph(input_shape).summary()
         else:
             _ = model(tf.zeros((1,) + input_shape), training=False)
             model.summary()
 
         return model
 
+    def _default_augmentation(self):
+        if self.x_dim == 28 and self.c_dim == 1:
+            return 'pad_crop'
+        if self.x_dim >= 32 and self.c_dim == 3:
+            return 'pad_crop_flip'
+        return None
+
+    def _create_learning_rate_schedule(self):
+        if self.lr_schedule_name == 'paper':
+            schedule, final_learning_rate = (
+                HYPER_LR_SCHEDULE if self.hyper_mode else SGD_LR_SCHEDULE
+            )
+            boundaries = [step for step, _ in schedule]
+            values = [learning_rate for _, learning_rate in schedule]
+            values.append(final_learning_rate)
+            return tf.keras.optimizers.schedules.PiecewiseConstantDecay(
+                boundaries=boundaries,
+                values=values,
+            )
+        if self.lr_schedule_name == 'exponential' and self.lr_decay < 1.0:
+            return tf.keras.optimizers.schedules.ExponentialDecay(
+                initial_learning_rate=self.learning_rate,
+                decay_steps=self.n_iterations,
+                decay_rate=self.lr_decay,
+            )
+        return self.learning_rate
+
+    def _create_optimizer(self):
+        if self.optimize_method == 'sgd_nesterov':
+            return tf.keras.optimizers.SGD(
+                learning_rate=self.lr_schedule,
+                momentum=0.9,
+                nesterov=True,
+            )
+        if self.optimize_method == 'adam':
+            return tf.keras.optimizers.Adam(learning_rate=self.lr_schedule)
+        raise ValueError('Unsupported optimizer: %s' % self.optimize_method)
+
     def _visualize_sample(self):
         sample = self.x_train[1]
-        show_image(sample)
+        label = self.y_train[1]
+        original_path = os.path.join(self.logpath, 'sample_original.png')
+        print('Original training sample:')
+        show_image(sample, save_path=original_path)
+        print('Saved original training sample to %s' % original_path)
+        if not self.augment_data:
+            print('Data augmentation is disabled for this run.')
+            return
+        augmented_sample, _ = self._augment_example(
+            tf.convert_to_tensor(sample),
+            tf.convert_to_tensor(label),
+        )
+        augmented_path = os.path.join(self.logpath, 'sample_augmented.png')
+        print('Augmented training sample:')
+        show_image(augmented_sample.numpy(), save_path=augmented_path)
+        print('Saved augmented training sample to %s' % augmented_path)
 
-    def _get_first_conv_kernel(self):
-        candidate_layers = [
-            getattr(self.model, 'conv1', None),
-            getattr(self.model, 'stem_conv', None),
-        ]
-        for layer in candidate_layers:
+    def _get_visualizable_kernel(self):
+        for layer in self._iter_model_layers():
+            generate_kernel = getattr(layer, '_generate_kernel', None)
+            if generate_kernel is not None:
+                kernel = generate_kernel().numpy()
+                return layer.name, 'hyper-generated', kernel
+
+        for layer in self._iter_model_layers():
             kernel = getattr(layer, 'kernel', None)
             if kernel is not None:
-                return kernel.numpy()
-        return None
-            
+                return layer.name, 'trainable', kernel.numpy()
+        return None, None, None
+
+    def _preview_kernel(self, kernel, max_input_channels=16, max_output_channels=16):
+        if kernel.ndim != 4:
+            return kernel
+        return kernel[
+            :,
+            :,
+            : min(kernel.shape[2], max_input_channels),
+            : min(kernel.shape[3], max_output_channels),
+        ]
+
     def _visualize_filters(self):
-        kernel = self._get_first_conv_kernel()
+        layer_name, kernel_type, kernel = self._get_visualizable_kernel()
         if kernel is None:
             print('Filter visualization is not available for the current model.')
             return
-        show_filter(kernel)
+        preview = self._preview_kernel(kernel)
+        print(
+            'Visualizing %s kernel from layer %s with shape %s.'
+            % (kernel_type, layer_name, kernel.shape)
+        )
+        if preview.shape != kernel.shape:
+            print('Showing preview slice with shape %s.' % (preview.shape,))
+        filter_path = os.path.join(
+            self.logpath,
+            'filters_%s_%s.png' % (layer_name, kernel_type.replace('-', '_')),
+        )
+        show_filter(preview, save_path=filter_path)
+        print('Saved filter visualization to %s' % filter_path)
 
     def _make_dataset(self, x, y, training=False):
         if x is None or y is None:
@@ -201,31 +315,78 @@ class Solver(object):
         dataset = tf.data.Dataset.from_tensor_slices((x, y))
         if training:
             dataset = dataset.shuffle(buffer_size=len(x), seed=self.seed, reshuffle_each_iteration=True)
+            if self.augment_data:
+                dataset = dataset.map(self._augment_example, num_parallel_calls=tf.data.AUTOTUNE)
         return dataset.batch(self.batch_size).prefetch(tf.data.AUTOTUNE)
+
+    def _augment_example(self, image, label):
+        if self.augmentation in ('mnist', 'pad_crop'):
+            image = tf.pad(image, [[1, 1], [1, 1], [0, 0]], mode='CONSTANT')
+            image = tf.image.random_crop(image, size=(self.x_dim, self.x_dim, self.c_dim))
+        elif self.augmentation in ('cifar', 'pad_crop_flip'):
+            image = tf.pad(image, [[4, 4], [4, 4], [0, 0]], mode='REFLECT')
+            image = tf.image.random_crop(image, size=(self.x_dim, self.x_dim, self.c_dim))
+            image = tf.image.random_flip_left_right(image)
+        return image, label
 
     def _compute_loss(self, labels, logits):
         losses = self.loss_fn(labels, logits)
         return tf.reduce_mean(losses), losses
 
+    def _iter_model_layers(self):
+        if hasattr(self.model, '_flatten_layers'):
+            yield from self.model._flatten_layers(include_self=False, recursive=True)
+            return
+        for layer in getattr(self.model, 'layers', []):
+            yield layer
+            for child in getattr(layer, 'layers', []):
+                yield child
+
+    def _regularization_loss(self):
+        if self.weight_decay <= 0.0:
+            return 0.0
+        penalties = [
+            tf.nn.l2_loss(variable)
+            for variable in self.model.trainable_variables
+            if len(variable.shape) > 1 and 'kernel' in variable.name
+        ]
+        for layer in self._iter_model_layers():
+            generated_kernel_l2_loss = getattr(layer, 'generated_kernel_l2_loss', None)
+            if generated_kernel_l2_loss is not None:
+                penalties.append(generated_kernel_l2_loss())
+        if not penalties:
+            return 0.0
+        return self.weight_decay * tf.add_n(penalties)
+
     def _train_step(self, batch_x, batch_y):
         with tf.GradientTape() as tape:
             logits = self.model(batch_x, training=True)
-            loss, _ = self._compute_loss(batch_y, logits)
+            data_loss, _ = self._compute_loss(batch_y, logits)
+            loss = data_loss + self._regularization_loss()
         gradients = tape.gradient(loss, self.model.trainable_variables)
-        gradients, _ = tf.clip_by_global_norm(gradients, self.grad_clip)
+        if self.grad_clip is not None:
+            gradients, _ = tf.clip_by_global_norm(gradients, self.grad_clip)
         gradient_pairs = [
             (gradient, variable)
             for gradient, variable in zip(gradients, self.model.trainable_variables)
             if gradient is not None
         ]
         self.optimizer.apply_gradients(gradient_pairs)
-        return logits
+        return logits, data_loss
 
     def _current_learning_rate(self):
         learning_rate = self.optimizer.learning_rate
         if callable(learning_rate):
             learning_rate = learning_rate(self.optimizer.iterations)
         return float(tf.keras.backend.get_value(learning_rate))
+
+    def _set_learning_rate(self, learning_rate):
+        learning_rate = max(float(learning_rate), self.min_learning_rate)
+        current = self.optimizer.learning_rate
+        if hasattr(current, 'assign'):
+            current.assign(learning_rate)
+        else:
+            self.optimizer.learning_rate = learning_rate
 
     def _restore_best_checkpoint(self):
         checkpoint = self.best_manager.latest_checkpoint
@@ -271,6 +432,33 @@ class Solver(object):
         state.setdefault('metric_name', self.metric_name)
         return state
 
+    def _load_existing_best_state(self):
+        state = self._load_training_state()
+        best_metric = state.get('best_metric')
+        best_epoch = state.get('best_epoch', 0)
+        metric_name = state.get('metric_name')
+
+        if best_metric is None:
+            return None, 0
+        if metric_name != self.metric_name:
+            print(
+                'Ignoring previous best checkpoint because metric changed from %s to %s.'
+                % (metric_name, self.metric_name)
+            )
+            return None, 0
+        if self.best_manager.latest_checkpoint is None:
+            print(
+                'Ignoring previous best metric %.6f because no checkpoint exists under %s.'
+                % (best_metric, self.best_dir)
+            )
+            return None, 0
+
+        print(
+            'Found previous best %s %.6f at epoch %d; new checkpoints must improve it.'
+            % (self.metric_name, best_metric, best_epoch)
+        )
+        return float(best_metric), int(best_epoch)
+
     def _save_training_state(self, completed_epochs, best_epoch, best_metric, global_step):
         state = {
             'completed_epochs': int(completed_epochs),
@@ -284,8 +472,15 @@ class Solver(object):
 
     def _train_epoch(self):
         train_dataset = self._make_dataset(self.x_train, self.y_train, training=True)
+        loss_metric = tf.keras.metrics.Mean()
+        acc_metric = tf.keras.metrics.CategoricalAccuracy()
         for batch_x, batch_y in train_dataset:
-            self._train_step(batch_x, batch_y)
+            if self.max_steps is not None and int(self.optimizer.iterations.numpy()) >= self.max_steps:
+                break
+            logits, loss = self._train_step(batch_x, batch_y)
+            loss_metric.update_state(loss)
+            acc_metric.update_state(batch_y, tf.nn.softmax(logits))
+        return float(loss_metric.result().numpy()), float(acc_metric.result().numpy())
 
     def _write_scalar_summary(self, summary_writer, tag, value, step):
         if value is None:
@@ -357,12 +552,17 @@ class Solver(object):
             print('Training already completed up to epoch %d.' % start_epoch)
             return
 
+        best_metric, best_epoch = self._load_existing_best_state()
+        previous_best_metric = best_metric
         summary_writer = tf.summary.create_file_writer(self.logpath)
+        epochs_without_improvement = 0
         for epoch in range(start_epoch, self.max_epoch):
+            if self.max_steps is not None and int(self.optimizer.iterations.numpy()) >= self.max_steps:
+                break
             epoch_id = epoch + 1
-            self._train_epoch()
+            train_metrics = self._train_epoch()
             metrics = {
-                'train': self.evaluate_in_batch(self.x_train, self.y_train),
+                'train': train_metrics,
                 'val': self.evaluate_in_batch(self.x_val, self.y_val),
                 'test': self.evaluate_in_batch(self.x_test, self.y_test),
             }
@@ -370,8 +570,17 @@ class Solver(object):
             selection_metric = metrics['val'][1] if metrics['val'][1] is not None else metrics['test'][1]
             is_best = best_metric is None or selection_metric > best_metric
             if is_best:
+                if previous_best_metric is not None:
+                    print(
+                        'New best %s %.6f improved previous best %.6f.'
+                        % (self.metric_name, selection_metric, previous_best_metric)
+                    )
+                    previous_best_metric = None
                 best_metric = selection_metric
                 best_epoch = epoch_id
+                epochs_without_improvement = 0
+            else:
+                epochs_without_improvement += 1
 
             self._save_checkpoint(epoch_id, is_best)
             self._save_training_state(
@@ -382,6 +591,12 @@ class Solver(object):
             )
             self._log_epoch_metrics(summary_writer, epoch_id, metrics, learning_rate, best_metric)
             self._print_epoch_metrics('Epoch', epoch_id, metrics, learning_rate, is_best, best_metric)
+            if (
+                self.early_stopping_patience is not None
+                and epochs_without_improvement >= self.early_stopping_patience
+            ):
+                print('Early stopping at epoch %d.' % epoch_id)
+                break
 
         print('Best %s %.6f at epoch %d' % (self.metric_name, best_metric, best_epoch))
 

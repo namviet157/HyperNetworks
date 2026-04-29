@@ -1,3 +1,5 @@
+import math
+
 import tensorflow as tf
 
 
@@ -108,6 +110,8 @@ class HyperConv2D(tf.keras.layers.Layer):
         z_dim=4,
         layer_embedding=False,
         shared_hypernet=None,
+        bound_generated_kernel=False,
+        kernel_scale_multiplier=3.0,
         kernel_initializer=None,
         bias_initializer='zeros',
         **kwargs
@@ -123,6 +127,8 @@ class HyperConv2D(tf.keras.layers.Layer):
         self.z_dim = int(z_dim)
         self.layer_embedding = layer_embedding
         self.shared_hypernet = shared_hypernet
+        self.bound_generated_kernel = bool(bound_generated_kernel)
+        self.kernel_scale_multiplier = float(kernel_scale_multiplier)
         self.kernel_initializer = kernel_initializer or tf.keras.initializers.RandomNormal(stddev=0.01)
         self.bias_initializer = tf.keras.initializers.get(bias_initializer)
 
@@ -142,6 +148,8 @@ class HyperConv2D(tf.keras.layers.Layer):
         self.input_channels = input_channels
         self.num_in_blocks = input_channels // self.in_block_size
         self.num_out_blocks = self.filters // self.out_block_size
+        fan_in = self.kernel_size[0] * self.kernel_size[1] * input_channels
+        self.generated_kernel_scale = self.kernel_scale_multiplier * math.sqrt(2.0 / fan_in)
 
         self.embeddings = self.add_weight(
             name='embeddings',
@@ -259,7 +267,11 @@ class HyperConv2D(tf.keras.layers.Layer):
                 weight = tf.transpose(weight, (2, 3, 0, 1))
                 output_blocks.append(weight)
             input_blocks.append(tf.concat(output_blocks, axis=3))
-        return tf.concat(input_blocks, axis=2)
+        kernel = tf.concat(input_blocks, axis=2)
+        if self.bound_generated_kernel:
+            scale = tf.cast(self.generated_kernel_scale, kernel.dtype)
+            kernel = tf.clip_by_value(kernel, -scale, scale)
+        return kernel
 
     def call(self, inputs):
         kernel = self._generate_kernel()
@@ -272,6 +284,9 @@ class HyperConv2D(tf.keras.layers.Layer):
         if self.bias is not None:
             outputs = tf.nn.bias_add(outputs, self.bias)
         return outputs
+
+    def generated_kernel_l2_loss(self):
+        return tf.nn.l2_loss(self._generate_kernel())
 
     def get_config(self):
         config = super().get_config()
@@ -286,6 +301,8 @@ class HyperConv2D(tf.keras.layers.Layer):
                 'out_block_size': self.out_block_size,
                 'z_dim': self.z_dim,
                 'layer_embedding': self.layer_embedding,
+                'bound_generated_kernel': self.bound_generated_kernel,
+                'kernel_scale_multiplier': self.kernel_scale_multiplier,
                 'kernel_initializer': tf.keras.initializers.serialize(self.kernel_initializer),
                 'bias_initializer': tf.keras.initializers.serialize(self.bias_initializer),
             }
