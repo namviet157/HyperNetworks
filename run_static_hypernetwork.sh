@@ -41,22 +41,6 @@ case "${1:-help}" in
       --hyper-modes baseline \
       --results-json runs/evaluation_mnist_quick.json
     ;;
-  train-mnist-paper)
-    # Paper setup: MNIST SimpleCNN baseline + static hypernetwork.
-    "$PY" static_hypernetwork.py train \
-      --datasets mnist \
-      --models simplecnn \
-      --hyper-modes both \
-      --setting-name paper
-    ;;
-  eval-mnist-paper)
-    "$PY" static_hypernetwork.py eval \
-      --datasets mnist \
-      --models simplecnn \
-      --hyper-modes both \
-      --setting-name paper \
-      --results-json runs/evaluation_mnist_simplecnn_paper.json
-    ;;
   train-full)
     # 8 main runs: (2 CNN datasets + 2 WRN datasets) × baseline + hyper.
     "$PY" static_hypernetwork.py train \
@@ -107,7 +91,9 @@ case "${1:-help}" in
       --datasets mnist,fashion_mnist \
       --models simplecnn \
       --hyper-modes both \
-      --setting-name main
+      --setting-name main \
+      --show-sample \
+      --show-filters
     ;;
   eval-subset-cnn)
     # Đánh giá kết quả cho SimpleCNN
@@ -123,23 +109,9 @@ case "${1:-help}" in
       --datasets cifar10,svhn \
       --models wrn40_2 \
       --hyper-modes both \
-      --setting-name main
-    ;;
-  train-cifar10-paper)
-    # Paper setup: CIFAR-10 residual baseline + static hypernetwork.
-    "$PY" static_hypernetwork.py train \
-      --datasets cifar10 \
-      --models wrn40_2 \
-      --hyper-modes both \
-      --setting-name paper
-    ;;
-  eval-cifar10-paper)
-    "$PY" static_hypernetwork.py eval \
-      --datasets cifar10 \
-      --models wrn40_2 \
-      --hyper-modes both \
-      --setting-name paper \
-      --results-json runs/evaluation_cifar10_wrn40_2_paper.json
+      --setting-name main \
+      --show-sample \
+      --show-filters
     ;;
   eval-subset-cifar-svhn)
     "$PY" static_hypernetwork.py eval \
@@ -156,16 +128,12 @@ run_static_hypernetwork.sh — wrapper around static_hypernetwork.py
   bash run_static_hypernetwork.sh verify
   bash run_static_hypernetwork.sh quick-train
   bash run_static_hypernetwork.sh quick-eval
-  bash run_static_hypernetwork.sh train-mnist-paper
-  bash run_static_hypernetwork.sh eval-mnist-paper
   bash run_static_hypernetwork.sh train-full
   bash run_static_hypernetwork.sh eval-full
   bash run_static_hypernetwork.sh benchmark-full
   bash run_static_hypernetwork.sh train-subset-cnn
   bash run_static_hypernetwork.sh eval-subset-cnn
   bash run_static_hypernetwork.sh train-subset-cifar-svhn
-  bash run_static_hypernetwork.sh train-cifar10-paper
-  bash run_static_hypernetwork.sh eval-cifar10-paper
   bash run_static_hypernetwork.sh eval-subset-cifar-svhn
 
 Pairing for full grids:

@@ -254,6 +254,12 @@ def cmd_train(args: argparse.Namespace) -> None:
         overrides["learning_rate"] = args.learning_rate
     if args.batch_size is not None:
         overrides["batch_size"] = args.batch_size
+    if args.show_sample:
+        overrides["show_sample"] = args.show_sample
+    if args.show_filters:
+        overrides["show_filters"] = args.show_filters
+    if args.seed is not None:
+        overrides["seed"] = args.seed
 
     configs = build_full_configs(
         datasets, models, hyper_modes, setting_name=setting_name, overrides=overrides
@@ -269,9 +275,6 @@ def cmd_train(args: argparse.Namespace) -> None:
         )
         solver = make_solver(
             setting_name=None if sn == "main" else sn,
-            show_sample=args.show_sample,
-            show_filters=args.show_filters,
-            seed=args.seed,
             **c,
         )
         solver.train()
