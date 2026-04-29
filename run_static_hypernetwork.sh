@@ -88,6 +88,23 @@ case "${1:-help}" in
       --hyper-modes both \
       --results-json runs/benchmark_wrn_cifar_svhn.json
     ;;
+  train-subset-cnn)
+    # Huấn luyện SimpleCNN trên MNIST và Fashion MNIST (cả baseline và hyper)
+    "$PY" static_hypernetwork.py train \
+      --datasets mnist,fashion_mnist \
+      --models simplecnn \
+      --hyper-modes both \
+      --setting-name main
+    ;;
+  eval-subset-cnn)
+    # Đánh giá kết quả cho SimpleCNN
+    "$PY" static_hypernetwork.py eval \
+      --datasets mnist,fashion_mnist \
+      --models simplecnn \
+      --hyper-modes both \
+      --setting-name main \
+      --results-json runs/evaluation_cnn_mnist_fashion.json
+    ;;
   train-subset-cifar-svhn)
     "$PY" static_hypernetwork.py train \
       --datasets cifar10,svhn \
@@ -113,6 +130,8 @@ run_static_hypernetwork.sh — wrapper around static_hypernetwork.py
   bash run_static_hypernetwork.sh train-full
   bash run_static_hypernetwork.sh eval-full
   bash run_static_hypernetwork.sh benchmark-full
+  bash run_static_hypernetwork.sh train-subset-cnn
+  bash run_static_hypernetwork.sh eval-subset-cnn
   bash run_static_hypernetwork.sh train-subset-cifar-svhn
   bash run_static_hypernetwork.sh eval-subset-cifar-svhn
 
