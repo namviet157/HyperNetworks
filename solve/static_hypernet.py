@@ -143,6 +143,8 @@ class Solver(object):
             self.x_val = None
             self.y_val = None
 
+        self.n_iterations = max(1, int(ceil(len(self.x_train) / float(self.batch_size))))
+
     def _create_model(self):
         if self.model_name == 'simplecnn':
             from model.simple_cnn import SimpleCNN
