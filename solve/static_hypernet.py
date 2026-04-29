@@ -20,16 +20,6 @@ from my_datasets import Mnist, Cifar10, SVHN, FashionMnist
 from utils.visualize import show_filter, show_image
 
 
-# Literature baselines for reproducibility notes (your preprocessing / split may differ).
-# WRN-40-2: Zagoruyko & Komodakis, "Wide Residual Networks", Table 4, CIFAR-10 test error.
-REFERENCE_TEST_METRICS = {
-    ('cifar10', 'wrn40_2', False): {
-        'test_error_pct': 5.33,
-        'citation': 'Zagoruyko & Komodakis (2016), arXiv:1605.07146, Table 4 (WRN-40-2, ZCA)',
-    },
-}
-
-
 class Solver(object):
     def __init__(self, dataset='mnist', model='simplecnn', **kwargs):
         self.dataset_key = dataset
@@ -63,7 +53,7 @@ class Solver(object):
         self.save_best_only = kwargs.pop('save_best_only', True)
         self.resume = kwargs.pop('resume', False)
         self.eval_only = kwargs.pop('eval_only', False)
-        self.seed = 42
+        self.seed = kwargs.pop('seed', 42)
         self.show_sample = kwargs.pop('show_sample', False)
         self.show_filters = kwargs.pop('show_filters', False)
 
@@ -81,10 +71,7 @@ class Solver(object):
             decay_steps=self.n_iterations,
             decay_rate=self.lr_decay,
         )
-        if self.optimize_method == 'adam':
-            self.optimizer = tf.keras.optimizers.Adam(learning_rate=self.lr_schedule)
-        else:
-            raise NotImplementedError
+        self.optimizer = tf.keras.optimizers.Adam(learning_rate=self.lr_schedule)
         self.epoch_var = tf.Variable(0, trainable=False, dtype=tf.int64, name='epoch')
         self.checkpoint = tf.train.Checkpoint(
             model=self.model,
@@ -116,7 +103,7 @@ class Solver(object):
         if self.batch_size <= 0:
             raise ValueError('batch_size must be positive.')
         if self.max_epoch <= 0 and not self.eval_only:
-            raise ValueError('epochs must be positive unless running with --eval-only.')
+            raise ValueError('max_epoch must be positive unless running with eval_only.')
 
     def _prepare_output_dirs(self):
         os.makedirs(self.logpath, exist_ok=True)
@@ -156,8 +143,6 @@ class Solver(object):
             self.x_val = None
             self.y_val = None
 
-        self.n_iterations = max(1, int(ceil(len(self.x_train) / float(self.batch_size))))
-
     def _create_model(self):
         if self.model_name == 'simplecnn':
             from model.simple_cnn import SimpleCNN
@@ -176,14 +161,13 @@ class Solver(object):
         else:
             raise NotImplementedError
 
-        # input_shape = (None, self.x_dim, self.x_dim, self.c_dim)
-        # model.build(input_shape=input_shape)
-        
-        # print(model.summary(expand_nested=True))
-
         input_shape = (self.x_dim, self.x_dim, self.c_dim)
-        print(model.build_graph(input_shape).summary())
-        
+        if hasattr(model, 'build_graph'):
+            print(model.build_graph(input_shape).summary())
+        else:
+            _ = model(tf.zeros((1,) + input_shape), training=False)
+            model.summary()
+
         return model
 
     def _visualize_sample(self):
@@ -321,22 +305,22 @@ class Solver(object):
     def _print_epoch_metrics(self, prefix, epoch, metrics, learning_rate, is_best, best_metric):
         parts = [
             '%s %3d:' % (prefix, epoch),
-            'train loss %.6f' % metrics['train'][0],
-            'train acc %.6f' % metrics['train'][1],
+            'train loss: %.6f' % metrics['train'][0],
+            'train acc: %.6f' % metrics['train'][1],
         ]
         if metrics['val'][0] is not None:
             parts.extend([
-                'val loss %.6f' % metrics['val'][0],
-                'val acc %.6f' % metrics['val'][1],
+                'val loss: %.6f' % metrics['val'][0],
+                'val acc: %.6f' % metrics['val'][1],
             ])
         parts.extend([
-            'test loss %.6f' % metrics['test'][0],
-            'test acc %.6f' % metrics['test'][1],
+            'test loss: %.6f' % metrics['test'][0],
+            'test acc: %.6f' % metrics['test'][1],
         ])
         if learning_rate is not None:
-            parts.append('lr %.6f' % learning_rate)
+            parts.append('lr: %.6f' % learning_rate)
         if best_metric is not None:
-            parts.append('best %s %.6f' % (self.metric_name, best_metric))
+            parts.append('best %s: %.6f' % (self.metric_name, best_metric))
         if is_best:
             parts.append('[best]')
         print(', '.join(parts))

@@ -2,6 +2,10 @@
 # Run static hypernetwork experiments with different CLI argument sets.
 # Usage: from repo root, bash run_static_hypernetwork.sh [verify|quick|...]
 # On Windows: Git Bash, WSL, or MSYS2.
+#
+# Dataset–model pairing (main grids):
+#   simplecnn  → mnist, fashion_mnist
+#   wrn40_2    → cifar10, svhn
 
 set -euo pipefail
 
@@ -17,8 +21,15 @@ fi
 
 case "${1:-help}" in
   verify)
-    # Sanity-check grid sizes (no training).
-    "$PY" static_hypernetwork.py verify --datasets all --models all --hyper-modes both
+    # Sanity-check grid sizes (no training): 2× CNN + 2× WRN blocks.
+    "$PY" static_hypernetwork.py verify \
+      --datasets mnist,fashion_mnist \
+      --models simplecnn \
+      --hyper-modes both
+    "$PY" static_hypernetwork.py verify \
+      --datasets cifar10,svhn \
+      --models wrn40_2 \
+      --hyper-modes both
     ;;
   quick-train)
     # One small MNIST baseline run (override epochs for a fast smoke test).
@@ -38,43 +49,59 @@ case "${1:-help}" in
       --results-json runs/evaluation_mnist_quick.json
     ;;
   train-full)
-    # Full 24-run main grid (long): 4 datasets x 3 models x 2 hyper modes.
+    # 8 main runs: (2 CNN datasets + 2 WRN datasets) × baseline + hyper.
     "$PY" static_hypernetwork.py train \
-      --datasets all \
-      --models all \
+      --datasets mnist,fashion_mnist \
+      --models simplecnn \
+      --hyper-modes both \
+      --setting-name main
+    "$PY" static_hypernetwork.py train \
+      --datasets cifar10,svhn \
+      --models wrn40_2 \
       --hyper-modes both \
       --setting-name main
     ;;
   eval-full)
     "$PY" static_hypernetwork.py eval \
-      --datasets all \
-      --models all \
+      --datasets mnist,fashion_mnist \
+      --models simplecnn \
       --hyper-modes both \
       --setting-name main \
-      --results-json runs/evaluation_results.json
+      --results-json runs/evaluation_cnn_mnist_fashion.json
+    "$PY" static_hypernetwork.py eval \
+      --datasets cifar10,svhn \
+      --models wrn40_2 \
+      --hyper-modes both \
+      --setting-name main \
+      --results-json runs/evaluation_wrn_cifar_svhn.json
     ;;
   benchmark-full)
-    # 48 runs: full grid x 2 benchmark hyperparameter presets (long).
+    # 16 runs: 8 configs × 2 benchmark LR/batch presets (see static_hypernetwork.py).
     "$PY" static_hypernetwork.py benchmark \
-      --datasets all \
-      --models all \
+      --datasets mnist,fashion_mnist \
+      --models simplecnn \
       --hyper-modes both \
-      --results-json runs/benchmark_results.json
+      --results-json runs/benchmark_cnn_mnist_fashion.json
+    "$PY" static_hypernetwork.py benchmark \
+      --datasets cifar10,svhn \
+      --models wrn40_2 \
+      --hyper-modes both \
+      --results-json runs/benchmark_wrn_cifar_svhn.json
     ;;
   train-subset-cifar-svhn)
     "$PY" static_hypernetwork.py train \
       --datasets cifar10,svhn \
-      --models wrn40_2,resnet50 \
+      --models wrn40_2 \
       --hyper-modes both \
       --setting-name main
     ;;
   eval-subset-cifar-svhn)
     "$PY" static_hypernetwork.py eval \
       --datasets cifar10,svhn \
-      --models wrn40_2,resnet50 \
+      --models wrn40_2 \
       --hyper-modes both \
       --setting-name main \
-      --results-json runs/evaluation_cifar_svhn_wrns_resnet.json
+      --results-json runs/evaluation_cifar_svhn_wrn40_2.json
     ;;
   help|*)
     cat <<'EOF'
@@ -89,11 +116,14 @@ run_static_hypernetwork.sh — wrapper around static_hypernetwork.py
   bash run_static_hypernetwork.sh train-subset-cifar-svhn
   bash run_static_hypernetwork.sh eval-subset-cifar-svhn
 
+Pairing for full grids:
+  simplecnn → mnist, fashion_mnist
+  wrn40_2   → cifar10, svhn
+
 Direct Python examples:
 
-  python static_hypernetwork.py verify
   python static_hypernetwork.py train --datasets mnist --models simplecnn --hyper-modes hyper --max-epoch 5
-  python static_hypernetwork.py eval --datasets all --models all --hyper-modes both --results-json runs/out.json
+  python static_hypernetwork.py eval --datasets cifar10,svhn --models wrn40_2 --hyper-modes both --results-json runs/out.json
   python static_hypernetwork.py benchmark --datasets fashion_mnist --models simplecnn --hyper-modes both
 EOF
     ;;
