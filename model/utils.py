@@ -68,16 +68,17 @@ class SharedHyperConvMLP(tf.keras.layers.Layer):
         )
         super().build(input_shape)
 
-    def call(self, z_row):
-        """z_row: (1, z_dim) — single block embedding as a row vector."""
-        a = tf.matmul(z_row, self.w1) + self.b1
+    def call(self, z_rows):
+        """z_rows: (num_blocks, z_dim) block embeddings."""
+        z_rows = tf.reshape(z_rows, (-1, self.z_dim))
+        a = tf.matmul(z_rows, self.w1) + self.b1
         a = tf.nn.relu(a)
-        a = tf.reshape(a, (self.in_block_size, self.z_dim))
+        a = tf.reshape(a, (-1, self.in_block_size, self.z_dim))
         weight = tf.matmul(a, self.w2) + self.b2
         k = self.max_kernel_spatial
         weight = tf.reshape(
             weight,
-            (self.in_block_size, self.out_block_size, k, k),
+            (-1, self.in_block_size, self.out_block_size, k, k),
         )
         return weight
 
@@ -131,6 +132,7 @@ class HyperConv2D(tf.keras.layers.Layer):
         self.kernel_scale_multiplier = float(kernel_scale_multiplier)
         self.kernel_initializer = kernel_initializer or tf.keras.initializers.RandomNormal(stddev=0.01)
         self.bias_initializer = tf.keras.initializers.get(bias_initializer)
+        self.track_generated_kernel_l2 = False
 
     def build(self, input_shape):
         input_channels = int(input_shape[-1])
@@ -228,46 +230,56 @@ class HyperConv2D(tf.keras.layers.Layer):
             self.bias = None
         super().build(input_shape)
 
-    def _hyper_forward(self, z_row):
+    def _hyper_forward(self, z_rows):
+        z_rows = tf.reshape(z_rows, (-1, self.z_dim))
         if self.shared_hypernet is not None:
-            return self.shared_hypernet(z_row)
-        a = tf.matmul(z_row, self.w1) + self.b1
+            return self.shared_hypernet(z_rows)
+        a = tf.matmul(z_rows, self.w1) + self.b1
         a = tf.nn.relu(a)
-        a = tf.reshape(a, (self.in_block_size, self.z_dim))
+        a = tf.reshape(a, (-1, self.in_block_size, self.z_dim))
         weight = tf.matmul(a, self.w2) + self.b2
         k_h, k_w = self.kernel_size
         weight = tf.reshape(
             weight,
-            (self.in_block_size, self.out_block_size, k_h, k_w),
+            (-1, self.in_block_size, self.out_block_size, k_h, k_w),
         )
         return weight
 
     def _crop_spatial_to_kernel(self, weight):
-        """weight: (in_b, out_b, K, K) with K = shared max spatial; crop to self.kernel_size."""
+        """weight: (num_blocks, in_b, out_b, K, K); crop to self.kernel_size."""
         k_h, k_w = self.kernel_size
-        k_max = weight.shape[2]
+        k_max = weight.shape[3]
         k_max = int(k_max) if k_max is not None else self.shared_hypernet.max_kernel_spatial
         off_h = (k_max - k_h) // 2
         off_w = (k_max - k_w) // 2
-        weight = weight[:, :, off_h : off_h + k_h, off_w : off_w + k_w]
+        weight = weight[:, :, :, off_h : off_h + k_h, off_w : off_w + k_w]
         return weight
 
     def _generate_kernel(self):
-        input_blocks = []
-        for i in range(self.num_in_blocks):
-            output_blocks = []
-            for j in range(self.num_out_blocks):
-                z = self.embeddings[i, j]
-                if self.z_layer is not None:
-                    z = z + self.z_layer
-                z = tf.reshape(z, (1, self.z_dim))
-                weight = self._hyper_forward(z)
-                if self.shared_hypernet is not None:
-                    weight = self._crop_spatial_to_kernel(weight)
-                weight = tf.transpose(weight, (2, 3, 0, 1))
-                output_blocks.append(weight)
-            input_blocks.append(tf.concat(output_blocks, axis=3))
-        kernel = tf.concat(input_blocks, axis=2)
+        z = self.embeddings
+        if self.z_layer is not None:
+            z = z + self.z_layer[tf.newaxis, tf.newaxis, :]
+        z = tf.reshape(z, (self.num_in_blocks * self.num_out_blocks, self.z_dim))
+
+        weight = self._hyper_forward(z)
+        if self.shared_hypernet is not None:
+            weight = self._crop_spatial_to_kernel(weight)
+
+        k_h, k_w = self.kernel_size
+        weight = tf.transpose(weight, (0, 3, 4, 1, 2))
+        weight = tf.reshape(
+            weight,
+            (
+                self.num_in_blocks,
+                self.num_out_blocks,
+                k_h,
+                k_w,
+                self.in_block_size,
+                self.out_block_size,
+            ),
+        )
+        kernel = tf.transpose(weight, (2, 3, 0, 4, 1, 5))
+        kernel = tf.reshape(kernel, (k_h, k_w, self.input_channels, self.filters))
         if self.bound_generated_kernel:
             scale = tf.cast(self.generated_kernel_scale, kernel.dtype)
             kernel = tf.clip_by_value(kernel, -scale, scale)
@@ -275,6 +287,8 @@ class HyperConv2D(tf.keras.layers.Layer):
 
     def call(self, inputs):
         kernel = self._generate_kernel()
+        if self.track_generated_kernel_l2:
+            self.add_loss(tf.nn.l2_loss(kernel))
         outputs = tf.nn.conv2d(
             inputs,
             kernel,

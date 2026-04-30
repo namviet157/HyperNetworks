@@ -60,14 +60,68 @@ SIMPLECNN_GRAYSCALE = {
 BENCHMARK_SETTINGS = [
     {
         "setting_name": "bench_lr5e4_default_bs",
-        "overrides": {"max_epoch": 3, "learning_rate": 5e-4},
+        "overrides": {"max_epoch": 100, "learning_rate": 5e-4, "early_stopping_patience": 10},
     },
     {
         "setting_name": "bench_lr1e3_bs256",
-        "overrides": {"max_epoch": 3, "learning_rate": 1e-3, "batch_size": 256},
+        "overrides": {"max_epoch": 100, "learning_rate": 1e-3, "batch_size": 256, "early_stopping_patience": 10},
     },
 ]
 
+# BENCHMARK_SETTINGS = [
+#     # 1. Cấu hình tiêu chuẩn
+#     {
+#         "setting_name": "bench_lr5e4_default_bs",
+#         "overrides": {"max_epoch": 100, "learning_rate": 5e-4, "early_stopping_patience": 12},
+#     },
+#     # 2. Kiểm tra độ ổn định với Gradient Clipping
+#     {
+#         "setting_name": "bench_lr1e3_bs256",
+#         "overrides": {
+#             "max_epoch": 100, 
+#             "learning_rate": 1e-3,
+#             "batch_size": 256,
+#             "grad_clip": 1.0,  # "Phanh" gradient để tránh nổ loss
+#             "label_smoothing": 0.1, # Giúp mô hình bớt "tự tin thái quá"
+#             "early_stopping_patience": 10
+#         },
+#     },
+#     # 3. Kiểm tra khả năng nén/tổng quát hóa với Weight Decay mạnh
+#     {
+#         "setting_name": "bench_lr1e3_bs128_weight_decay1e4",
+#         "overrides": {
+#             "max_epoch": 150, 
+#             "learning_rate": 1e-3, 
+#             "weight_decay": 1e-4,
+#             "weight_decay": 1e-4, # Ép các tham số của HyperNet phải nhỏ và tinh gọn
+#             "batch_size": 128,    # Batch size nhỏ giúp hội tụ tốt hơn trên tập dữ liệu khó
+#             "early_stopping_patience": 15
+#         },
+#     },
+#     # 4. Kịch bản "Fast convergence" cho GPU mạnh
+#     {
+#         "setting_name": "bench_lr2e3_bs2048_lr_decay095",
+#         "overrides": {
+#             "max_epoch": 80, 
+#             "learning_rate": 2e-3, 
+#             "batch_size": 2048,   # Tận dụng tối đa VRAM GPU
+#             "lr_decay": 0.95,      # Giảm LR nhanh hơn
+#             "early_stopping_patience": 8
+#         },
+#     },
+#     # 5. Thiết lập mô phỏng theo Paper gốc
+#     {
+#         "setting_name": "bench_lr01_sgd_nesterov_weight_decay5e4_augment_data_true",
+#         "overrides": {
+#             "max_epoch": 200, 
+#             "optimizer": "sgd_nesterov",
+#             "learning_rate": 0.1,
+#             "weight_decay": 5e-4, 
+#             "augment_data": True,
+#             "early_stopping_patience": 20
+#         },
+#     },
+# ]
 
 def set_random_seed(seed: int) -> None:
     random.seed(seed)

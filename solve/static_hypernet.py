@@ -102,6 +102,7 @@ class Solver(object):
             )
         self.metric_name = 'val_acc' if self.x_val is not None else 'test_acc'
         self.model = self._create_model()
+        self._configure_model_layers()
         self.loss_fn = tf.keras.losses.CategoricalCrossentropy(
             from_logits=True,
             reduction=tf.keras.losses.Reduction.NONE,
@@ -109,6 +110,8 @@ class Solver(object):
         )
         self.lr_schedule = self._create_learning_rate_schedule()
         self.optimizer = self._create_optimizer()
+        if hasattr(self.optimizer, 'build'):
+            self.optimizer.build(self.model.trainable_variables)
         self.epoch_var = tf.Variable(0, trainable=False, dtype=tf.int64, name='epoch')
         self.checkpoint = tf.train.Checkpoint(
             model=self.model,
@@ -215,6 +218,12 @@ class Solver(object):
         if self.x_dim >= 32 and self.c_dim == 3:
             return 'pad_crop_flip'
         return None
+
+    def _configure_model_layers(self):
+        track_generated_kernel_l2 = self.weight_decay > 0.0
+        for layer in self._iter_model_layers():
+            if hasattr(layer, 'track_generated_kernel_l2'):
+                layer.track_generated_kernel_l2 = track_generated_kernel_l2
 
     def _create_learning_rate_schedule(self):
         if self.lr_schedule_name == 'paper':
@@ -350,14 +359,12 @@ class Solver(object):
             for variable in self.model.trainable_variables
             if len(variable.shape) > 1 and 'kernel' in variable.name
         ]
-        for layer in self._iter_model_layers():
-            generated_kernel_l2_loss = getattr(layer, 'generated_kernel_l2_loss', None)
-            if generated_kernel_l2_loss is not None:
-                penalties.append(generated_kernel_l2_loss())
+        penalties.extend(self.model.losses)
         if not penalties:
             return 0.0
         return self.weight_decay * tf.add_n(penalties)
 
+    @tf.function(reduce_retracing=True)
     def _train_step(self, batch_x, batch_y):
         with tf.GradientTape() as tape:
             logits = self.model(batch_x, training=True)
@@ -373,6 +380,13 @@ class Solver(object):
         ]
         self.optimizer.apply_gradients(gradient_pairs)
         return logits, data_loss
+
+    @tf.function(reduce_retracing=True)
+    def _eval_step(self, batch_x, batch_y):
+        logits = self.model(batch_x, training=False)
+        _, per_example_losses = self._compute_loss(batch_y, logits)
+        probabilities = tf.nn.softmax(logits)
+        return per_example_losses, probabilities
 
     def _current_learning_rate(self):
         learning_rate = self.optimizer.learning_rate
@@ -612,9 +626,7 @@ class Solver(object):
         acc_metric = tf.keras.metrics.CategoricalAccuracy()
 
         for batch_x, batch_y in dataset:
-            logits = self.model(batch_x, training=False)
-            _, per_example_losses = self._compute_loss(batch_y, logits)
-            probabilities = tf.nn.softmax(logits)
+            per_example_losses, probabilities = self._eval_step(batch_x, batch_y)
             loss_metric.update_state(per_example_losses)
             acc_metric.update_state(batch_y, probabilities)
         return float(loss_metric.result().numpy()), float(acc_metric.result().numpy())
