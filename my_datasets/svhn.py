@@ -4,7 +4,7 @@ import os
 
 
 class SVHN(object):
-    def __init__(self, path="../data/svhn"):
+    def __init__(self, path="data/svhn"):
         self.num_classes = 10
 
         train_data = loadmat(os.path.join(path, "train_32x32.mat"))
