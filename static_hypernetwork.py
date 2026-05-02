@@ -21,9 +21,9 @@ DATASETS_ALL = ["mnist", "fashion_mnist", "cifar10", "svhn"]
 MODELS_ALL = ["simplecnn", "wrn40_2", "resnet50"]
 
 MODEL_TRAIN_DEFAULTS = {
-    "simplecnn": {"max_epoch": 20, "learning_rate": 5e-4, "batch_size": 1024},
-    "wrn40_2": {"max_epoch": 10, "learning_rate": 5e-4, "batch_size": 512},
-    "resnet50": {"max_epoch": 10, "learning_rate": 5e-4, "batch_size": 256},
+    "simplecnn": {"max_epoch": 100, "learning_rate": 5e-4, "batch_size": 1024, "early_stopping_patience": 10},
+    "wrn40_2": {"max_epoch": 50, "learning_rate": 5e-3, "batch_size": 512, "early_stopping_patience": 10},
+    "resnet50": {"max_epoch": 50, "learning_rate": 5e-3, "batch_size": 256, "early_stopping_patience": 10},
 }
 
 RESIDUAL_IMAGE_COMMON = {
@@ -36,13 +36,11 @@ RESIDUAL_IMAGE_COMMON = {
 RESIDUAL_IMAGE_BASELINE = {
     **RESIDUAL_IMAGE_COMMON,
     "learning_rate": 0.1,
-    "max_steps": 140000,
     "optimizer": "sgd_nesterov",
 }
 RESIDUAL_IMAGE_HYPER = {
     **RESIDUAL_IMAGE_COMMON,
     "learning_rate": 0.002,
-    "max_steps": 672000,
     "optimizer": "adam",
 }
 
@@ -54,7 +52,6 @@ SIMPLECNN_GRAYSCALE = {
     "val_split": 5000,
     "augment_data": True,
     "augmentation": "mnist",
-    "early_stopping_patience": 10,
 }
 
 BENCHMARK_SETTINGS = [
@@ -67,61 +64,6 @@ BENCHMARK_SETTINGS = [
         "overrides": {"max_epoch": 100, "learning_rate": 1e-3, "batch_size": 256, "early_stopping_patience": 10},
     },
 ]
-
-# BENCHMARK_SETTINGS = [
-#     # 1. Cấu hình tiêu chuẩn
-#     {
-#         "setting_name": "bench_lr5e4_default_bs",
-#         "overrides": {"max_epoch": 100, "learning_rate": 5e-4, "early_stopping_patience": 12},
-#     },
-#     # 2. Kiểm tra độ ổn định với Gradient Clipping
-#     {
-#         "setting_name": "bench_lr1e3_bs256",
-#         "overrides": {
-#             "max_epoch": 100, 
-#             "learning_rate": 1e-3,
-#             "batch_size": 256,
-#             "grad_clip": 1.0,  # "Phanh" gradient để tránh nổ loss
-#             "label_smoothing": 0.1, # Giúp mô hình bớt "tự tin thái quá"
-#             "early_stopping_patience": 10
-#         },
-#     },
-#     # 3. Kiểm tra khả năng nén/tổng quát hóa với Weight Decay mạnh
-#     {
-#         "setting_name": "bench_lr1e3_bs128_weight_decay1e4",
-#         "overrides": {
-#             "max_epoch": 150, 
-#             "learning_rate": 1e-3, 
-#             "weight_decay": 1e-4,
-#             "weight_decay": 1e-4, # Ép các tham số của HyperNet phải nhỏ và tinh gọn
-#             "batch_size": 128,    # Batch size nhỏ giúp hội tụ tốt hơn trên tập dữ liệu khó
-#             "early_stopping_patience": 15
-#         },
-#     },
-#     # 4. Kịch bản "Fast convergence" cho GPU mạnh
-#     {
-#         "setting_name": "bench_lr2e3_bs2048_lr_decay095",
-#         "overrides": {
-#             "max_epoch": 80, 
-#             "learning_rate": 2e-3, 
-#             "batch_size": 2048,   # Tận dụng tối đa VRAM GPU
-#             "lr_decay": 0.95,      # Giảm LR nhanh hơn
-#             "early_stopping_patience": 8
-#         },
-#     },
-#     # 5. Thiết lập mô phỏng theo Paper gốc
-#     {
-#         "setting_name": "bench_lr01_sgd_nesterov_weight_decay5e4_augment_data_true",
-#         "overrides": {
-#             "max_epoch": 200, 
-#             "optimizer": "sgd_nesterov",
-#             "learning_rate": 0.1,
-#             "weight_decay": 5e-4, 
-#             "augment_data": True,
-#             "early_stopping_patience": 20
-#         },
-#     },
-# ]
 
 def set_random_seed(seed: int) -> None:
     random.seed(seed)
@@ -169,33 +111,54 @@ def make_solver(
     )
 
 
-def evaluate_best(
-    dataset: str,
-    model: str,
-    hyper_mode: bool = False,
-    setting_name: str | None = None,
-    **kwargs,
-) -> dict:
-    solver = make_solver(
+def unpack_solver_config(config: dict) -> tuple[str, str, bool, str | None, dict]:
+    """Split a grid config into make_solver positional args and remaining Solver kwargs."""
+    c = config.copy()
+    sn = c.pop("setting_name")
+    dataset = c.pop("dataset")
+    model = c.pop("model")
+    hyper_mode = c.pop("hyper_mode")
+    setting_name = None if sn == "main" else sn
+    return dataset, model, hyper_mode, setting_name, c
+
+
+def make_solver_from_config(config: dict, **extra: object) -> Solver:
+    dataset, model, hyper_mode, setting_name, kw = unpack_solver_config(config)
+    kw.update(extra)
+    return make_solver(
         dataset,
         model,
         hyper_mode=hyper_mode,
         setting_name=setting_name,
-        **kwargs,
+        **kw,
     )
-    metrics = solver.evaluate_best_checkpoint()
-    test_loss, test_acc = metrics["test"]
+
+
+def _metrics_result_row(config: dict, test_loss: float, test_acc: float) -> dict:
     return {
-        "dataset": dataset,
-        "model": model,
-        "component": component_name(hyper_mode),
-        "setting": setting_name or "main",
-        "max_epoch": kwargs.get("max_epoch", ""),
-        "learning_rate": kwargs.get("learning_rate", ""),
-        "batch_size": kwargs.get("batch_size", ""),
+        "dataset": config["dataset"],
+        "model": config["model"],
+        "component": component_name(config["hyper_mode"]),
+        "setting": config["setting_name"],
+        "max_epoch": config["max_epoch"],
+        "learning_rate": config["learning_rate"],
+        "batch_size": config["batch_size"],
         "test_loss": test_loss,
         "test_acc": test_acc,
     }
+
+
+def evaluate_best(config: dict, *, seed: int | None = None) -> dict:
+    """Load best checkpoint with the same Solver kwargs as training (eval_only path)."""
+    kw = {}
+    if seed is not None:
+        kw["seed"] = seed
+    solver = make_solver_from_config(config, eval_only=True, **kw)
+    metrics = solver.train()
+    if metrics is None:
+        raise RuntimeError("eval_only training path did not return metrics.")
+    test_loss, test_acc = metrics["test"]
+    return _metrics_result_row(config, test_loss, test_acc)
 
 
 def print_results(results: list[dict]) -> None:
@@ -273,35 +236,8 @@ def build_full_configs(
     return configs
 
 
-def _solver_kwargs_from_config(config: dict) -> dict:
-    keys = {
-        "max_epoch": config["max_epoch"],
-        "learning_rate": config["learning_rate"],
-        "batch_size": config["batch_size"],
-    }
-    optional_keys = (
-        "max_steps",
-        "optimizer",
-        "weight_decay",
-        "lr_schedule",
-        "paper_cifar_setup",
-        "augment_data",
-        "augmentation",
-        "val_split",
-        "early_stopping_patience",
-    )
-    for key in optional_keys:
-        if key in config:
-            keys[key] = config[key]
-    return keys
-
-
-def cmd_train(args: argparse.Namespace) -> None:
-    datasets = _parse_csv_list(args.datasets, DATASETS_ALL)
-    models = _parse_csv_list(args.models, MODELS_ALL)
-    hyper_modes = _parse_hyper_modes(args.hyper_modes)
-    setting_name = args.setting_name or "main"
-    overrides = {}
+def _train_overrides_from_args(args: argparse.Namespace) -> dict:
+    overrides: dict = {}
     if args.max_epoch is not None:
         overrides["max_epoch"] = args.max_epoch
     if args.learning_rate is not None:
@@ -314,60 +250,26 @@ def cmd_train(args: argparse.Namespace) -> None:
         overrides["show_filters"] = args.show_filters
     if args.seed is not None:
         overrides["seed"] = args.seed
-
-    configs = build_full_configs(
-        datasets, models, hyper_modes, setting_name=setting_name, overrides=overrides
-    )
-    print(f"Training {len(configs)} run(s).")
-    for config in configs:
-        c = config.copy()
-        sn = c.pop("setting_name")
-        print("\n" + "=" * 100)
-        print(
-            f"Training dataset={c['dataset']} | model={c['model']} | "
-            f"component={component_name(c['hyper_mode'])} | setting={sn}"
-        )
-        solver = make_solver(
-            setting_name=None if sn == "main" else sn,
-            **c,
-        )
-        solver.train()
+    return overrides
 
 
-def cmd_eval(args: argparse.Namespace) -> None:
+def _parse_grid(args: argparse.Namespace) -> tuple[list[str], list[str], list[bool]]:
     datasets = _parse_csv_list(args.datasets, DATASETS_ALL)
     models = _parse_csv_list(args.models, MODELS_ALL)
     hyper_modes = _parse_hyper_modes(args.hyper_modes)
+    return datasets, models, hyper_modes
+
+
+def _configs_main_setting(args: argparse.Namespace, *, for_training: bool) -> list[dict]:
+    datasets, models, hyper_modes = _parse_grid(args)
     setting_name = args.setting_name or "main"
-    configs = build_full_configs(datasets, models, hyper_modes, setting_name=setting_name)
-    results = []
-    for config in configs:
-        c = config.copy()
-        sn = c.pop("setting_name")
-        kw = _solver_kwargs_from_config(c)
-        result = evaluate_best(
-            c["dataset"],
-            c["model"],
-            hyper_mode=c["hyper_mode"],
-            setting_name=None if sn == "main" else sn,
-            seed=args.seed,
-            **kw,
-        )
-        results.append(result)
-    print_results(results)
-    if args.results_json:
-        Path(args.results_json).parent.mkdir(parents=True, exist_ok=True)
-        Path(args.results_json).write_text(
-            json.dumps(results, indent=2, default=float), encoding="utf-8"
-        )
-        print(f"Wrote {args.results_json}")
+    overrides = _train_overrides_from_args(args) if for_training else {}
+    return build_full_configs(datasets, models, hyper_modes, setting_name=setting_name, overrides=overrides)
 
 
-def cmd_benchmark(args: argparse.Namespace) -> None:
-    datasets = _parse_csv_list(args.datasets, DATASETS_ALL)
-    models = _parse_csv_list(args.models, MODELS_ALL)
-    hyper_modes = _parse_hyper_modes(args.hyper_modes)
-    all_configs = []
+def _configs_benchmark(args: argparse.Namespace) -> list[dict]:
+    datasets, models, hyper_modes = _parse_grid(args)
+    all_configs: list[dict] = []
     for setting in BENCHMARK_SETTINGS:
         all_configs.extend(
             build_full_configs(
@@ -378,52 +280,69 @@ def cmd_benchmark(args: argparse.Namespace) -> None:
                 overrides=setting["overrides"],
             )
         )
-    print(f"Benchmarking {len(all_configs)} run(s).")
+    return all_configs
+
+
+def _print_run_banner(kind: str, dataset: str, model: str, hyper_mode: bool, setting: str) -> None:
+    print("\n" + "=" * 100)
+    print(
+        f"{kind} dataset={dataset} | model={model} | "
+        f"component={component_name(hyper_mode)} | setting={setting}"
+    )
+
+
+def _maybe_write_results_json(path: str | None, results: list[dict]) -> None:
+    if not path:
+        return
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    Path(path).write_text(json.dumps(results, indent=2, default=float), encoding="utf-8")
+    print(f"Wrote {path}")
+
+
+def cmd_train(args: argparse.Namespace) -> None:
+    configs = _configs_main_setting(args, for_training=True)
+    print(f"Training {len(configs)} run(s).")
+    for config in configs:
+        _print_run_banner("Training", config["dataset"], config["model"], config["hyper_mode"], config["setting_name"])
+        solver = make_solver_from_config(config)
+        solver.train()
+
+
+def cmd_eval(args: argparse.Namespace) -> None:
+    configs = _configs_main_setting(args, for_training=False)
+    results = [evaluate_best(c, seed=args.seed) for c in configs]
+    print_results(results)
+    _maybe_write_results_json(args.results_json, results)
+
+
+def cmd_benchmark(args: argparse.Namespace) -> None:
+    configs = _configs_benchmark(args)
+    print(f"Benchmarking {len(configs)} run(s).")
     results = []
-    for config in all_configs:
-        c = config.copy()
-        sn = c.pop("setting_name")
-        print("\n" + "=" * 100)
-        print(
-            f"Benchmark dataset={c['dataset']} | model={c['model']} | "
-            f"component={component_name(c['hyper_mode'])} | setting={sn}"
+    for config in configs:
+        _print_run_banner(
+            "Benchmark",
+            config["dataset"],
+            config["model"],
+            config["hyper_mode"],
+            config["setting_name"],
         )
-        solver = make_solver(
-            setting_name=sn,
+        solver = make_solver_from_config(
+            config,
             show_sample=args.show_sample,
             show_filters=args.show_filters,
             seed=args.seed,
-            **c,
         )
         solver.train()
         metrics = solver.evaluate_best_checkpoint()
         test_loss, test_acc = metrics["test"]
-        results.append(
-            {
-                "dataset": c["dataset"],
-                "model": c["model"],
-                "component": component_name(c["hyper_mode"]),
-                "setting": sn,
-                "max_epoch": c["max_epoch"],
-                "learning_rate": c["learning_rate"],
-                "batch_size": c["batch_size"],
-                "test_loss": test_loss,
-                "test_acc": test_acc,
-            }
-        )
+        results.append(_metrics_result_row(config, test_loss, test_acc))
     print_results(results)
-    if args.results_json:
-        Path(args.results_json).parent.mkdir(parents=True, exist_ok=True)
-        Path(args.results_json).write_text(
-            json.dumps(results, indent=2, default=float), encoding="utf-8"
-        )
-        print(f"Wrote {args.results_json}")
+    _maybe_write_results_json(args.results_json, results)
 
 
 def cmd_verify(args: argparse.Namespace) -> None:
-    datasets = _parse_csv_list(args.datasets, DATASETS_ALL)
-    models = _parse_csv_list(args.models, MODELS_ALL)
-    hyper_modes = _parse_hyper_modes(args.hyper_modes)
+    datasets, models, hyper_modes = _parse_grid(args)
     expected_main = len(datasets) * len(models) * len(hyper_modes)
     main = build_full_configs(datasets, models, hyper_modes, setting_name="main")
     bench_total = 0
