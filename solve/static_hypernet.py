@@ -1,3 +1,4 @@
+import glob
 import json
 import os
 import sys
@@ -58,10 +59,12 @@ class Solver(object):
         self.label_smoothing = kwargs.pop('label_smoothing', 0.0)
         self.min_learning_rate = kwargs.pop('min_learning_rate', 1e-6)
         self.augment_data = kwargs.pop('augment_data', self.paper_cifar_setup)
-        self.augmentation = kwargs.pop(
-            'augmentation',
-            self._default_augmentation(),
-        )
+        augment_default = None
+        if self.x_dim == 28 and self.c_dim == 1:
+            augment_default = 'pad_crop'
+        elif self.x_dim >= 32 and self.c_dim == 3:
+            augment_default = 'pad_crop_flip'
+        self.augmentation = kwargs.pop('augmentation', augment_default)
         self.early_stopping_patience = kwargs.pop('early_stopping_patience', None)
         default_optimizer = (
             'adam'
@@ -83,52 +86,31 @@ class Solver(object):
         self.show_sample = kwargs.pop('show_sample', False)
         self.show_filters = kwargs.pop('show_filters', False)
 
-        self._validate_config()
-        self._prepare_output_dirs()
-        self._prepare_data_splits()
+        self.validate_config()
+        self.prepare_output_dirs()
+        self.prepare_data_splits()
         if self.max_steps is not None:
             self.max_epoch = max(
                 self.max_epoch,
                 int(ceil(float(self.max_steps) / float(self.n_iterations))),
             )
         self.metric_name = 'val_acc' if self.x_val is not None else 'test_acc'
-        self.model = self._create_model()
-        self._configure_model_layers()
+        self.model = self.create_model()
+        self.configure_model_layers()
         self.loss_fn = tf.keras.losses.CategoricalCrossentropy(
             from_logits=True,
             reduction=tf.keras.losses.Reduction.NONE,
             label_smoothing=self.label_smoothing,
         )
-        self.lr_schedule = self._create_learning_rate_schedule()
-        self.optimizer = self._create_optimizer()
+        self.lr_schedule = self.create_learning_rate_schedule()
+        self.optimizer = self.create_optimizer()
         if hasattr(self.optimizer, 'build'):
             self.optimizer.build(self.model.trainable_variables)
-        self.epoch_var = tf.Variable(0, trainable=False, dtype=tf.int64, name='epoch')
-        self.checkpoint = tf.train.Checkpoint(
-            model=self.model,
-            optimizer=self.optimizer,
-            epoch=self.epoch_var,
-        )
-        self.latest_manager = tf.train.CheckpointManager(
-            self.checkpoint,
-            directory=self.latest_dir,
-            max_to_keep=1,
-            checkpoint_name='ckpt',
-        )
-        self.best_manager = tf.train.CheckpointManager(
-            self.checkpoint,
-            directory=self.best_dir,
-            max_to_keep=1,
-            checkpoint_name='ckpt',
-        )
-        self.history_manager = tf.train.CheckpointManager(
-            self.checkpoint,
-            directory=self.history_dir,
-            max_to_keep=5,
-            checkpoint_name='ckpt',
-        )
+        # Keras 3-compatible weight files (*.weights.h5); legacy TF ckpt-* still loadable via restore.
+        self.latest_weights_path = os.path.join(self.latest_dir, 'weights.weights.h5')
+        self.best_weights_path = os.path.join(self.best_dir, 'weights.weights.h5')
 
-    def _validate_config(self):
+    def validate_config(self):
         if self.val_split < 0:
             raise ValueError('val_split must be a non-negative validation sample count.')
         if self.batch_size <= 0:
@@ -136,7 +118,7 @@ class Solver(object):
         if self.max_epoch <= 0 and not self.eval_only:
             raise ValueError('max_epoch must be positive unless running with eval_only.')
 
-    def _prepare_output_dirs(self):
+    def prepare_output_dirs(self):
         os.makedirs(self.logpath, exist_ok=True)
         os.makedirs(self.save_dir, exist_ok=True)
 
@@ -148,7 +130,7 @@ class Solver(object):
 
         self.state_path = os.path.join(self.save_dir, 'training_state.json')
 
-    def _prepare_data_splits(self):
+    def prepare_data_splits(self):
         x_train = self.dataset.x_train
         y_train = self.dataset.y_train
         self.x_test = self.dataset.x_test
@@ -176,7 +158,7 @@ class Solver(object):
 
         self.n_iterations = max(1, int(ceil(len(self.x_train) / float(self.batch_size))))
 
-    def _create_model(self):
+    def create_model(self):
         if self.model_name == 'simplecnn':
             from model.simple_cnn import SimpleCNN
 
@@ -195,36 +177,27 @@ class Solver(object):
             raise NotImplementedError
 
         input_shape = (self.x_dim, self.x_dim, self.c_dim)
+        dummy = tf.zeros((1,) + input_shape)
+        _ = model(dummy, training=False)
         if hasattr(model, 'build_graph'):
             model.build_graph(input_shape).summary()
         else:
-            _ = model(tf.zeros((1,) + input_shape), training=False)
             model.summary()
 
         return model
 
-    def _default_augmentation(self):
-        if self.x_dim == 28 and self.c_dim == 1:
-            return 'pad_crop'
-        if self.x_dim >= 32 and self.c_dim == 3:
-            return 'pad_crop_flip'
-        return None
-
-    def _configure_model_layers(self):
+    def configure_model_layers(self):
         track_generated_kernel_l2 = self.weight_decay > 0.0
-        for layer in self._iter_model_layers():
+        for layer in self.iter_model_layers():
             if hasattr(layer, 'track_generated_kernel_l2'):
                 layer.track_generated_kernel_l2 = track_generated_kernel_l2
 
-    def _paper_schedule_step_budget(self):
-        """Global step budget for piecewise LR (matches max_steps or full epoch loop)."""
-        if self.max_steps is not None:
-            return max(1, int(self.max_steps))
-        return max(1, int(self.max_epoch) * int(self.n_iterations))
-
-    def _create_learning_rate_schedule(self):
+    def create_learning_rate_schedule(self):
         if self.lr_schedule_name == 'paper':
-            total_steps = self._paper_schedule_step_budget()
+            if self.max_steps is not None:
+                total_steps = max(1, int(self.max_steps))
+            else:
+                total_steps = max(1, int(self.max_epoch) * int(self.n_iterations))
             if self.hyper_mode:
                 # Three drops at 25% / 50% / 75% of budget (672k-step paper default).
                 boundary_fracs = (0.25, 0.5, 0.75)
@@ -258,7 +231,7 @@ class Solver(object):
             )
         return self.learning_rate
 
-    def _create_optimizer(self):
+    def create_optimizer(self):
         if self.optimize_method == 'sgd_nesterov':
             return tf.keras.optimizers.SGD(
                 learning_rate=self.lr_schedule,
@@ -269,7 +242,7 @@ class Solver(object):
             return tf.keras.optimizers.Adam(learning_rate=self.lr_schedule)
         raise ValueError('Unsupported optimizer: %s' % self.optimize_method)
 
-    def _visualize_sample(self):
+    def visualize_sample(self):
         sample = self.x_train[1]
         label = self.y_train[1]
         original_path = os.path.join(self.logpath, 'sample_original.png')
@@ -279,7 +252,7 @@ class Solver(object):
         if not self.augment_data:
             print('Data augmentation is disabled for this run.')
             return
-        augmented_sample, _ = self._augment_example(
+        augmented_sample, _ = self.augment_example(
             tf.convert_to_tensor(sample),
             tf.convert_to_tensor(label),
         )
@@ -288,35 +261,30 @@ class Solver(object):
         show_image(augmented_sample.numpy(), save_path=augmented_path)
         print('Saved augmented training sample to %s' % augmented_path)
 
-    def _get_visualizable_kernel(self):
-        for layer in self._iter_model_layers():
+    def visualize_filters(self):
+        layer_name, kernel_type, kernel = None, None, None
+        for layer in self.iter_model_layers():
             generate_kernel = getattr(layer, '_generate_kernel', None)
             if generate_kernel is not None:
+                layer_name = layer.name
+                kernel_type = 'hyper-generated'
                 kernel = generate_kernel().numpy()
-                return layer.name, 'hyper-generated', kernel
-
-        for layer in self._iter_model_layers():
-            kernel = getattr(layer, 'kernel', None)
-            if kernel is not None:
-                return layer.name, 'trainable', kernel.numpy()
-        return None, None, None
-
-    def _preview_kernel(self, kernel, max_input_channels=16, max_output_channels=16):
-        if kernel.ndim != 4:
-            return kernel
-        return kernel[
-            :,
-            :,
-            : min(kernel.shape[2], max_input_channels),
-            : min(kernel.shape[3], max_output_channels),
-        ]
-
-    def _visualize_filters(self):
-        layer_name, kernel_type, kernel = self._get_visualizable_kernel()
+                break
+        if kernel is None:
+            for layer in self.iter_model_layers():
+                k = getattr(layer, 'kernel', None)
+                if k is not None:
+                    layer_name = layer.name
+                    kernel_type = 'trainable'
+                    kernel = k.numpy()
+                    break
         if kernel is None:
             print('Filter visualization is not available for the current model.')
             return
-        preview = self._preview_kernel(kernel)
+
+        preview = kernel
+        if kernel.ndim == 4:
+            preview = kernel[:, :, : min(kernel.shape[2], 16), : min(kernel.shape[3], 16)]
         print(
             'Visualizing %s kernel from layer %s with shape %s.'
             % (kernel_type, layer_name, kernel.shape)
@@ -330,7 +298,7 @@ class Solver(object):
         show_filter(preview, save_path=filter_path)
         print('Saved filter visualization to %s' % filter_path)
 
-    def _make_dataset(self, x, y, training=False):
+    def make_dataset(self, x, y, training=False):
         if x is None or y is None:
             return None
 
@@ -338,10 +306,10 @@ class Solver(object):
         if training:
             dataset = dataset.shuffle(buffer_size=len(x), seed=self.seed, reshuffle_each_iteration=True)
             if self.augment_data:
-                dataset = dataset.map(self._augment_example, num_parallel_calls=tf.data.AUTOTUNE)
+                dataset = dataset.map(self.augment_example, num_parallel_calls=tf.data.AUTOTUNE)
         return dataset.batch(self.batch_size).prefetch(tf.data.AUTOTUNE)
 
-    def _augment_example(self, image, label):
+    def augment_example(self, image, label):
         if self.augmentation in ('mnist', 'pad_crop'):
             image = tf.pad(image, [[1, 1], [1, 1], [0, 0]], mode='CONSTANT')
             image = tf.image.random_crop(image, size=(self.x_dim, self.x_dim, self.c_dim))
@@ -351,11 +319,11 @@ class Solver(object):
             image = tf.image.random_flip_left_right(image)
         return image, label
 
-    def _compute_loss(self, labels, logits):
+    def compute_loss(self, labels, logits):
         losses = self.loss_fn(labels, logits)
         return tf.reduce_mean(losses), losses
 
-    def _iter_model_layers(self):
+    def iter_model_layers(self):
         if hasattr(self.model, '_flatten_layers'):
             yield from self.model._flatten_layers(include_self=False, recursive=True)
             return
@@ -364,7 +332,7 @@ class Solver(object):
             for child in getattr(layer, 'layers', []):
                 yield child
 
-    def _regularization_loss(self):
+    def regularization_loss(self):
         if self.weight_decay <= 0.0:
             return 0.0
         penalties = [
@@ -378,11 +346,11 @@ class Solver(object):
         return self.weight_decay * tf.add_n(penalties)
 
     @tf.function(reduce_retracing=True)
-    def _train_step(self, batch_x, batch_y):
+    def train_step(self, batch_x, batch_y):
         with tf.GradientTape() as tape:
             logits = self.model(batch_x, training=True)
-            data_loss, _ = self._compute_loss(batch_y, logits)
-            loss = data_loss + self._regularization_loss()
+            data_loss, _ = self.compute_loss(batch_y, logits)
+            loss = data_loss + self.regularization_loss()
         gradients = tape.gradient(loss, self.model.trainable_variables)
         if self.grad_clip is not None:
             gradients, _ = tf.clip_by_global_norm(gradients, self.grad_clip)
@@ -395,19 +363,19 @@ class Solver(object):
         return logits, data_loss
 
     @tf.function(reduce_retracing=True)
-    def _eval_step(self, batch_x, batch_y):
+    def eval_step(self, batch_x, batch_y):
         logits = self.model(batch_x, training=False)
-        _, per_example_losses = self._compute_loss(batch_y, logits)
+        _, per_example_losses = self.compute_loss(batch_y, logits)
         probabilities = tf.nn.softmax(logits)
         return per_example_losses, probabilities
 
-    def _current_learning_rate(self):
+    def current_learning_rate(self):
         learning_rate = self.optimizer.learning_rate
         if callable(learning_rate):
             learning_rate = learning_rate(self.optimizer.iterations)
         return float(tf.keras.backend.get_value(learning_rate))
 
-    def _set_learning_rate(self, learning_rate):
+    def set_learning_rate(self, learning_rate):
         learning_rate = max(float(learning_rate), self.min_learning_rate)
         current = self.optimizer.learning_rate
         if hasattr(current, 'assign'):
@@ -415,61 +383,54 @@ class Solver(object):
         else:
             self.optimizer.learning_rate = learning_rate
 
-    def _assert_model_weights_finite(self) -> None:
+    def restore_best_weights(self):
+        keras_best_path = os.path.join(self.best_dir, 'weights.weights.h5')
+        if os.path.isfile(keras_best_path):
+            path, source = keras_best_path, 'best'
+        else:
+            legacy_best = tf.train.latest_checkpoint(self.best_dir)
+            if legacy_best:
+                path, source = legacy_best, 'best'
+            else:
+                keras_latest_path = os.path.join(self.latest_dir, 'weights.weights.h5')
+                if os.path.isfile(keras_latest_path):
+                    print(
+                        'No weights in best/ (%s); loading from latest/ instead.'
+                        % self.best_dir
+                    )
+                    path, source = keras_latest_path, 'latest'
+                else:
+                    legacy_latest = tf.train.latest_checkpoint(self.latest_dir)
+                    if legacy_latest:
+                        print(
+                            'No checkpoint in best/ (%s); loading weights from latest/ instead.'
+                            % self.best_dir
+                        )
+                        path, source = legacy_latest, 'latest'
+                    else:
+                        raise ValueError(
+                            'No checkpoints found under this run. Train first, e.g.:\n'
+                            '  best:  %s/weights.weights.h5\n'
+                            '  latest: %s/weights.weights.h5\n'
+                            'Use val_split > 0 during training so best/ receives the best validation snapshot.'
+                            % (self.best_dir, self.latest_dir)
+                        )
+
+        if path.endswith('.h5'):
+            self.model.load_weights(path)
+        else:
+            tf.train.Checkpoint(model=self.model).restore(path).expect_partial()
+
         for w in self.model.weights:
             if not np.isfinite(w.numpy()).all():
                 raise ValueError(
                     'Non-finite weight %s after checkpoint restore.' % w.name
                 )
-
-    def _restore_weights_from_path(self, checkpoint_path: str) -> None:
-        try:
-            self.model.load_weights(checkpoint_path)
-        except Exception as exc:
-            print(
-                'model.load_weights failed (%s); using Checkpoint(model=...).restore.'
-                % exc
-            )
-            tf.train.Checkpoint(model=self.model).restore(
-                checkpoint_path
-            ).expect_partial()
-        self._assert_model_weights_finite()
-
-    def _checkpoint_path_for_eval(self):
-        """Prefer ``best/``; if missing (e.g. not trained locally), use ``latest/``."""
-        path = self.best_manager.latest_checkpoint
-        if path is not None:
-            return path, 'best'
-        path = self.latest_manager.latest_checkpoint
-        if path is not None:
-            print(
-                'No checkpoint in best/ (%s); loading weights from latest/ instead.'
-                % self.best_dir
-            )
-            return path, 'latest'
-        raise ValueError(
-            'No checkpoints found under this run. Train first, e.g.:\n'
-            '  best:  %s\n'
-            '  latest: %s\n'
-            'Use val_split > 0 during training so best/ receives the best validation snapshot.'
-            % (self.best_dir, self.latest_dir)
-        )
-
-    def _restore_best_checkpoint(self, weights_only=False):
-        checkpoint_path, source = self._checkpoint_path_for_eval()
-        if weights_only:
-            self._restore_weights_from_path(checkpoint_path)
-            print(
-                'Restored eval weights from %s checkpoint: %s'
-                % (source, checkpoint_path)
-            )
-            return checkpoint_path
-        status = self.checkpoint.restore(checkpoint_path)
-        status.expect_partial()
-        return checkpoint_path
+        print('Restored eval weights from %s: %s' % (source, path))
+        return path
 
     def evaluate_best_checkpoint(self):
-        checkpoint = self._restore_best_checkpoint(weights_only=True)
+        checkpoint = self.restore_best_weights()
         return {
             'checkpoint': checkpoint,
             'train': self.evaluate_in_batch(self.x_train, self.y_train),
@@ -477,15 +438,22 @@ class Solver(object):
             'test': self.evaluate_in_batch(self.x_test, self.y_test),
         }
 
-    def _save_checkpoint(self, epoch, is_best):
-        self.epoch_var.assign(epoch)
-        self.latest_manager.save(checkpoint_number=epoch)
+    def save_epoch_weights(self, epoch, is_best):
+        self.model.save_weights(self.latest_weights_path)
         if not self.save_best_only:
-            self.history_manager.save(checkpoint_number=epoch)
+            hist_path = os.path.join(self.history_dir, 'epoch_%05d.weights.h5' % epoch)
+            self.model.save_weights(hist_path)
+            pattern = os.path.join(self.history_dir, 'epoch_*.weights.h5')
+            files = sorted(glob.glob(pattern))
+            for old_path in files[:-5]:
+                try:
+                    os.remove(old_path)
+                except OSError:
+                    pass
         if is_best:
-            self.best_manager.save(checkpoint_number=epoch)
+            self.model.save_weights(self.best_weights_path)
 
-    def _load_training_state(self):
+    def load_training_state(self):
         if not os.path.exists(self.state_path):
             return {
                 'completed_epochs': 0,
@@ -501,8 +469,8 @@ class Solver(object):
         state.setdefault('metric_name', self.metric_name)
         return state
 
-    def _load_existing_best_state(self):
-        state = self._load_training_state()
+    def load_existing_best_state(self):
+        state = self.load_training_state()
         best_metric = state.get('best_metric')
         best_epoch = state.get('best_epoch', 0)
         metric_name = state.get('metric_name')
@@ -515,9 +483,11 @@ class Solver(object):
                 % (metric_name, self.metric_name)
             )
             return None, 0
-        if self.best_manager.latest_checkpoint is None:
+        has_keras_best = os.path.isfile(os.path.join(self.best_dir, 'weights.weights.h5'))
+        has_legacy_best = tf.train.latest_checkpoint(self.best_dir) is not None
+        if not has_keras_best and not has_legacy_best:
             print(
-                'Ignoring previous best metric %.6f because no checkpoint exists under %s.'
+                'Ignoring previous best metric %.6f because no weights exist under %s.'
                 % (best_metric, self.best_dir)
             )
             return None, 0
@@ -528,7 +498,7 @@ class Solver(object):
         )
         return float(best_metric), int(best_epoch)
 
-    def _save_training_state(self, completed_epochs, best_epoch, best_metric, global_step):
+    def save_training_state(self, completed_epochs, best_epoch, best_metric, global_step):
         state = {
             'completed_epochs': int(completed_epochs),
             'best_epoch': int(best_epoch),
@@ -539,36 +509,36 @@ class Solver(object):
         with open(self.state_path, 'w') as state_file:
             json.dump(state, state_file, indent=2, sort_keys=True)
 
-    def _train_epoch(self):
-        train_dataset = self._make_dataset(self.x_train, self.y_train, training=True)
+    def train_epoch(self):
+        train_dataset = self.make_dataset(self.x_train, self.y_train, training=True)
         loss_metric = tf.keras.metrics.Mean()
         acc_metric = tf.keras.metrics.CategoricalAccuracy()
         for batch_x, batch_y in train_dataset:
             if self.max_steps is not None and int(self.optimizer.iterations.numpy()) >= self.max_steps:
                 break
-            logits, loss = self._train_step(batch_x, batch_y)
+            logits, loss = self.train_step(batch_x, batch_y)
             loss_metric.update_state(loss)
             acc_metric.update_state(batch_y, tf.nn.softmax(logits))
         return float(loss_metric.result().numpy()), float(acc_metric.result().numpy())
 
-    def _write_scalar_summary(self, summary_writer, tag, value, step):
-        if value is None:
-            return
+    def log_epoch_metrics(self, summary_writer, epoch, metrics, learning_rate, best_metric):
         with summary_writer.as_default():
-            tf.summary.scalar(tag, value, step=step)
-
-    def _log_epoch_metrics(self, summary_writer, epoch, metrics, learning_rate, best_metric):
-        self._write_scalar_summary(summary_writer, 'train/loss', metrics['train'][0], epoch)
-        self._write_scalar_summary(summary_writer, 'train/accuracy', metrics['train'][1], epoch)
-        self._write_scalar_summary(summary_writer, 'val/loss', metrics['val'][0], epoch)
-        self._write_scalar_summary(summary_writer, 'val/accuracy', metrics['val'][1], epoch)
-        self._write_scalar_summary(summary_writer, 'test/loss', metrics['test'][0], epoch)
-        self._write_scalar_summary(summary_writer, 'test/accuracy', metrics['test'][1], epoch)
-        self._write_scalar_summary(summary_writer, 'training/learning_rate', learning_rate, epoch)
-        self._write_scalar_summary(summary_writer, 'training/best_metric', best_metric, epoch)
+            rows = (
+                ('train/loss', metrics['train'][0]),
+                ('train/accuracy', metrics['train'][1]),
+                ('val/loss', metrics['val'][0]),
+                ('val/accuracy', metrics['val'][1]),
+                ('test/loss', metrics['test'][0]),
+                ('test/accuracy', metrics['test'][1]),
+                ('training/learning_rate', learning_rate),
+                ('training/best_metric', best_metric),
+            )
+            for tag, value in rows:
+                if value is not None:
+                    tf.summary.scalar(tag, value, step=epoch)
         summary_writer.flush()
 
-    def _print_epoch_metrics(self, prefix, epoch, metrics, learning_rate, is_best, best_metric):
+    def print_epoch_metrics(self, prefix, epoch, metrics, learning_rate, is_best, best_metric):
         parts = [
             '%s %3d:' % (prefix, epoch),
             'train loss: %.6f' % metrics['train'][0],
@@ -597,11 +567,11 @@ class Solver(object):
         best_epoch = 0
 
         if self.show_sample:
-            self._visualize_sample()
+            self.visualize_sample()
 
         if self.eval_only:
-            self._restore_best_checkpoint(weights_only=True)
-            state = self._load_training_state()
+            self.restore_best_weights()
+            state = self.load_training_state()
             start_epoch = state['completed_epochs']
             best_metric = state['best_metric']
             best_epoch = state['best_epoch']
@@ -611,16 +581,16 @@ class Solver(object):
                 'val': self.evaluate_in_batch(self.x_val, self.y_val),
                 'test': self.evaluate_in_batch(self.x_test, self.y_test),
             }
-            # self._print_epoch_metrics('Eval', start_epoch, metrics, None, False, best_metric)
+            # self.print_epoch_metrics('Eval', start_epoch, metrics, None, False, best_metric)
             if self.show_filters:
-                self._visualize_filters()
+                self.visualize_filters()
             return metrics
 
         if start_epoch >= self.max_epoch:
             print('Training already completed up to epoch %d.' % start_epoch)
             return None
 
-        best_metric, best_epoch = self._load_existing_best_state()
+        best_metric, best_epoch = self.load_existing_best_state()
         previous_best_metric = best_metric
         summary_writer = tf.summary.create_file_writer(self.logpath)
         epochs_without_improvement = 0
@@ -628,13 +598,13 @@ class Solver(object):
             if self.max_steps is not None and int(self.optimizer.iterations.numpy()) >= self.max_steps:
                 break
             epoch_id = epoch + 1
-            train_metrics = self._train_epoch()
+            train_metrics = self.train_epoch()
             metrics = {
                 'train': train_metrics,
                 'val': self.evaluate_in_batch(self.x_val, self.y_val),
                 'test': self.evaluate_in_batch(self.x_test, self.y_test),
             }
-            learning_rate = self._current_learning_rate()
+            learning_rate = self.current_learning_rate()
             selection_metric = metrics['val'][1] if metrics['val'][1] is not None else metrics['test'][1]
             is_best = best_metric is None or selection_metric > best_metric
             if is_best:
@@ -650,15 +620,15 @@ class Solver(object):
             else:
                 epochs_without_improvement += 1
 
-            self._save_checkpoint(epoch_id, is_best)
-            self._save_training_state(
+            self.save_epoch_weights(epoch_id, is_best)
+            self.save_training_state(
                 epoch_id,
                 best_epoch,
                 best_metric,
                 int(self.optimizer.iterations.numpy()),
             )
-            self._log_epoch_metrics(summary_writer, epoch_id, metrics, learning_rate, best_metric)
-            self._print_epoch_metrics('Epoch', epoch_id, metrics, learning_rate, is_best, best_metric)
+            self.log_epoch_metrics(summary_writer, epoch_id, metrics, learning_rate, best_metric)
+            self.print_epoch_metrics('Epoch', epoch_id, metrics, learning_rate, is_best, best_metric)
             if (
                 self.early_stopping_patience is not None
                 and epochs_without_improvement >= self.early_stopping_patience
@@ -669,7 +639,7 @@ class Solver(object):
         print('Best %s %.6f at epoch %d' % (self.metric_name, best_metric, best_epoch))
 
         if self.show_filters:
-            self._visualize_filters()
+            self.visualize_filters()
 
         return None
 
@@ -677,12 +647,12 @@ class Solver(object):
         if x is None or y is None:
             return None, None
 
-        dataset = self._make_dataset(x, y, training=False)
+        dataset = self.make_dataset(x, y, training=False)
         loss_metric = tf.keras.metrics.Mean()
         acc_metric = tf.keras.metrics.CategoricalAccuracy()
 
         for batch_x, batch_y in dataset:
-            per_example_losses, probabilities = self._eval_step(batch_x, batch_y)
+            per_example_losses, probabilities = self.eval_step(batch_x, batch_y)
             loss_metric.update_state(per_example_losses)
             acc_metric.update_state(batch_y, probabilities)
         return float(loss_metric.result().numpy()), float(acc_metric.result().numpy())
