@@ -19,15 +19,6 @@ tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 from my_datasets import Mnist, Cifar10, SVHN, FashionMnist
 from utils.visualize import show_filter, show_image
 
-SGD_LR_SCHEDULE = (
-    ((28000, 0.1), (56000, 0.02), (84000, 0.004), (112000, 0.0008)),
-    0.00016,
-)
-HYPER_LR_SCHEDULE = (
-    ((168000, 0.002), (336000, 0.001), (504000, 0.0002)),
-    0.00005,
-)
-
 
 class Solver(object):
     def __init__(self, dataset='mnist', model='simplecnn', **kwargs):
@@ -225,14 +216,36 @@ class Solver(object):
             if hasattr(layer, 'track_generated_kernel_l2'):
                 layer.track_generated_kernel_l2 = track_generated_kernel_l2
 
+    def _paper_schedule_step_budget(self):
+        """Global step budget for piecewise LR (matches max_steps or full epoch loop)."""
+        if self.max_steps is not None:
+            return max(1, int(self.max_steps))
+        return max(1, int(self.max_epoch) * int(self.n_iterations))
+
     def _create_learning_rate_schedule(self):
         if self.lr_schedule_name == 'paper':
-            schedule, final_learning_rate = (
-                HYPER_LR_SCHEDULE if self.hyper_mode else SGD_LR_SCHEDULE
-            )
-            boundaries = [step for step, _ in schedule]
-            values = [learning_rate for _, learning_rate in schedule]
-            values.append(final_learning_rate)
+            total_steps = self._paper_schedule_step_budget()
+            if self.hyper_mode:
+                # Three drops at 25% / 50% / 75% of budget (672k-step paper default).
+                boundary_fracs = (0.25, 0.5, 0.75)
+                values = [0.002, 0.001, 0.0002, 0.00005]
+            else:
+                # Four drops at 20% / 40% / 60% / 80% (140k-step WRN baseline default).
+                boundary_fracs = (0.2, 0.4, 0.6, 0.8)
+                values = [0.1, 0.02, 0.004, 0.0008, 0.00016]
+            boundaries = []
+            last_b = -1
+            cap = max(0, total_steps - 1)
+            for frac in boundary_fracs:
+                b = int(total_steps * frac)
+                b = max(last_b + 1, min(b, cap))
+                if b > cap:
+                    break
+                boundaries.append(b)
+                last_b = b
+            if not boundaries:
+                return float(values[-1])
+            values = values[: len(boundaries) + 1]
             return tf.keras.optimizers.schedules.PiecewiseConstantDecay(
                 boundaries=boundaries,
                 values=values,
@@ -402,19 +415,22 @@ class Solver(object):
         else:
             self.optimizer.learning_rate = learning_rate
 
-    def _restore_best_checkpoint(self):
+    def _restore_best_checkpoint(self, weights_only=False):
         checkpoint = self.best_manager.latest_checkpoint
         if checkpoint is None:
             raise ValueError(
                 'No best checkpoint found under %s. Train with validation split so best weights are saved.'
                 % self.best_dir
             )
-        status = self.checkpoint.restore(checkpoint)
+        if weights_only:
+            status = tf.train.Checkpoint(model=self.model).restore(checkpoint)
+        else:
+            status = self.checkpoint.restore(checkpoint)
         status.expect_partial()
         return checkpoint
 
     def evaluate_best_checkpoint(self):
-        checkpoint = self._restore_best_checkpoint()
+        checkpoint = self._restore_best_checkpoint(weights_only=True)
         return {
             'checkpoint': checkpoint,
             'train': self.evaluate_in_batch(self.x_train, self.y_train),
@@ -545,7 +561,7 @@ class Solver(object):
             self._visualize_sample()
 
         if self.eval_only:
-            checkpoint = self._restore_best_checkpoint()
+            checkpoint = self._restore_best_checkpoint(weights_only=True)
             print('Restored best checkpoint from %s' % checkpoint)
             state = self._load_training_state()
             start_epoch = state['completed_epochs']
@@ -560,11 +576,11 @@ class Solver(object):
             self._print_epoch_metrics('Eval', start_epoch, metrics, None, False, best_metric)
             if self.show_filters:
                 self._visualize_filters()
-            return
+            return metrics
 
         if start_epoch >= self.max_epoch:
             print('Training already completed up to epoch %d.' % start_epoch)
-            return
+            return None
 
         best_metric, best_epoch = self._load_existing_best_state()
         previous_best_metric = best_metric
@@ -616,6 +632,8 @@ class Solver(object):
 
         if self.show_filters:
             self._visualize_filters()
+
+        return None
 
     def evaluate_in_batch(self, x, y):
         if x is None or y is None:
