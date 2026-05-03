@@ -415,19 +415,58 @@ class Solver(object):
         else:
             self.optimizer.learning_rate = learning_rate
 
-    def _restore_best_checkpoint(self, weights_only=False):
-        checkpoint = self.best_manager.latest_checkpoint
-        if checkpoint is None:
-            raise ValueError(
-                'No best checkpoint found under %s. Train with validation split so best weights are saved.'
+    def _assert_model_weights_finite(self) -> None:
+        for w in self.model.weights:
+            if not np.isfinite(w.numpy()).all():
+                raise ValueError(
+                    'Non-finite weight %s after checkpoint restore.' % w.name
+                )
+
+    def _restore_weights_from_path(self, checkpoint_path: str) -> None:
+        try:
+            self.model.load_weights(checkpoint_path)
+        except Exception as exc:
+            print(
+                'model.load_weights failed (%s); using Checkpoint(model=...).restore.'
+                % exc
+            )
+            tf.train.Checkpoint(model=self.model).restore(
+                checkpoint_path
+            ).expect_partial()
+        self._assert_model_weights_finite()
+
+    def _checkpoint_path_for_eval(self):
+        """Prefer ``best/``; if missing (e.g. not trained locally), use ``latest/``."""
+        path = self.best_manager.latest_checkpoint
+        if path is not None:
+            return path, 'best'
+        path = self.latest_manager.latest_checkpoint
+        if path is not None:
+            print(
+                'No checkpoint in best/ (%s); loading weights from latest/ instead.'
                 % self.best_dir
             )
+            return path, 'latest'
+        raise ValueError(
+            'No checkpoints found under this run. Train first, e.g.:\n'
+            '  best:  %s\n'
+            '  latest: %s\n'
+            'Use val_split > 0 during training so best/ receives the best validation snapshot.'
+            % (self.best_dir, self.latest_dir)
+        )
+
+    def _restore_best_checkpoint(self, weights_only=False):
+        checkpoint_path, source = self._checkpoint_path_for_eval()
         if weights_only:
-            status = tf.train.Checkpoint(model=self.model).restore(checkpoint)
-        else:
-            status = self.checkpoint.restore(checkpoint)
+            self._restore_weights_from_path(checkpoint_path)
+            print(
+                'Restored eval weights from %s checkpoint: %s'
+                % (source, checkpoint_path)
+            )
+            return checkpoint_path
+        status = self.checkpoint.restore(checkpoint_path)
         status.expect_partial()
-        return checkpoint
+        return checkpoint_path
 
     def evaluate_best_checkpoint(self):
         checkpoint = self._restore_best_checkpoint(weights_only=True)
@@ -561,8 +600,7 @@ class Solver(object):
             self._visualize_sample()
 
         if self.eval_only:
-            checkpoint = self._restore_best_checkpoint(weights_only=True)
-            print('Restored best checkpoint from %s' % checkpoint)
+            self._restore_best_checkpoint(weights_only=True)
             state = self._load_training_state()
             start_epoch = state['completed_epochs']
             best_metric = state['best_metric']
@@ -573,7 +611,7 @@ class Solver(object):
                 'val': self.evaluate_in_batch(self.x_val, self.y_val),
                 'test': self.evaluate_in_batch(self.x_test, self.y_test),
             }
-            self._print_epoch_metrics('Eval', start_epoch, metrics, None, False, best_metric)
+            # self._print_epoch_metrics('Eval', start_epoch, metrics, None, False, best_metric)
             if self.show_filters:
                 self._visualize_filters()
             return metrics

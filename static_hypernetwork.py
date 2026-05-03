@@ -21,9 +21,9 @@ DATASETS_ALL = ["mnist", "fashion_mnist", "cifar10", "svhn"]
 MODELS_ALL = ["simplecnn", "wrn40_2", "resnet50"]
 
 MODEL_TRAIN_DEFAULTS = {
-    "simplecnn": {"max_epoch": 20, "learning_rate": 5e-4, "batch_size": 1024},
-    "wrn40_2": {"max_epoch": 10, "learning_rate": 5e-4, "batch_size": 512},
-    "resnet50": {"max_epoch": 10, "learning_rate": 5e-4, "batch_size": 256},
+    "simplecnn": {"max_epoch": 100, "learning_rate": 5e-4, "batch_size": 1024, "early_stopping_patience": 10},
+    "wrn40_2": {"max_epoch": 50, "learning_rate": 5e-3, "batch_size": 512, "early_stopping_patience": 10},
+    "resnet50": {"max_epoch": 50, "learning_rate": 5e-3, "batch_size": 256, "early_stopping_patience": 10},
 }
 
 RESIDUAL_IMAGE_COMMON = {
@@ -36,13 +36,11 @@ RESIDUAL_IMAGE_COMMON = {
 RESIDUAL_IMAGE_BASELINE = {
     **RESIDUAL_IMAGE_COMMON,
     "learning_rate": 0.1,
-    "max_steps": 140000,
     "optimizer": "sgd_nesterov",
 }
 RESIDUAL_IMAGE_HYPER = {
     **RESIDUAL_IMAGE_COMMON,
     "learning_rate": 0.002,
-    "max_steps": 672000,
     "optimizer": "adam",
 }
 
@@ -54,7 +52,6 @@ SIMPLECNN_GRAYSCALE = {
     "val_split": 5000,
     "augment_data": True,
     "augmentation": "mnist",
-    "early_stopping_patience": 10,
 }
 
 BENCHMARK_SETTINGS = [
