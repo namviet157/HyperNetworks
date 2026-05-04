@@ -1,0 +1,13 @@
+Dataset,Model,Val_BPC,Test_BPC,Checkpoint
+ptb,LSTM_Baseline_1000,0.9014,0.8937,results_ptb_final/LSTM_Baseline_1000_best.pth
+ptb,LayerNorm_LSTM_1000,0.9080,0.8795,results_ptb_final/LayerNorm_LSTM_1000_best.pth
+ptb,HyperLSTM_1000,0.9215,0.9009,results_ptb_final/HyperLSTM_1000_best.pth
+ptb,LayerNorm_HyperLSTM_1000,0.9076,0.8831,results_ptb_final/LayerNorm_HyperLSTM_1000_best.pth
+enwik8,LSTM_no_dropout,1.2479,1.2519,results_enwik8_final/LSTM_no_dropout_best.pth
+enwik8,LayerNorm_LSTM,1.1398,1.1791,results_enwik8_final/LayerNorm_LSTM_best.pth
+enwik8,HyperLSTM,1.2201,1.2193,results_enwik8_final/HyperLSTM_best.pth
+enwik8,LayerNorm_HyperLSTM,1.6241,1.6323,results_enwik8_final/LayerNorm_HyperLSTM_best.pth
+shakespeare,Baseline_LSTM,1.4636,1.5769,train_shakespeare_results/Baseline_LSTM_best.pth
+shakespeare,LN_LSTM,1.4651,1.5693,train_shakespeare_results/LN_LSTM_best.pth
+shakespeare,Hyper_LSTM,1.4693,1.6054,train_shakespeare_results/Hyper_LSTM_best.pth
+shakespeare,LN_Hyper_LSTM,1.4419,1.5467,train_shakespeare_results/LN_Hyper_LSTM_best.pth

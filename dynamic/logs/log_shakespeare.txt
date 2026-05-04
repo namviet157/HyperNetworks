@@ -1,0 +1,284 @@
+Shakespeare: vocab=65, train=1003854, val=55770, test=55770
+Device: cuda
+============================================================
+Shakespeare (Novel Dataset): embed=64, hidden=1000, batch=128, seq=100, steps=20000
+============================================================
+
+Training Baseline_LSTM...
+  [Baseline_LSTM] 1/20000 | Val BPC=5.9698 | 0.0 it/s | ETA=...
+    -> Best! BPC=5.9698
+  [Baseline_LSTM] 500/20000 | Val BPC=2.9155 | 5.7 it/s | ETA=0:56:43
+    -> Best! BPC=2.9155
+  [Baseline_LSTM] 1000/20000 | Val BPC=2.6127 | 5.7 it/s | ETA=0:55:22
+    -> Best! BPC=2.6127
+  [Baseline_LSTM] 1500/20000 | Val BPC=2.5648 | 5.7 it/s | ETA=0:53:49
+    -> Best! BPC=2.5648
+  [Baseline_LSTM] 2000/20000 | Val BPC=2.4323 | 5.7 it/s | ETA=0:52:29
+    -> Best! BPC=2.4323
+  [Baseline_LSTM] 2500/20000 | Val BPC=2.4049 | 5.7 it/s | ETA=0:51:02
+    -> Best! BPC=2.4049
+  [Baseline_LSTM] 3000/20000 | Val BPC=2.2929 | 5.7 it/s | ETA=0:49:33
+    -> Best! BPC=2.2929
+  [Baseline_LSTM] 3500/20000 | Val BPC=2.3203 | 5.7 it/s | ETA=0:48:05
+  [Baseline_LSTM] 4000/20000 | Val BPC=2.2744 | 5.0 it/s | ETA=0:53:04
+    -> Best! BPC=2.2744
+  [Baseline_LSTM] 4500/20000 | Val BPC=2.2223 | 5.6 it/s | ETA=0:46:04
+    -> Best! BPC=2.2223
+  [Baseline_LSTM] 5000/20000 | Val BPC=2.2160 | 6.4 it/s | ETA=0:38:57
+    -> Best! BPC=2.2160
+  [Baseline_LSTM] 5500/20000 | Val BPC=2.1886 | 7.1 it/s | ETA=0:34:11
+    -> Best! BPC=2.1886
+  [Baseline_LSTM] 6000/20000 | Val BPC=2.1887 | 7.1 it/s | ETA=0:33:04
+  [Baseline_LSTM] 6500/20000 | Val BPC=2.2645 | 7.1 it/s | ETA=0:31:53
+  [Baseline_LSTM] 7000/20000 | Val BPC=2.1597 | 7.1 it/s | ETA=0:30:31
+    -> Best! BPC=2.1597
+  [Baseline_LSTM] 7500/20000 | Val BPC=2.1592 | 7.0 it/s | ETA=0:29:34
+    -> Best! BPC=2.1592
+  [Baseline_LSTM] 8000/20000 | Val BPC=2.1854 | 7.0 it/s | ETA=0:28:28
+  [Baseline_LSTM] 8500/20000 | Val BPC=2.1050 | 7.0 it/s | ETA=0:27:15
+    -> Best! BPC=2.1050
+  [Baseline_LSTM] 9000/20000 | Val BPC=2.2007 | 7.1 it/s | ETA=0:25:58
+  [Baseline_LSTM] 9500/20000 | Val BPC=2.1328 | 7.0 it/s | ETA=0:24:54
+  [Baseline_LSTM] 10000/20000 | Val BPC=2.1248 | 7.1 it/s | ETA=0:23:38
+  [Baseline_LSTM] 10500/20000 | Val BPC=2.0871 | 7.0 it/s | ETA=0:22:31
+    -> Best! BPC=2.0871
+  [Baseline_LSTM] 11000/20000 | Val BPC=2.1488 | 6.9 it/s | ETA=0:21:49
+  [Baseline_LSTM] 11500/20000 | Val BPC=2.0810 | 5.6 it/s | ETA=0:25:21
+    -> Best! BPC=2.0810
+  [Baseline_LSTM] 12000/20000 | Val BPC=2.0982 | 5.7 it/s | ETA=0:23:19
+  [Baseline_LSTM] 12500/20000 | Val BPC=2.0805 | 6.8 it/s | ETA=0:18:19
+    -> Best! BPC=2.0805
+  [Baseline_LSTM] 13000/20000 | Val BPC=2.0667 | 7.1 it/s | ETA=0:16:27
+    -> Best! BPC=2.0667
+  [Baseline_LSTM] 13500/20000 | Val BPC=2.0777 | 7.0 it/s | ETA=0:15:24
+  [Baseline_LSTM] 14000/20000 | Val BPC=2.0665 | 7.1 it/s | ETA=0:14:09
+    -> Best! BPC=2.0665
+  [Baseline_LSTM] 14500/20000 | Val BPC=2.0941 | 7.1 it/s | ETA=0:12:56
+  [Baseline_LSTM] 15000/20000 | Val BPC=2.0659 | 7.1 it/s | ETA=0:11:48
+    -> Best! BPC=2.0659
+  [Baseline_LSTM] 15500/20000 | Val BPC=2.0832 | 7.0 it/s | ETA=0:10:40
+  [Baseline_LSTM] 16000/20000 | Val BPC=2.1215 | 7.0 it/s | ETA=0:09:27
+  [Baseline_LSTM] 16500/20000 | Val BPC=2.1047 | 7.1 it/s | ETA=0:08:14
+  [Baseline_LSTM] 17000/20000 | Val BPC=2.1197 | 7.1 it/s | ETA=0:07:05
+  [Baseline_LSTM] 17500/20000 | Val BPC=2.0619 | 7.1 it/s | ETA=0:05:54
+    -> Best! BPC=2.0619
+  [Baseline_LSTM] 18000/20000 | Val BPC=2.0902 | 7.0 it/s | ETA=0:04:44
+  [Baseline_LSTM] 18500/20000 | Val BPC=2.1188 | 7.1 it/s | ETA=0:03:32
+  [Baseline_LSTM] 19000/20000 | Val BPC=2.1024 | 7.0 it/s | ETA=0:02:21
+  [Baseline_LSTM] 19500/20000 | Val BPC=2.0657 | 7.0 it/s | ETA=0:01:11
+  [Baseline_LSTM] 20000/20000 | Val BPC=2.0865 | 7.0 it/s | ETA=0:00:00
+  [Baseline_LSTM] Training done. Best Val BPC=2.0619
+
+Training LN_LSTM...
+  [LN_LSTM] 1/20000 | Val BPC=5.7511 | 0.0 it/s | ETA=...
+    -> Best! BPC=5.7511
+  [LN_LSTM] 500/20000 | Val BPC=2.8713 | 5.4 it/s | ETA=1:00:09
+    -> Best! BPC=2.8713
+  [LN_LSTM] 1000/20000 | Val BPC=2.6568 | 5.4 it/s | ETA=0:58:55
+    -> Best! BPC=2.6568
+  [LN_LSTM] 1500/20000 | Val BPC=2.5676 | 5.4 it/s | ETA=0:57:15
+    -> Best! BPC=2.5676
+  [LN_LSTM] 2000/20000 | Val BPC=2.4543 | 5.4 it/s | ETA=0:56:01
+    -> Best! BPC=2.4543
+  [LN_LSTM] 2500/20000 | Val BPC=2.4107 | 5.4 it/s | ETA=0:54:03
+    -> Best! BPC=2.4107
+  [LN_LSTM] 3000/20000 | Val BPC=2.3289 | 5.4 it/s | ETA=0:52:26
+    -> Best! BPC=2.3289
+  [LN_LSTM] 3500/20000 | Val BPC=2.3304 | 5.4 it/s | ETA=0:51:13
+  [LN_LSTM] 4000/20000 | Val BPC=2.2678 | 5.4 it/s | ETA=0:49:24
+    -> Best! BPC=2.2678
+  [LN_LSTM] 4500/20000 | Val BPC=2.2694 | 5.4 it/s | ETA=0:47:45
+  [LN_LSTM] 5000/20000 | Val BPC=2.2032 | 5.4 it/s | ETA=0:46:13
+    -> Best! BPC=2.2032
+  [LN_LSTM] 5500/20000 | Val BPC=2.1876 | 5.4 it/s | ETA=0:44:57
+    -> Best! BPC=2.1876
+  [LN_LSTM] 6000/20000 | Val BPC=2.2005 | 5.4 it/s | ETA=0:43:10
+  [LN_LSTM] 6500/20000 | Val BPC=2.1424 | 5.4 it/s | ETA=0:41:48
+    -> Best! BPC=2.1424
+  [LN_LSTM] 7000/20000 | Val BPC=2.1650 | 5.4 it/s | ETA=0:40:07
+  [LN_LSTM] 7500/20000 | Val BPC=2.1359 | 5.4 it/s | ETA=0:38:23
+    -> Best! BPC=2.1359
+  [LN_LSTM] 8000/20000 | Val BPC=2.1148 | 5.4 it/s | ETA=0:37:07
+    -> Best! BPC=2.1148
+  [LN_LSTM] 8500/20000 | Val BPC=2.1561 | 5.4 it/s | ETA=0:35:43
+  [LN_LSTM] 9000/20000 | Val BPC=2.1361 | 5.4 it/s | ETA=0:34:06
+  [LN_LSTM] 9500/20000 | Val BPC=2.1454 | 5.4 it/s | ETA=0:32:33
+  [LN_LSTM] 10000/20000 | Val BPC=2.1340 | 5.4 it/s | ETA=0:31:06
+  [LN_LSTM] 10500/20000 | Val BPC=2.1156 | 5.4 it/s | ETA=0:29:23
+  [LN_LSTM] 11000/20000 | Val BPC=2.1106 | 5.4 it/s | ETA=0:27:54
+    -> Best! BPC=2.1106
+  [LN_LSTM] 11500/20000 | Val BPC=2.0623 | 5.4 it/s | ETA=0:26:20
+    -> Best! BPC=2.0623
+  [LN_LSTM] 12000/20000 | Val BPC=2.0423 | 5.4 it/s | ETA=0:24:52
+    -> Best! BPC=2.0423
+  [LN_LSTM] 12500/20000 | Val BPC=2.0956 | 5.4 it/s | ETA=0:23:18
+  [LN_LSTM] 13000/20000 | Val BPC=2.0396 | 5.4 it/s | ETA=0:21:37
+    -> Best! BPC=2.0396
+  [LN_LSTM] 13500/20000 | Val BPC=2.0481 | 5.3 it/s | ETA=0:20:15
+  [LN_LSTM] 14000/20000 | Val BPC=2.0952 | 5.4 it/s | ETA=0:18:40
+  [LN_LSTM] 14500/20000 | Val BPC=2.0634 | 5.4 it/s | ETA=0:17:03
+  [LN_LSTM] 15000/20000 | Val BPC=2.1465 | 5.4 it/s | ETA=0:15:30
+  [LN_LSTM] 15500/20000 | Val BPC=2.0578 | 5.4 it/s | ETA=0:13:57
+  [LN_LSTM] 16000/20000 | Val BPC=2.0439 | 5.4 it/s | ETA=0:12:25
+  [LN_LSTM] 16500/20000 | Val BPC=2.0784 | 5.4 it/s | ETA=0:10:52
+  [LN_LSTM] 17000/20000 | Val BPC=2.0517 | 5.4 it/s | ETA=0:09:18
+  [LN_LSTM] 17500/20000 | Val BPC=2.0519 | 5.4 it/s | ETA=0:07:44
+  [LN_LSTM] 18000/20000 | Val BPC=2.0401 | 5.4 it/s | ETA=0:06:12
+  [LN_LSTM] 18500/20000 | Val BPC=2.0784 | 5.4 it/s | ETA=0:04:38
+  [LN_LSTM] 19000/20000 | Val BPC=2.1054 | 5.4 it/s | ETA=0:03:05
+  [LN_LSTM] 19500/20000 | Val BPC=1.9889 | 5.4 it/s | ETA=0:01:32
+    -> Best! BPC=1.9889
+  [LN_LSTM] 20000/20000 | Val BPC=2.0659 | 5.1 it/s | ETA=0:00:00
+  [LN_LSTM] Training done. Best Val BPC=1.9889
+
+Training Hyper_LSTM...
+Shakespeare: vocab=65, train=1003854, val=55770, test=55770
+Device: cuda
+============================================================
+Shakespeare (Novel Dataset): embed=64, hidden=1000, batch=128, seq=100, steps=20000
+  hyper_hid=32, hyper_emb=4, keep_prob=0.9
+============================================================
+
+Training Baseline_LSTM...
+  Resumed from step 20001
+  [Baseline_LSTM] Training done. Best Val BPC=2.0619
+
+Training LN_LSTM...
+  Resumed from step 20001
+  [LN_LSTM] Training done. Best Val BPC=1.9889
+
+Training Hyper_LSTM...
+  [Hyper_LSTM] 1/20000 | Val BPC=5.7732 | 0.0 it/s | ETA=...
+    -> Best! BPC=5.7732
+  [Hyper_LSTM] 500/20000 | Val BPC=2.8244 | 3.3 it/s | ETA=1:37:32
+    -> Best! BPC=2.8244
+  [Hyper_LSTM] 1000/20000 | Val BPC=2.5429 | 3.3 it/s | ETA=1:35:01
+    -> Best! BPC=2.5429
+  [Hyper_LSTM] 1500/20000 | Val BPC=2.4933 | 3.0 it/s | ETA=1:42:06
+    -> Best! BPC=2.4933
+  [Hyper_LSTM] 2000/20000 | Val BPC=2.4305 | 3.2 it/s | ETA=1:33:56
+    -> Best! BPC=2.4305
+  [Hyper_LSTM] 2500/20000 | Val BPC=2.4293 | 3.3 it/s | ETA=1:27:09
+    -> Best! BPC=2.4293
+  [Hyper_LSTM] 3000/20000 | Val BPC=2.3098 | 3.3 it/s | ETA=1:26:26
+    -> Best! BPC=2.3098
+  [Hyper_LSTM] 3500/20000 | Val BPC=2.3388 | 3.3 it/s | ETA=1:24:27
+  [Hyper_LSTM] 4000/20000 | Val BPC=2.3498 | 3.2 it/s | ETA=1:22:37
+  [Hyper_LSTM] 4500/20000 | Val BPC=2.2460 | 3.3 it/s | ETA=1:19:04
+    -> Best! BPC=2.2460
+  [Hyper_LSTM] 5000/20000 | Val BPC=2.2417 | 3.4 it/s | ETA=1:14:02
+    -> Best! BPC=2.2417
+  [Hyper_LSTM] 5500/20000 | Val BPC=2.2486 | 3.3 it/s | ETA=1:13:27
+  [Hyper_LSTM] 6000/20000 | Val BPC=2.2630 | 3.3 it/s | ETA=1:10:49
+  [Hyper_LSTM] 6500/20000 | Val BPC=2.2000 | 3.3 it/s | ETA=1:07:50
+    -> Best! BPC=2.2000
+  [Hyper_LSTM] 7000/20000 | Val BPC=2.2327 | 3.3 it/s | ETA=1:04:58
+  [Hyper_LSTM] 7500/20000 | Val BPC=2.2033 | 3.4 it/s | ETA=1:01:40
+  [Hyper_LSTM] 8000/20000 | Val BPC=2.1984 | 3.3 it/s | ETA=0:59:55
+    -> Best! BPC=2.1984
+  [Hyper_LSTM] 8500/20000 | Val BPC=2.1350 | 3.3 it/s | ETA=0:58:08
+    -> Best! BPC=2.1350
+  [Hyper_LSTM] 9000/20000 | Val BPC=2.1872 | 3.3 it/s | ETA=0:55:34
+  [Hyper_LSTM] 9500/20000 | Val BPC=2.1132 | 3.2 it/s | ETA=0:54:14
+    -> Best! BPC=2.1132
+  [Hyper_LSTM] 10000/20000 | Val BPC=2.1282 | 3.2 it/s | ETA=0:51:24
+  [Hyper_LSTM] 10500/20000 | Val BPC=2.1641 | 3.4 it/s | ETA=0:47:04
+  [Hyper_LSTM] 11000/20000 | Val BPC=2.1527 | 4.4 it/s | ETA=0:33:58
+  [Hyper_LSTM] 11500/20000 | Val BPC=2.1086 | 4.4 it/s | ETA=0:32:09
+    -> Best! BPC=2.1086
+  [Hyper_LSTM] 12000/20000 | Val BPC=2.1871 | 4.4 it/s | ETA=0:30:29
+  [Hyper_LSTM] 12500/20000 | Val BPC=2.1335 | 4.4 it/s | ETA=0:28:41
+  [Hyper_LSTM] 13000/20000 | Val BPC=2.1344 | 4.4 it/s | ETA=0:26:44
+  [Hyper_LSTM] 13500/20000 | Val BPC=2.0959 | 4.4 it/s | ETA=0:24:45
+    -> Best! BPC=2.0959
+  [Hyper_LSTM] 14000/20000 | Val BPC=2.0896 | 4.3 it/s | ETA=0:23:01
+    -> Best! BPC=2.0896
+  [Hyper_LSTM] 14500/20000 | Val BPC=2.1271 | 4.3 it/s | ETA=0:21:06
+  [Hyper_LSTM] 15000/20000 | Val BPC=2.0666 | 4.4 it/s | ETA=0:19:00
+    -> Best! BPC=2.0666
+  [Hyper_LSTM] 15500/20000 | Val BPC=2.1409 | 4.4 it/s | ETA=0:17:07
+  [Hyper_LSTM] 16000/20000 | Val BPC=2.0949 | 4.3 it/s | ETA=0:15:26
+  [Hyper_LSTM] 16500/20000 | Val BPC=2.1319 | 4.4 it/s | ETA=0:13:17
+  [Hyper_LSTM] 17000/20000 | Val BPC=2.0615 | 4.4 it/s | ETA=0:11:19
+    -> Best! BPC=2.0615
+  [Hyper_LSTM] 17500/20000 | Val BPC=2.0813 | 4.4 it/s | ETA=0:09:29
+  [Hyper_LSTM] 18000/20000 | Val BPC=2.1274 | 4.4 it/s | ETA=0:07:38
+  [Hyper_LSTM] 18500/20000 | Val BPC=2.0852 | 4.4 it/s | ETA=0:05:41
+  [Hyper_LSTM] 19000/20000 | Val BPC=2.1355 | 4.4 it/s | ETA=0:03:48
+  [Hyper_LSTM] 19500/20000 | Val BPC=2.1165 | 4.3 it/s | ETA=0:01:55
+  [Hyper_LSTM] 20000/20000 | Val BPC=2.1543 | 4.3 it/s | ETA=0:00:00
+  [Hyper_LSTM] Training done. Best Val BPC=2.0261
+
+Training LN_Hyper_LSTM...
+  [LN_Hyper_LSTM] 1/20000 | Val BPC=5.4799 | 0.0 it/s | ETA=...
+    -> Best! BPC=5.4799
+  [LN_Hyper_LSTM] 500/20000 | Val BPC=2.8603 | 3.5 it/s | ETA=1:31:44
+    -> Best! BPC=2.8603
+  [LN_Hyper_LSTM] 1000/20000 | Val BPC=2.6992 | 3.7 it/s | ETA=1:26:42
+    -> Best! BPC=2.6992
+  [LN_Hyper_LSTM] 1500/20000 | Val BPC=2.5598 | 3.7 it/s | ETA=1:24:05
+    -> Best! BPC=2.5598
+  [LN_Hyper_LSTM] 2000/20000 | Val BPC=2.4809 | 3.6 it/s | ETA=1:24:19
+    -> Best! BPC=2.4809
+  [LN_Hyper_LSTM] 2500/20000 | Val BPC=2.3920 | 3.7 it/s | ETA=1:18:41
+    -> Best! BPC=2.3920
+  [LN_Hyper_LSTM] 3000/20000 | Val BPC=2.3053 | 3.6 it/s | ETA=1:19:10
+    -> Best! BPC=2.3053
+  [LN_Hyper_LSTM] 3500/20000 | Val BPC=2.3445 | 3.7 it/s | ETA=1:14:12
+  [LN_Hyper_LSTM] 4000/20000 | Val BPC=2.2796 | 3.7 it/s | ETA=1:12:05
+    -> Best! BPC=2.2796
+  [LN_Hyper_LSTM] 4500/20000 | Val BPC=2.2419 | 3.5 it/s | ETA=1:13:04
+    -> Best! BPC=2.2419
+  [LN_Hyper_LSTM] 5000/20000 | Val BPC=2.2355 | 3.6 it/s | ETA=1:08:48
+    -> Best! BPC=2.2355
+  [LN_Hyper_LSTM] 5500/20000 | Val BPC=2.2441 | 3.7 it/s | ETA=1:05:38
+  [LN_Hyper_LSTM] 6000/20000 | Val BPC=2.2242 | 3.6 it/s | ETA=1:04:01
+    -> Best! BPC=2.2242
+  [LN_Hyper_LSTM] 6500/20000 | Val BPC=2.2012 | 3.7 it/s | ETA=1:00:37
+    -> Best! BPC=2.2012
+  [LN_Hyper_LSTM] 7000/20000 | Val BPC=2.1388 | 3.7 it/s | ETA=0:58:07
+    -> Best! BPC=2.1388
+  [LN_Hyper_LSTM] 7500/20000 | Val BPC=2.1287 | 3.7 it/s | ETA=0:56:54
+    -> Best! BPC=2.1287
+  [LN_Hyper_LSTM] 8000/20000 | Val BPC=2.0910 | 3.7 it/s | ETA=0:54:18
+    -> Best! BPC=2.0910
+  [LN_Hyper_LSTM] 8500/20000 | Val BPC=2.1287 | 3.7 it/s | ETA=0:51:56
+  [LN_Hyper_LSTM] 9000/20000 | Val BPC=2.1216 | 3.6 it/s | ETA=0:51:31
+  [LN_Hyper_LSTM] 9500/20000 | Val BPC=2.1082 | 3.7 it/s | ETA=0:47:37
+  [LN_Hyper_LSTM] 10000/20000 | Val BPC=2.0817 | 3.7 it/s | ETA=0:45:22
+    -> Best! BPC=2.0817
+  [LN_Hyper_LSTM] 10500/20000 | Val BPC=2.1070 | 3.6 it/s | ETA=0:43:45
+  [LN_Hyper_LSTM] 11000/20000 | Val BPC=2.0454 | 3.7 it/s | ETA=0:40:40
+    -> Best! BPC=2.0454
+  [LN_Hyper_LSTM] 11500/20000 | Val BPC=2.0682 | 3.5 it/s | ETA=0:40:28
+  [LN_Hyper_LSTM] 12000/20000 | Val BPC=2.0844 | 3.5 it/s | ETA=0:37:52
+  [LN_Hyper_LSTM] 12500/20000 | Val BPC=2.0857 | 3.6 it/s | ETA=0:34:49
+  [LN_Hyper_LSTM] 13000/20000 | Val BPC=2.0878 | 3.7 it/s | ETA=0:31:38
+  [LN_Hyper_LSTM] 13500/20000 | Val BPC=2.0692 | 3.7 it/s | ETA=0:29:39
+  [LN_Hyper_LSTM] 14000/20000 | Val BPC=2.0352 | 3.6 it/s | ETA=0:27:58
+    -> Best! BPC=2.0352
+  [LN_Hyper_LSTM] 14500/20000 | Val BPC=2.0099 | 3.5 it/s | ETA=0:25:57
+    -> Best! BPC=2.0099
+  [LN_Hyper_LSTM] 15000/20000 | Val BPC=2.0852 | 3.6 it/s | ETA=0:23:08
+  [LN_Hyper_LSTM] 15500/20000 | Val BPC=2.0431 | 3.6 it/s | ETA=0:20:57
+  [LN_Hyper_LSTM] 16000/20000 | Val BPC=2.0665 | 3.6 it/s | ETA=0:18:39
+  [LN_Hyper_LSTM] 16500/20000 | Val BPC=2.0826 | 3.6 it/s | ETA=0:16:09
+  [LN_Hyper_LSTM] 17000/20000 | Val BPC=2.0167 | 3.6 it/s | ETA=0:14:03
+  [LN_Hyper_LSTM] 17500/20000 | Val BPC=2.0545 | 3.6 it/s | ETA=0:11:32
+  [LN_Hyper_LSTM] 18000/20000 | Val BPC=2.0587 | 3.6 it/s | ETA=0:09:18
+  [LN_Hyper_LSTM] 18500/20000 | Val BPC=1.9674 | 3.6 it/s | ETA=0:06:57
+    -> Best! BPC=1.9674
+  [LN_Hyper_LSTM] 19000/20000 | Val BPC=2.0032 | 3.5 it/s | ETA=0:04:42
+  [LN_Hyper_LSTM] 19500/20000 | Val BPC=2.0634 | 3.5 it/s | ETA=0:02:23
+  [LN_Hyper_LSTM] 20000/20000 | Val BPC=2.0770 | 3.5 it/s | ETA=0:00:00
+  [LN_Hyper_LSTM] Training done. Best Val BPC=1.9438
+
+============================================================
+TRAINING COMPLETE
+============================================================
+  Baseline_LSTM: Best Val BPC=2.0619
+  LN_LSTM:        Best Val BPC=1.9889
+  Hyper_LSTM:     Best Val BPC=2.0261  (+1.7% improvement over Baseline)
+  LN_Hyper_LSTM:  Best Val BPC=1.9438  (+2.3% improvement over LN_Baseline)
+
+Run eval_shakespeare.py to evaluate on test set and generate samples.

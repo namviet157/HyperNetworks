@@ -1,0 +1,12 @@
+Experiment,Variant,Val_BPC
+Exp1_Dropout,Baseline (no dropout),1.5987
+Exp1_Dropout,HyperLSTM,1.5969
+Exp2_LNPosition,LN_before,1.5954
+Exp2_LNPosition,LN_after,5.8690
+Exp3_Init,Orthogonal,1.5877
+Exp3_Init,Xavier,1.5647
+Exp4_Nz,Nz=1,1.5555
+Exp4_Nz,Nz=4,1.5978
+Exp4_Nz,Nz=16,1.6008
+Exp5_Reg,Orthogonal,1.5771
+Exp5_Reg,Normal_small,1.6052

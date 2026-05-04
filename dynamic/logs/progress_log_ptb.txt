@@ -1,0 +1,469 @@
+Loading PTB data...
+Vocab=50 | Train=5,101,615 | Val=399,779 | Test=449,942
+Device: cuda
+============================================================
+PTB Char-LM (arXiv:1609.09106 Table 3)
+  embed=64, hidden=1000, hyper_hid=32, hyper_emb=4
+  batch=128, seq=100, steps=40000, keep_prob=0.9
+  LSTM 1000 target:      val~1.347 test~1.312
+  LayerNorm HyperLSTM:    test~1.250
+============================================================
+
+Training LSTM_Baseline_1000...
+  [LSTM_Baseline_1000] 1/40000 | Val BPC=5.4907 | Val NLL=3.8058 | 0.0 it/s | ETA=...
+    -> Best! BPC=5.4907
+  [LSTM_Baseline_1000] 500/40000 | Val BPC=1.8139 | Val NLL=1.2573 | 7.5 it/s | ETA=1:27:25
+    -> Best! BPC=1.8139
+  [LSTM_Baseline_1000] 1000/40000 | Val BPC=1.6454 | Val NLL=1.1405 | 7.5 it/s | ETA=1:26:23
+    -> Best! BPC=1.6454
+  [LSTM_Baseline_1000] 1500/40000 | Val BPC=1.5714 | Val NLL=1.0892 | 7.5 it/s | ETA=1:25:24
+    -> Best! BPC=1.5714
+  [LSTM_Baseline_1000] 2000/40000 | Val BPC=1.5222 | Val NLL=1.0551 | 7.5 it/s | ETA=1:24:44
+    -> Best! BPC=1.5222
+  [LSTM_Baseline_1000] 2500/40000 | Val BPC=1.5020 | Val NLL=1.0411 | 6.0 it/s | ETA=1:44:43
+    -> Best! BPC=1.5020
+  [LSTM_Baseline_1000] 3000/40000 | Val BPC=1.4824 | Val NLL=1.0275 | 5.2 it/s | ETA=1:58:12
+    -> Best! BPC=1.4824
+  [LSTM_Baseline_1000] 3500/40000 | Val BPC=1.4742 | Val NLL=1.0219 | 6.1 it/s | ETA=1:39:49
+    -> Best! BPC=1.4742
+  [LSTM_Baseline_1000] 4000/40000 | Val BPC=1.4565 | Val NLL=1.0096 | 6.9 it/s | ETA=1:26:42
+    -> Best! BPC=1.4565
+  [LSTM_Baseline_1000] 4500/40000 | Val BPC=1.4516 | Val NLL=1.0061 | 5.2 it/s | ETA=1:54:31
+    -> Best! BPC=1.4516
+  [LSTM_Baseline_1000] 5000/40000 | Val BPC=1.4430 | Val NLL=1.0002 | 5.2 it/s | ETA=1:51:21
+    -> Best! BPC=1.4430
+  [LSTM_Baseline_1000] 5500/40000 | Val BPC=1.4464 | Val NLL=1.0025 | 7.3 it/s | ETA=1:18:27
+  [LSTM_Baseline_1000] 6000/40000 | Val BPC=1.4401 | Val NLL=0.9982 | 7.5 it/s | ETA=1:15:23
+    -> Best! BPC=1.4401
+  [LSTM_Baseline_1000] 6500/40000 | Val BPC=1.4310 | Val NLL=0.9919 | 6.6 it/s | ETA=1:24:23
+    -> Best! BPC=1.4310
+  [LSTM_Baseline_1000] 7000/40000 | Val BPC=1.4289 | Val NLL=0.9904 | 5.1 it/s | ETA=1:47:35
+    -> Best! BPC=1.4289
+  [LSTM_Baseline_1000] 7500/40000 | Val BPC=1.4303 | Val NLL=0.9914 | 5.5 it/s | ETA=1:38:20
+  [LSTM_Baseline_1000] 8000/40000 | Val BPC=1.4197 | Val NLL=0.9840 | 7.5 it/s | ETA=1:10:50
+    -> Best! BPC=1.4197
+  [LSTM_Baseline_1000] 8500/40000 | Val BPC=1.4224 | Val NLL=0.9860 | 6.9 it/s | ETA=1:16:04
+  [LSTM_Baseline_1000] 9000/40000 | Val BPC=1.4196 | Val NLL=0.9840 | 5.1 it/s | ETA=1:40:50
+    -> Best! BPC=1.4196
+  [LSTM_Baseline_1000] 9500/40000 | Val BPC=1.4258 | Val NLL=0.9883 | 5.5 it/s | ETA=1:32:19
+  [LSTM_Baseline_1000] 10000/40000 | Val BPC=1.4195 | Val NLL=0.9839 | 7.5 it/s | ETA=1:06:59
+    -> Best! BPC=1.4195
+  [LSTM_Baseline_1000] 10500/40000 | Val BPC=1.4150 | Val NLL=0.9808 | 7.6 it/s | ETA=1:04:55
+    -> Best! BPC=1.4150
+  [LSTM_Baseline_1000] 11000/40000 | Val BPC=1.4153 | Val NLL=0.9810 | 7.4 it/s | ETA=1:04:53
+  [LSTM_Baseline_1000] 11500/40000 | Val BPC=1.4133 | Val NLL=0.9796 | 7.5 it/s | ETA=1:03:29
+    -> Best! BPC=1.4133
+  [LSTM_Baseline_1000] 12000/40000 | Val BPC=1.4147 | Val NLL=0.9806 | 7.4 it/s | ETA=1:03:11
+  [LSTM_Baseline_1000] 12500/40000 | Val BPC=1.4125 | Val NLL=0.9791 | 7.4 it/s | ETA=1:01:53
+    -> Best! BPC=1.4125
+  [LSTM_Baseline_1000] 13000/40000 | Val BPC=1.4066 | Val NLL=0.9750 | 7.4 it/s | ETA=1:00:24
+    -> Best! BPC=1.4066
+  [LSTM_Baseline_1000] 13500/40000 | Val BPC=1.4138 | Val NLL=0.9800 | 7.4 it/s | ETA=0:59:54
+  [LSTM_Baseline_1000] 14000/40000 | Val BPC=1.4161 | Val NLL=0.9816 | 6.3 it/s | ETA=1:08:40
+  [LSTM_Baseline_1000] 14500/40000 | Val BPC=1.4088 | Val NLL=0.9765 | 7.5 it/s | ETA=0:56:46
+  [LSTM_Baseline_1000] 15000/40000 | Val BPC=1.4078 | Val NLL=0.9758 | 7.2 it/s | ETA=0:57:52
+  [LSTM_Baseline_1000] 15500/40000 | Val BPC=1.4108 | Val NLL=0.9779 | 7.4 it/s | ETA=0:55:17
+  [LSTM_Baseline_1000] 16000/40000 | Val BPC=1.4056 | Val NLL=0.9743 | 7.5 it/s | ETA=0:53:33
+    -> Best! BPC=1.4056
+  [LSTM_Baseline_1000] 16500/40000 | Val BPC=1.4084 | Val NLL=0.9762 | 6.4 it/s | ETA=1:01:32
+  [LSTM_Baseline_1000] 17000/40000 | Val BPC=1.4056 | Val NLL=0.9743 | 6.4 it/s | ETA=0:59:32
+    -> Best! BPC=1.4056
+  [LSTM_Baseline_1000] 17500/40000 | Val BPC=1.4062 | Val NLL=0.9747 | 7.7 it/s | ETA=0:48:56
+  [LSTM_Baseline_1000] 18000/40000 | Val BPC=1.4035 | Val NLL=0.9728 | 7.6 it/s | ETA=0:48:08
+    -> Best! BPC=1.4035
+  [LSTM_Baseline_1000] 18500/40000 | Val BPC=1.4048 | Val NLL=0.9737 | 7.5 it/s | ETA=0:47:42
+  [LSTM_Baseline_1000] 19000/40000 | Val BPC=1.4027 | Val NLL=0.9723 | 6.3 it/s | ETA=0:55:27
+    -> Best! BPC=1.4027
+  [LSTM_Baseline_1000] 19500/40000 | Val BPC=1.4023 | Val NLL=0.9720 | 5.1 it/s | ETA=1:06:32
+    -> Best! BPC=1.4023
+  [LSTM_Baseline_1000] 20000/40000 | Val BPC=1.4055 | Val NLL=0.9742 | 5.8 it/s | ETA=0:57:17
+  [LSTM_Baseline_1000] 20500/40000 | Val BPC=1.4053 | Val NLL=0.9741 | 7.5 it/s | ETA=0:43:09
+  [LSTM_Baseline_1000] 21000/40000 | Val BPC=1.4051 | Val NLL=0.9740 | 7.5 it/s | ETA=0:42:15
+  [LSTM_Baseline_1000] 21500/40000 | Val BPC=1.4018 | Val NLL=0.9717 | 7.4 it/s | ETA=0:41:39
+    -> Best! BPC=1.4018
+  [LSTM_Baseline_1000] 22000/40000 | Val BPC=1.3979 | Val NLL=0.9689 | 7.7 it/s | ETA=0:38:55
+    -> Best! BPC=1.3979
+  [LSTM_Baseline_1000] 22500/40000 | Val BPC=1.4090 | Val NLL=0.9766 | 7.4 it/s | ETA=0:39:33
+  [LSTM_Baseline_1000] 23000/40000 | Val BPC=1.4076 | Val NLL=0.9757 | 7.6 it/s | ETA=0:37:25
+  [LSTM_Baseline_1000] 23500/40000 | Val BPC=1.3986 | Val NLL=0.9694 | 7.5 it/s | ETA=0:36:31
+  [LSTM_Baseline_1000] 24000/40000 | Val BPC=1.4102 | Val NLL=0.9775 | 7.3 it/s | ETA=0:36:31
+  [LSTM_Baseline_1000] 24500/40000 | Val BPC=1.4019 | Val NLL=0.9717 | 5.3 it/s | ETA=0:48:25
+  [LSTM_Baseline_1000] 25000/40000 | Val BPC=1.3982 | Val NLL=0.9691 | 5.1 it/s | ETA=0:48:34
+  [LSTM_Baseline_1000] 25500/40000 | Val BPC=1.3974 | Val NLL=0.9686 | 7.1 it/s | ETA=0:34:07
+    -> Best! BPC=1.3974
+  [LSTM_Baseline_1000] 26000/40000 | Val BPC=1.4021 | Val NLL=0.9719 | 6.0 it/s | ETA=0:38:43
+  [LSTM_Baseline_1000] 26500/40000 | Val BPC=1.4020 | Val NLL=0.9718 | 5.2 it/s | ETA=0:43:26
+  [LSTM_Baseline_1000] 27000/40000 | Val BPC=1.4038 | Val NLL=0.9730 | 6.2 it/s | ETA=0:34:58
+  [LSTM_Baseline_1000] 27500/40000 | Val BPC=1.3966 | Val NLL=0.9680 | 7.4 it/s | ETA=0:28:04
+    -> Best! BPC=1.3966
+  [LSTM_Baseline_1000] 28000/40000 | Val BPC=1.3975 | Val NLL=0.9687 | 7.5 it/s | ETA=0:26:48
+  [LSTM_Baseline_1000] 28500/40000 | Val BPC=1.4070 | Val NLL=0.9752 | 7.5 it/s | ETA=0:25:23
+  [LSTM_Baseline_1000] 29000/40000 | Val BPC=1.4033 | Val NLL=0.9727 | 7.3 it/s | ETA=0:25:01
+  [LSTM_Baseline_1000] 29500/40000 | Val BPC=1.3984 | Val NLL=0.9693 | 7.3 it/s | ETA=0:23:59
+  [LSTM_Baseline_1000] 30000/40000 | Val BPC=1.4020 | Val NLL=0.9718 | 7.3 it/s | ETA=0:22:43
+  [LSTM_Baseline_1000] 30500/40000 | Val BPC=1.3970 | Val NLL=0.9683 | 7.3 it/s | ETA=0:21:47
+  [LSTM_Baseline_1000] 31000/40000 | Val BPC=1.3974 | Val NLL=0.9686 | 7.3 it/s | ETA=0:20:31
+  [LSTM_Baseline_1000] 31500/40000 | Val BPC=1.4008 | Val NLL=0.9710 | 7.3 it/s | ETA=0:19:22
+  [LSTM_Baseline_1000] 32000/40000 | Val BPC=1.4012 | Val NLL=0.9713 | 7.3 it/s | ETA=0:18:12
+  [LSTM_Baseline_1000] 32500/40000 | Val BPC=1.3986 | Val NLL=0.9694 | 7.4 it/s | ETA=0:16:57
+  [LSTM_Baseline_1000] 33000/40000 | Val BPC=1.4064 | Val NLL=0.9749 | 7.2 it/s | ETA=0:16:17
+  [LSTM_Baseline_1000] 33500/40000 | Val BPC=1.4030 | Val NLL=0.9725 | 7.3 it/s | ETA=0:14:49
+  [LSTM_Baseline_1000] 34000/40000 | Val BPC=1.4041 | Val NLL=0.9732 | 7.3 it/s | ETA=0:13:43
+  [LSTM_Baseline_1000] 34500/40000 | Val BPC=1.4045 | Val NLL=0.9736 | 7.5 it/s | ETA=0:12:10
+  [LSTM_Baseline_1000] 35000/40000 | Val BPC=1.4005 | Val NLL=0.9707 | 7.3 it/s | ETA=0:11:26
+  [LSTM_Baseline_1000] 35500/40000 | Val BPC=1.3955 | Val NLL=0.9673 | 7.4 it/s | ETA=0:10:06
+    -> Best! BPC=1.3955
+  [LSTM_Baseline_1000] 36000/40000 | Val BPC=1.4002 | Val NLL=0.9706 | 7.2 it/s | ETA=0:09:15
+  [LSTM_Baseline_1000] 36500/40000 | Val BPC=1.3931 | Val NLL=0.9656 | 7.1 it/s | ETA=0:08:13
+    -> Best! BPC=1.3931
+  [LSTM_Baseline_1000] 37000/40000 | Val BPC=1.3980 | Val NLL=0.9690 | 7.3 it/s | ETA=0:06:52
+  [LSTM_Baseline_1000] 37500/40000 | Val BPC=1.3995 | Val NLL=0.9701 | 7.3 it/s | ETA=0:05:41
+  [LSTM_Baseline_1000] 38000/40000 | Val BPC=1.4013 | Val NLL=0.9713 | 7.2 it/s | ETA=0:04:37
+  [LSTM_Baseline_1000] 38500/40000 | Val BPC=1.4029 | Val NLL=0.9724 | 7.3 it/s | ETA=0:03:25
+  [LSTM_Baseline_1000] 39000/40000 | Val BPC=1.4003 | Val NLL=0.9706 | 7.3 it/s | ETA=0:02:16
+  [LSTM_Baseline_1000] 39500/40000 | Val BPC=1.4027 | Val NLL=0.9723 | 7.4 it/s | ETA=0:01:08
+  [LSTM_Baseline_1000] 40000/40000 | Val BPC=1.3983 | Val NLL=0.9693 | 7.2 it/s | ETA=0:00:00
+  [LSTM_Baseline_1000] Test BPC=1.3623 | Test NLL=0.9443
+
+Training LayerNorm_LSTM_1000...
+  [LayerNorm_LSTM_1000] 1/40000 | Val BPC=5.3757 | Val NLL=3.7261 | 0.0 it/s | ETA=...
+    -> Best! BPC=5.3757
+  [LayerNorm_LSTM_1000] 500/40000 | Val BPC=1.6743 | Val NLL=1.1606 | 5.4 it/s | ETA=2:01:47
+    -> Best! BPC=1.6743
+  [LayerNorm_LSTM_1000] 1000/40000 | Val BPC=1.5663 | Val NLL=1.0857 | 5.4 it/s | ETA=2:00:18
+    -> Best! BPC=1.5663
+  [LayerNorm_LSTM_1000] 1500/40000 | Val BPC=1.5281 | Val NLL=1.0592 | 5.4 it/s | ETA=1:58:38
+    -> Best! BPC=1.5281
+  [LayerNorm_LSTM_1000] 2000/40000 | Val BPC=1.5057 | Val NLL=1.0437 | 4.9 it/s | ETA=2:07:59
+    -> Best! BPC=1.5057
+  [LayerNorm_LSTM_1000] 2500/40000 | Val BPC=1.4818 | Val NLL=1.0271 | 3.8 it/s | ETA=2:43:15
+    -> Best! BPC=1.4818
+  [LayerNorm_LSTM_1000] 3000/40000 | Val BPC=1.4735 | Val NLL=1.0213 | 4.8 it/s | ETA=2:07:44
+    -> Best! BPC=1.4735
+  [LayerNorm_LSTM_1000] 3500/40000 | Val BPC=1.4532 | Val NLL=1.0073 | 5.4 it/s | ETA=1:52:31
+    -> Best! BPC=1.4532
+  [LayerNorm_LSTM_1000] 4000/40000 | Val BPC=1.4468 | Val NLL=1.0028 | 5.4 it/s | ETA=1:50:36
+    -> Best! BPC=1.4468
+  [LayerNorm_LSTM_1000] 4500/40000 | Val BPC=1.4359 | Val NLL=0.9953 | 5.5 it/s | ETA=1:48:26
+    -> Best! BPC=1.4359
+  [LayerNorm_LSTM_1000] 5000/40000 | Val BPC=1.4347 | Val NLL=0.9945 | 5.4 it/s | ETA=1:47:36
+    -> Best! BPC=1.4347
+  [LayerNorm_LSTM_1000] 5500/40000 | Val BPC=1.4302 | Val NLL=0.9913 | 5.5 it/s | ETA=1:45:29
+    -> Best! BPC=1.4302
+  [LayerNorm_LSTM_1000] 6000/40000 | Val BPC=1.4206 | Val NLL=0.9847 | 5.3 it/s | ETA=1:46:46
+    -> Best! BPC=1.4206
+  [LayerNorm_LSTM_1000] 6500/40000 | Val BPC=1.4191 | Val NLL=0.9837 | 5.2 it/s | ETA=1:46:34
+    -> Best! BPC=1.4191
+  [LayerNorm_LSTM_1000] 7000/40000 | Val BPC=1.4229 | Val NLL=0.9863 | 4.0 it/s | ETA=2:17:43
+  [LayerNorm_LSTM_1000] 7500/40000 | Val BPC=1.4187 | Val NLL=0.9833 | 4.7 it/s | ETA=1:56:21
+    -> Best! BPC=1.4187
+  [LayerNorm_LSTM_1000] 8000/40000 | Val BPC=1.4174 | Val NLL=0.9825 | 4.2 it/s | ETA=2:07:59
+    -> Best! BPC=1.4174
+  [LayerNorm_LSTM_1000] 8500/40000 | Val BPC=1.4119 | Val NLL=0.9786 | 4.1 it/s | ETA=2:08:10
+    -> Best! BPC=1.4119
+  [LayerNorm_LSTM_1000] 9000/40000 | Val BPC=1.4143 | Val NLL=0.9803 | 5.2 it/s | ETA=1:38:46
+  [LayerNorm_LSTM_1000] 9500/40000 | Val BPC=1.4005 | Val NLL=0.9708 | 5.2 it/s | ETA=1:37:58
+    -> Best! BPC=1.4005
+  [LayerNorm_LSTM_1000] 10000/40000 | Val BPC=1.4083 | Val NLL=0.9761 | 5.1 it/s | ETA=1:38:19
+  [LayerNorm_LSTM_1000] 10500/40000 | Val BPC=1.4011 | Val NLL=0.9712 | 5.2 it/s | ETA=1:33:39
+  [LayerNorm_LSTM_1000] 11000/40000 | Val BPC=1.4047 | Val NLL=0.9736 | 5.1 it/s | ETA=1:34:13
+  [LayerNorm_LSTM_1000] 11500/40000 | Val BPC=1.4081 | Val NLL=0.9760 | 5.2 it/s | ETA=1:31:21
+  [LayerNorm_LSTM_1000] 12000/40000 | Val BPC=1.3977 | Val NLL=0.9688 | 5.1 it/s | ETA=1:32:16
+    -> Best! BPC=1.3977
+  [LayerNorm_LSTM_1000] 12500/40000 | Val BPC=1.4103 | Val NLL=0.9775 | 5.3 it/s | ETA=1:25:51
+  [LayerNorm_LSTM_1000] 13000/40000 | Val BPC=1.3984 | Val NLL=0.9693 | 5.2 it/s | ETA=1:26:27
+  [LayerNorm_LSTM_1000] 13500/40000 | Val BPC=1.3939 | Val NLL=0.9662 | 5.2 it/s | ETA=1:25:02
+    -> Best! BPC=1.3939
+  [LayerNorm_LSTM_1000] 14000/40000 | Val BPC=1.3992 | Val NLL=0.9699 | 5.3 it/s | ETA=1:21:30
+  [LayerNorm_LSTM_1000] 14500/40000 | Val BPC=1.3961 | Val NLL=0.9677 | 5.1 it/s | ETA=1:23:28
+  [LayerNorm_LSTM_1000] 15000/40000 | Val BPC=1.3985 | Val NLL=0.9693 | 5.1 it/s | ETA=1:22:24
+  [LayerNorm_LSTM_1000] 15500/40000 | Val BPC=1.4021 | Val NLL=0.9719 | 5.1 it/s | ETA=1:19:50
+  [LayerNorm_LSTM_1000] 16000/40000 | Val BPC=1.3987 | Val NLL=0.9695 | 5.1 it/s | ETA=1:18:19
+  [LayerNorm_LSTM_1000] 16500/40000 | Val BPC=1.3990 | Val NLL=0.9697 | 4.9 it/s | ETA=1:19:15
+  [LayerNorm_LSTM_1000] 17000/40000 | Val BPC=1.3939 | Val NLL=0.9662 | 5.1 it/s | ETA=1:15:50
+    -> Best! BPC=1.3939
+  [LayerNorm_LSTM_1000] 17500/40000 | Val BPC=1.3924 | Val NLL=0.9651 | 5.4 it/s | ETA=1:09:45
+    -> Best! BPC=1.3924
+  [LayerNorm_LSTM_1000] 18000/40000 | Val BPC=1.3999 | Val NLL=0.9703 | 5.2 it/s | ETA=1:09:54
+  [LayerNorm_LSTM_1000] 18500/40000 | Val BPC=1.3957 | Val NLL=0.9675 | 5.3 it/s | ETA=1:08:11
+  [LayerNorm_LSTM_1000] 19000/40000 | Val BPC=1.3986 | Val NLL=0.9695 | 5.4 it/s | ETA=1:05:07
+  [LayerNorm_LSTM_1000] 19500/40000 | Val BPC=1.4050 | Val NLL=0.9738 | 5.4 it/s | ETA=1:03:24
+  [LayerNorm_LSTM_1000] 20000/40000 | Val BPC=1.3931 | Val NLL=0.9657 | 4.2 it/s | ETA=1:18:37
+  [LayerNorm_LSTM_1000] 20500/40000 | Val BPC=1.3980 | Val NLL=0.9690 | 3.9 it/s | ETA=1:24:05
+  [LayerNorm_LSTM_1000] 21000/40000 | Val BPC=1.3953 | Val NLL=0.9672 | 5.3 it/s | ETA=0:59:50
+  [LayerNorm_LSTM_1000] 21500/40000 | Val BPC=1.3963 | Val NLL=0.9679 | 5.4 it/s | ETA=0:57:31
+  [LayerNorm_LSTM_1000] 22000/40000 | Val BPC=1.3946 | Val NLL=0.9666 | 5.4 it/s | ETA=0:55:51
+  [LayerNorm_LSTM_1000] 22500/40000 | Val BPC=1.3971 | Val NLL=0.9684 | 5.4 it/s | ETA=0:54:18
+  [LayerNorm_LSTM_1000] 23000/40000 | Val BPC=1.4019 | Val NLL=0.9717 | 5.4 it/s | ETA=0:52:29
+  [LayerNorm_LSTM_1000] 23500/40000 | Val BPC=1.3899 | Val NLL=0.9634 | 5.3 it/s | ETA=0:51:32
+    -> Best! BPC=1.3899
+  [LayerNorm_LSTM_1000] 24000/40000 | Val BPC=1.4024 | Val NLL=0.9720 | 5.4 it/s | ETA=0:49:30
+  [LayerNorm_LSTM_1000] 24500/40000 | Val BPC=1.3963 | Val NLL=0.9678 | 5.4 it/s | ETA=0:47:59
+  [LayerNorm_LSTM_1000] 25000/40000 | Val BPC=1.3928 | Val NLL=0.9654 | 5.4 it/s | ETA=0:46:23
+  [LayerNorm_LSTM_1000] 25500/40000 | Val BPC=1.3935 | Val NLL=0.9659 | 5.4 it/s | ETA=0:44:37
+  [LayerNorm_LSTM_1000] 26000/40000 | Val BPC=1.3951 | Val NLL=0.9670 | 5.4 it/s | ETA=0:42:56
+  [LayerNorm_LSTM_1000] 26500/40000 | Val BPC=1.3953 | Val NLL=0.9672 | 5.5 it/s | ETA=0:40:57
+  [LayerNorm_LSTM_1000] 27000/40000 | Val BPC=1.3919 | Val NLL=0.9648 | 5.5 it/s | ETA=0:39:43
+  [LayerNorm_LSTM_1000] 27500/40000 | Val BPC=1.3949 | Val NLL=0.9669 | 5.4 it/s | ETA=0:38:18
+  [LayerNorm_LSTM_1000] 28000/40000 | Val BPC=1.4024 | Val NLL=0.9721 | 5.5 it/s | ETA=0:36:11
+  [LayerNorm_LSTM_1000] 28500/40000 | Val BPC=1.3934 | Val NLL=0.9659 | 5.4 it/s | ETA=0:35:13
+  [LayerNorm_LSTM_1000] 29000/40000 | Val BPC=1.4010 | Val NLL=0.9711 | 5.5 it/s | ETA=0:33:21
+  [LayerNorm_LSTM_1000] 29500/40000 | Val BPC=1.3960 | Val NLL=0.9676 | 5.5 it/s | ETA=0:31:35
+  [LayerNorm_LSTM_1000] 30000/40000 | Val BPC=1.3962 | Val NLL=0.9678 | 5.5 it/s | ETA=0:30:08
+  [LayerNorm_LSTM_1000] 30500/40000 | Val BPC=1.3988 | Val NLL=0.9696 | 5.6 it/s | ETA=0:28:27
+  [LayerNorm_LSTM_1000] 31000/40000 | Val BPC=1.3964 | Val NLL=0.9679 | 5.5 it/s | ETA=0:27:11
+  [LayerNorm_LSTM_1000] 31500/40000 | Val BPC=1.3963 | Val NLL=0.9678 | 5.5 it/s | ETA=0:25:50
+  [LayerNorm_LSTM_1000] 32000/40000 | Val BPC=1.4007 | Val NLL=0.9709 | 5.5 it/s | ETA=0:24:21
+  [LayerNorm_LSTM_1000] 32500/40000 | Val BPC=1.3941 | Val NLL=0.9663 | 5.4 it/s | ETA=0:22:56
+  [LayerNorm_LSTM_1000] 33000/40000 | Val BPC=1.3961 | Val NLL=0.9677 | 5.5 it/s | ETA=0:21:22
+  [LayerNorm_LSTM_1000] 33500/40000 | Val BPC=1.4011 | Val NLL=0.9712 | 5.4 it/s | ETA=0:19:59
+  [LayerNorm_LSTM_1000] 34000/40000 | Val BPC=1.3997 | Val NLL=0.9702 | 5.4 it/s | ETA=0:18:28
+  [LayerNorm_LSTM_1000] 34500/40000 | Val BPC=1.3897 | Val NLL=0.9633 | 5.4 it/s | ETA=0:17:04
+    -> Best! BPC=1.3897
+  [LayerNorm_LSTM_1000] 35000/40000 | Val BPC=1.4025 | Val NLL=0.9721 | 5.4 it/s | ETA=0:15:27
+  [LayerNorm_LSTM_1000] 35500/40000 | Val BPC=1.4040 | Val NLL=0.9732 | 5.4 it/s | ETA=0:13:56
+  [LayerNorm_LSTM_1000] 36000/40000 | Val BPC=1.3979 | Val NLL=0.9689 | 5.4 it/s | ETA=0:12:16
+  [LayerNorm_LSTM_1000] 36500/40000 | Val BPC=1.3961 | Val NLL=0.9677 | 5.4 it/s | ETA=0:10:52
+  [LayerNorm_LSTM_1000] 37000/40000 | Val BPC=1.3928 | Val NLL=0.9654 | 5.4 it/s | ETA=0:09:15
+  [LayerNorm_LSTM_1000] 37500/40000 | Val BPC=1.3966 | Val NLL=0.9680 | 5.5 it/s | ETA=0:07:38
+  [LayerNorm_LSTM_1000] 38000/40000 | Val BPC=1.4003 | Val NLL=0.9706 | 5.4 it/s | ETA=0:06:11
+  [LayerNorm_LSTM_1000] 38500/40000 | Val BPC=1.3983 | Val NLL=0.9693 | 5.4 it/s | ETA=0:04:35
+  [LayerNorm_LSTM_1000] 39000/40000 | Val BPC=1.4031 | Val NLL=0.9726 | 5.5 it/s | ETA=0:03:02
+  [LayerNorm_LSTM_1000] 39500/40000 | Val BPC=1.3953 | Val NLL=0.9672 | 5.4 it/s | ETA=0:01:32
+  [LayerNorm_LSTM_1000] 40000/40000 | Val BPC=1.4049 | Val NLL=0.9738 | 5.1 it/s | ETA=0:00:00
+  [LayerNorm_LSTM_1000] Test BPC=1.3564 | Test NLL=0.9402
+
+Training HyperLSTM_1000...
+  [HyperLSTM_1000] 1/40000 | Val BPC=5.6271 | Val NLL=3.9004 | 0.0 it/s | ETA=...
+    -> Best! BPC=5.6271
+  [HyperLSTM_1000] 500/40000 | Val BPC=1.8028 | Val NLL=1.2493 | 6.5 it/s | ETA=1:42:35
+    -> Best! BPC=1.8028
+  [HyperLSTM_1000] 1000/40000 | Val BPC=1.6421 | Val NLL=1.1382 | 6.5 it/s | ETA=1:41:22
+    -> Best! BPC=1.6421
+  [HyperLSTM_1000] 1500/40000 | Val BPC=1.5904 | Val NLL=1.1023 | 6.5 it/s | ETA=1:40:07
+    -> Best! BPC=1.5904
+  [HyperLSTM_1000] 2000/40000 | Val BPC=1.5617 | Val NLL=1.0824 | 6.5 it/s | ETA=1:39:42
+    -> Best! BPC=1.5617
+  [HyperLSTM_1000] 2500/40000 | Val BPC=1.5397 | Val NLL=1.0672 | 6.5 it/s | ETA=1:38:18
+    -> Best! BPC=1.5397
+  [HyperLSTM_1000] 3000/40000 | Val BPC=1.5205 | Val NLL=1.0538 | 6.5 it/s | ETA=1:37:04
+    -> Best! BPC=1.5205
+  [HyperLSTM_1000] 3500/40000 | Val BPC=1.4948 | Val NLL=1.0359 | 6.5 it/s | ETA=1:35:52
+    -> Best! BPC=1.4948
+  [HyperLSTM_1000] 4000/40000 | Val BPC=1.4749 | Val NLL=1.0223 | 6.5 it/s | ETA=1:34:22
+    -> Best! BPC=1.4749
+  [HyperLSTM_1000] 4500/40000 | Val BPC=1.4636 | Val NLL=1.0145 | 6.5 it/s | ETA=1:32:55
+    -> Best! BPC=1.4636
+  [HyperLSTM_1000] 5000/40000 | Val BPC=1.4502 | Val NLL=1.0052 | 6.5 it/s | ETA=1:31:47
+    -> Best! BPC=1.4502
+  [HyperLSTM_1000] 5500/40000 | Val BPC=1.4369 | Val NLL=0.9960 | 6.5 it/s | ETA=1:30:02
+    -> Best! BPC=1.4369
+  [HyperLSTM_1000] 6000/40000 | Val BPC=1.4302 | Val NLL=0.9913 | 6.5 it/s | ETA=1:28:39
+    -> Best! BPC=1.4302
+  [HyperLSTM_1000] 6500/40000 | Val BPC=1.4263 | Val NLL=0.9886 | 6.5 it/s | ETA=1:27:14
+    -> Best! BPC=1.4263
+  [HyperLSTM_1000] 7000/40000 | Val BPC=1.4178 | Val NLL=0.9827 | 6.5 it/s | ETA=1:25:52
+    -> Best! BPC=1.4178
+  [HyperLSTM_1000] 7500/40000 | Val BPC=1.4148 | Val NLL=0.9806 | 6.5 it/s | ETA=1:24:30
+    -> Best! BPC=1.4148
+  [HyperLSTM_1000] 8000/40000 | Val BPC=1.4131 | Val NLL=0.9794 | 6.5 it/s | ETA=1:23:08
+    -> Best! BPC=1.4131
+  [HyperLSTM_1000] 8500/40000 | Val BPC=1.4095 | Val NLL=0.9769 | 6.5 it/s | ETA=1:21:46
+    -> Best! BPC=1.4095
+  [HyperLSTM_1000] 9000/40000 | Val BPC=1.4094 | Val NLL=0.9769 | 6.5 it/s | ETA=1:20:24
+    -> Best! BPC=1.4094
+  [HyperLSTM_1000] 9500/40000 | Val BPC=1.4121 | Val NLL=0.9785 | 6.5 it/s | ETA=1:19:02
+  [HyperLSTM_1000] 10000/40000 | Val BPC=1.4093 | Val NLL=0.9768 | 6.5 it/s | ETA=1:17:40
+    -> Best! BPC=1.4093
+  [HyperLSTM_1000] 10500/40000 | Val BPC=1.4073 | Val NLL=0.9754 | 6.5 it/s | ETA=1:16:18
+    -> Best! BPC=1.4073
+  [HyperLSTM_1000] 11000/40000 | Val BPC=1.4091 | Val NLL=0.9767 | 6.5 it/s | ETA=1:14:56
+  [HyperLSTM_1000] 11500/40000 | Val BPC=1.3996 | Val NLL=0.9702 | 6.5 it/s | ETA=1:13:34
+    -> Best! BPC=1.3996
+  [HyperLSTM_1000] 12000/40000 | Val BPC=1.3977 | Val NLL=0.9688 | 6.5 it/s | ETA=1:12:12
+    -> Best! BPC=1.3977
+  [HyperLSTM_1000] 12500/40000 | Val BPC=1.4012 | Val NLL=0.9712 | 6.5 it/s | ETA=1:10:50
+  [HyperLSTM_1000] 13000/40000 | Val BPC=1.3948 | Val NLL=0.9667 | 6.5 it/s | ETA=1:09:28
+    -> Best! BPC=1.3948
+  [HyperLSTM_1000] 13500/40000 | Val BPC=1.3995 | Val NLL=0.9701 | 6.5 it/s | ETA=1:08:06
+  [HyperLSTM_1000] 14000/40000 | Val BPC=1.3954 | Val NLL=0.9672 | 6.5 it/s | ETA=1:06:44
+  [HyperLSTM_1000] 14500/40000 | Val BPC=1.3980 | Val NLL=0.9690 | 6.5 it/s | ETA=1:05:22
+  [HyperLSTM_1000] 15000/40000 | Val BPC=1.3933 | Val NLL=0.9657 | 6.5 it/s | ETA=1:04:00
+    -> Best! BPC=1.3933
+  [HyperLSTM_1000] 15500/40000 | Val BPC=1.3933 | Val NLL=0.9657 | 6.5 it/s | ETA=1:02:38
+    -> Best! BPC=1.3933
+  [HyperLSTM_1000] 16000/40000 | Val BPC=1.4032 | Val NLL=0.9726 | 6.5 it/s | ETA=1:01:16
+  [HyperLSTM_1000] 16500/40000 | Val BPC=1.3923 | Val NLL=0.9650 | 6.5 it/s | ETA=0:59:54
+    -> Best! BPC=1.3923
+  [HyperLSTM_1000] 17000/40000 | Val BPC=1.3895 | Val NLL=0.9630 | 6.5 it/s | ETA=0:58:32
+    -> Best! BPC=1.3895
+  [HyperLSTM_1000] 17500/40000 | Val BPC=1.3960 | Val NLL=0.9676 | 6.5 it/s | ETA=0:57:10
+  [HyperLSTM_1000] 18000/40000 | Val BPC=1.3956 | Val NLL=0.9673 | 6.5 it/s | ETA=0:55:48
+    -> Best! BPC=1.3956
+  [HyperLSTM_1000] 18500/40000 | Val BPC=1.3992 | Val NLL=0.9698 | 6.5 it/s | ETA=0:54:26
+  [HyperLSTM_1000] 19000/40000 | Val BPC=1.3962 | Val NLL=0.9678 | 6.5 it/s | ETA=0:53:04
+  [HyperLSTM_1000] 19500/40000 | Val BPC=1.3925 | Val NLL=0.9651 | 6.5 it/s | ETA=0:51:42
+  [HyperLSTM_1000] 20000/40000 | Val BPC=1.3902 | Val NLL=0.9635 | 6.5 it/s | ETA=0:50:20
+  [HyperLSTM_1000] 20500/40000 | Val BPC=1.3937 | Val NLL=0.9659 | 6.5 it/s | ETA=0:48:58
+  [HyperLSTM_1000] 21000/40000 | Val BPC=1.3909 | Val NLL=0.9640 | 6.5 it/s | ETA=0:47:36
+  [HyperLSTM_1000] 21500/40000 | Val BPC=1.3943 | Val NLL=0.9664 | 6.5 it/s | ETA=0:46:14
+  [HyperLSTM_1000] 22000/40000 | Val BPC=1.3931 | Val NLL=0.9656 | 6.5 it/s | ETA=0:44:52
+  [HyperLSTM_1000] 22500/40000 | Val BPC=1.3899 | Val NLL=0.9634 | 6.5 it/s | ETA=0:43:30
+    -> Best! BPC=1.3899
+  [HyperLSTM_1000] 23000/40000 | Val BPC=1.3961 | Val NLL=0.9677 | 6.5 it/s | ETA=0:42:08
+  [HyperLSTM_1000] 23500/40000 | Val BPC=1.3900 | Val NLL=0.9634 | 6.5 it/s | ETA=0:40:46
+  [HyperLSTM_1000] 24000/40000 | Val BPC=1.3885 | Val NLL=0.9623 | 6.5 it/s | ETA=0:39:24
+    -> Best! BPC=1.3885
+  [HyperLSTM_1000] 24500/40000 | Val BPC=1.3869 | Val NLL=0.9612 | 6.5 it/s | ETA=0:38:02
+    -> Best! BPC=1.3869
+  [HyperLSTM_1000] 25000/40000 | Val BPC=1.3880 | Val NLL=0.9620 | 6.5 it/s | ETA=0:36:40
+  [HyperLSTM_1000] 25500/40000 | Val BPC=1.3873 | Val NLL=0.9615 | 6.5 it/s | ETA=0:35:18
+  [HyperLSTM_1000] 26000/40000 | Val BPC=1.3864 | Val NLL=0.9608 | 6.5 it/s | ETA=0:33:56
+    -> Best! BPC=1.3864
+  [HyperLSTM_1000] 26500/40000 | Val BPC=1.3876 | Val NLL=0.9617 | 6.5 it/s | ETA=0:32:34
+  [HyperLSTM_1000] 27000/40000 | Val BPC=1.3853 | Val NLL=0.9601 | 6.5 it/s | ETA=0:31:12
+    -> Best! BPC=1.3853
+  [HyperLSTM_1000] 27500/40000 | Val BPC=1.3896 | Val NLL=0.9631 | 6.5 it/s | ETA=0:29:50
+  [HyperLSTM_1000] 28000/40000 | Val BPC=1.3846 | Val NLL=0.9596 | 6.5 it/s | ETA=0:28:28
+    -> Best! BPC=1.3846
+  [HyperLSTM_1000] 28500/40000 | Val BPC=1.3853 | Val NLL=0.9601 | 6.5 it/s | ETA=0:27:06
+  [HyperLSTM_1000] 29000/40000 | Val BPC=1.3882 | Val NLL=0.9621 | 6.5 it/s | ETA=0:25:44
+  [HyperLSTM_1000] 29500/40000 | Val BPC=1.3902 | Val NLL=0.9635 | 6.5 it/s | ETA=0:24:22
+  [HyperLSTM_1000] 30000/40000 | Val BPC=1.3863 | Val NLL=0.9608 | 6.5 it/s | ETA=0:23:00
+  [HyperLSTM_1000] 30500/40000 | Val BPC=1.3933 | Val NLL=0.9657 | 6.5 it/s | ETA=0:21:38
+  [HyperLSTM_1000] 31000/40000 | Val BPC=1.3858 | Val NLL=0.9604 | 6.5 it/s | ETA=0:20:16
+  [HyperLSTM_1000] 31500/40000 | Val BPC=1.3866 | Val NLL=0.9610 | 6.5 it/s | ETA=0:18:54
+  [HyperLSTM_1000] 32000/40000 | Val BPC=1.3847 | Val NLL=0.9597 | 6.5 it/s | ETA=0:17:32
+    -> Best! BPC=1.3847
+  [HyperLSTM_1000] 32500/40000 | Val BPC=1.3820 | Val NLL=0.9578 | 6.5 it/s | ETA=0:16:10
+    -> Best! BPC=1.3820
+  [HyperLSTM_1000] 33000/40000 | Val BPC=1.3843 | Val NLL=0.9594 | 6.5 it/s | ETA=0:14:48
+  [HyperLSTM_1000] 33500/40000 | Val BPC=1.3823 | Val NLL=0.9580 | 6.5 it/s | ETA=0:13:26
+  [HyperLSTM_1000] 34000/40000 | Val BPC=1.3821 | Val NLL=0.9579 | 6.5 it/s | ETA=0:12:04
+  [HyperLSTM_1000] 34500/40000 | Val BPC=1.3833 | Val NLL=0.9587 | 6.5 it/s | ETA=0:10:42
+  [HyperLSTM_1000] 35000/40000 | Val BPC=1.3888 | Val NLL=0.9625 | 6.5 it/s | ETA=0:09:20
+  [HyperLSTM_1000] 35500/40000 | Val BPC=1.3802 | Val NLL=0.9566 | 6.5 it/s | ETA=0:07:58
+    -> Best! BPC=1.3802
+  [HyperLSTM_1000] 36000/40000 | Val BPC=1.3850 | Val NLL=0.9599 | 6.5 it/s | ETA=0:06:36
+  [HyperLSTM_1000] 36500/40000 | Val BPC=1.3816 | Val NLL=0.9576 | 6.5 it/s | ETA=0:05:14
+  [HyperLSTM_1000] 37000/40000 | Val BPC=1.3810 | Val NLL=0.9572 | 6.5 it/s | ETA=0:03:52
+    -> Best! BPC=1.3810
+  [HyperLSTM_1000] 37500/40000 | Val BPC=1.3818 | Val NLL=0.9577 | 6.5 it/s | ETA=0:02:30
+  [HyperLSTM_1000] 38000/40000 | Val BPC=1.3820 | Val NLL=0.9578 | 6.5 it/s | ETA=0:01:08
+  [HyperLSTM_1000] 38500/40000 | Val BPC=1.3866 | Val NLL=0.9610 | 6.5 it/s | ETA=0:00:46
+  [HyperLSTM_1000] 39000/40000 | Val BPC=1.3824 | Val NLL=0.9581 | 6.5 it/s | ETA=0:00:24
+  [HyperLSTM_1000] 39500/40000 | Val BPC=1.3875 | Val NLL=0.9616 | 6.5 it/s | ETA=0:00:02
+  [HyperLSTM_1000] 40000/40000 | Val BPC=1.3839 | Val NLL=0.9591 | 6.5 it/s | ETA=0:00:00
+  [HyperLSTM_1000] Test BPC=1.3057 | Test NLL=0.9049
+
+Training LayerNorm_HyperLSTM_1000...
+  [LayerNorm_HyperLSTM_1000] 1/40000 | Val BPC=4.7909 | Val NLL=3.3208 | 0.0 it/s | ETA=...
+    -> Best! BPC=4.7909
+  [LayerNorm_HyperLSTM_1000] 500/40000 | Val BPC=1.7561 | Val NLL=1.2172 | 6.5 it/s | ETA=1:47:22
+    -> Best! BPC=1.7561
+  [LayerNorm_HyperLSTM_1000] 1000/40000 | Val BPC=1.6030 | Val NLL=1.1109 | 6.5 it/s | ETA=1:46:08
+    -> Best! BPC=1.6030
+  [LayerNorm_HyperLSTM_1000] 1500/40000 | Val BPC=1.5588 | Val NLL=1.0803 | 6.5 it/s | ETA=1:44:54
+    -> Best! BPC=1.5588
+  [LayerNorm_HyperLSTM_1000] 2000/40000 | Val BPC=1.5334 | Val NLL=1.0628 | 6.5 it/s | ETA=1:43:40
+    -> Best! BPC=1.5334
+  [LayerNorm_HyperLSTM_1000] 2500/40000 | Val BPC=1.5134 | Val NLL=1.0490 | 6.5 it/s | ETA=1:42:26
+    -> Best! BPC=1.5134
+  [LayerNorm_HyperLSTM_1000] 3000/40000 | Val BPC=1.4980 | Val NLL=1.0383 | 6.5 it/s | ETA=1:41:12
+    -> Best! BPC=1.4980
+  [LayerNorm_HyperLSTM_1000] 3500/40000 | Val BPC=1.4829 | Val NLL=1.0278 | 6.5 it/s | ETA=1:39:58
+    -> Best! BPC=1.4829
+  [LayerNorm_HyperLSTM_1000] 4000/40000 | Val BPC=1.4680 | Val NLL=1.0175 | 6.5 it/s | ETA=1:38:44
+    -> Best! BPC=1.4680
+  [LayerNorm_HyperLSTM_1000] 4500/40000 | Val BPC=1.4538 | Val NLL=1.0079 | 6.5 it/s | ETA=1:37:30
+    -> Best! BPC=1.4538
+  [LayerNorm_HyperLSTM_1000] 5000/40000 | Val BPC=1.4486 | Val NLL=1.0040 | 6.5 it/s | ETA=1:36:16
+    -> Best! BPC=1.4486
+  [LayerNorm_HyperLSTM_1000] 5500/40000 | Val BPC=1.4402 | Val NLL=0.9982 | 6.5 it/s | ETA=1:35:02
+    -> Best! BPC=1.4402
+  [LayerNorm_HyperLSTM_1000] 6000/40000 | Val BPC=1.4253 | Val NLL=0.9879 | 6.5 it/s | ETA=1:33:48
+    -> Best! BPC=1.4253
+  [LayerNorm_HyperLSTM_1000] 6500/40000 | Val BPC=1.4261 | Val NLL=0.9885 | 6.5 it/s | ETA=1:32:34
+  [LayerNorm_HyperLSTM_1000] 7000/40000 | Val BPC=1.4134 | Val NLL=0.9797 | 6.5 it/s | ETA=1:31:20
+    -> Best! BPC=1.4134
+  [LayerNorm_HyperLSTM_1000] 7500/40000 | Val BPC=1.4115 | Val NLL=0.9784 | 6.5 it/s | ETA=1:30:06
+    -> Best! BPC=1.4115
+  [LayerNorm_HyperLSTM_1000] 8000/40000 | Val BPC=1.4112 | Val NLL=0.9781 | 6.5 it/s | ETA=1:28:52
+    -> Best! BPC=1.4112
+  [LayerNorm_HyperLSTM_1000] 8500/40000 | Val BPC=1.4029 | Val NLL=0.9724 | 6.5 it/s | ETA=1:27:38
+    -> Best! BPC=1.4029
+  [LayerNorm_HyperLSTM_1000] 9000/40000 | Val BPC=1.4096 | Val NLL=0.9771 | 6.5 it/s | ETA=1:26:24
+  [LayerNorm_HyperLSTM_1000] 9500/40000 | Val BPC=1.4052 | Val NLL=0.9740 | 6.5 it/s | ETA=1:25:10
+  [LayerNorm_HyperLSTM_1000] 10000/40000 | Val BPC=1.4031 | Val NLL=0.9725 | 6.5 it/s | ETA=1:23:56
+  [LayerNorm_HyperLSTM_1000] 10500/40000 | Val BPC=1.4074 | Val NLL=0.9755 | 6.5 it/s | ETA=1:22:42
+  [LayerNorm_HyperLSTM_1000] 11000/40000 | Val BPC=1.4050 | Val NLL=0.9738 | 6.5 it/s | ETA=1:21:28
+  [LayerNorm_HyperLSTM_1000] 11500/40000 | Val BPC=1.3929 | Val NLL=0.9654 | 6.5 it/s | ETA=1:20:14
+    -> Best! BPC=1.3929
+  [LayerNorm_HyperLSTM_1000] 12000/40000 | Val BPC=1.3909 | Val NLL=0.9640 | 6.5 it/s | ETA=1:19:00
+    -> Best! BPC=1.3909
+  [LayerNorm_HyperLSTM_1000] 12500/40000 | Val BPC=1.3904 | Val NLL=0.9637 | 6.5 it/s | ETA=1:17:46
+    -> Best! BPC=1.3904
+  [LayerNorm_HyperLSTM_1000] 13000/40000 | Val BPC=1.3908 | Val NLL=0.9640 | 6.5 it/s | ETA=1:16:32
+  [LayerNorm_HyperLSTM_1000] 13500/40000 | Val BPC=1.3873 | Val NLL=0.9615 | 6.5 it/s | ETA=1:15:18
+    -> Best! BPC=1.3873
+  [LayerNorm_HyperLSTM_1000] 14000/40000 | Val BPC=1.3919 | Val NLL=0.9647 | 6.5 it/s | ETA=1:14:04
+  [LayerNorm_HyperLSTM_1000] 14500/40000 | Val BPC=1.3917 | Val NLL=0.9646 | 6.5 it/s | ETA=1:12:50
+  [LayerNorm_HyperLSTM_1000] 15000/40000 | Val BPC=1.3917 | Val NLL=0.9646 | 6.5 it/s | ETA=1:11:36
+  [LayerNorm_HyperLSTM_1000] 15500/40000 | Val BPC=1.3887 | Val NLL=0.9625 | 6.5 it/s | ETA=1:10:22
+  [LayerNorm_HyperLSTM_1000] 16000/40000 | Val BPC=1.3901 | Val NLL=0.9635 | 6.5 it/s | ETA=1:09:08
+  [LayerNorm_HyperLSTM_1000] 16500/40000 | Val BPC=1.3900 | Val NLL=0.9634 | 6.5 it/s | ETA=1:07:54
+  [LayerNorm_HyperLSTM_1000] 17000/40000 | Val BPC=1.3810 | Val NLL=0.9572 | 6.5 it/s | ETA=1:06:40
+    -> Best! BPC=1.3810
+  [LayerNorm_HyperLSTM_1000] 17500/40000 | Val BPC=1.3911 | Val NLL=0.9642 | 6.5 it/s | ETA=1:05:26
+  [LayerNorm_HyperLSTM_1000] 18000/40000 | Val BPC=1.3918 | Val NLL=0.9647 | 6.5 it/s | ETA=1:04:12
+  [LayerNorm_HyperLSTM_1000] 18500/40000 | Val BPC=1.3890 | Val NLL=0.9627 | 6.5 it/s | ETA=1:02:58
+  [LayerNorm_HyperLSTM_1000] 19000/40000 | Val BPC=1.3900 | Val NLL=0.9634 | 6.5 it/s | ETA=1:01:44
+  [LayerNorm_HyperLSTM_1000] 19500/40000 | Val BPC=1.3912 | Val NLL=0.9642 | 6.5 it/s | ETA=1:00:30
+  [LayerNorm_HyperLSTM_1000] 20000/40000 | Val BPC=1.3817 | Val NLL=0.9576 | 6.5 it/s | ETA=0:59:16
+  [LayerNorm_HyperLSTM_1000] 20500/40000 | Val BPC=1.3837 | Val NLL=0.9590 | 6.5 it/s | ETA=0:58:02
+  [LayerNorm_HyperLSTM_1000] 21000/40000 | Val BPC=1.3853 | Val NLL=0.9601 | 6.5 it/s | ETA=0:56:48
+  [LayerNorm_HyperLSTM_1000] 21500/40000 | Val BPC=1.3863 | Val NLL=0.9608 | 6.5 it/s | ETA=0:55:34
+  [LayerNorm_HyperLSTM_1000] 22000/40000 | Val BPC=1.3846 | Val NLL=0.9596 | 6.5 it/s | ETA=0:54:20
+  [LayerNorm_HyperLSTM_1000] 22500/40000 | Val BPC=1.3771 | Val NLL=0.9544 | 6.5 it/s | ETA=0:53:06
+    -> Best! BPC=1.3771
+  [LayerNorm_HyperLSTM_1000] 23000/40000 | Val BPC=1.3819 | Val NLL=0.9578 | 6.5 it/s | ETA=0:51:52
+  [LayerNorm_HyperLSTM_1000] 23500/40000 | Val BPC=1.3790 | Val NLL=0.9558 | 6.5 it/s | ETA=0:50:38
+  [LayerNorm_HyperLSTM_1000] 24000/40000 | Val BPC=1.3801 | Val NLL=0.9566 | 6.5 it/s | ETA=0:49:24
+  [LayerNorm_HyperLSTM_1000] 24500/40000 | Val BPC=1.3763 | Val NLL=0.9538 | 6.5 it/s | ETA=0:48:10
+    -> Best! BPC=1.3763
+  [LayerNorm_HyperLSTM_1000] 25000/40000 | Val BPC=1.3780 | Val NLL=0.9550 | 6.5 it/s | ETA=0:46:56
+  [LayerNorm_HyperLSTM_1000] 25500/40000 | Val BPC=1.3773 | Val NLL=0.9545 | 6.5 it/s | ETA=0:45:42
+  [LayerNorm_HyperLSTM_1000] 26000/40000 | Val BPC=1.3751 | Val NLL=0.9530 | 6.5 it/s | ETA=0:44:28
+    -> Best! BPC=1.3751
+  [LayerNorm_HyperLSTM_1000] 26500/40000 | Val BPC=1.3776 | Val NLL=0.9547 | 6.5 it/s | ETA=0:43:14
+  [LayerNorm_HyperLSTM_1000] 27000/40000 | Val BPC=1.3769 | Val NLL=0.9542 | 6.5 it/s | ETA=0:42:00
+  [LayerNorm_HyperLSTM_1000] 27500/40000 | Val BPC=1.3749 | Val NLL=0.9528 | 6.5 it/s | ETA=0:40:46
+    -> Best! BPC=1.3749
+  [LayerNorm_HyperLSTM_1000] 28000/40000 | Val BPC=1.3824 | Val NLL=0.9581 | 6.5 it/s | ETA=0:39:32
+  [LayerNorm_HyperLSTM_1000] 28500/40000 | Val BPC=1.3734 | Val NLL=0.9518 | 6.5 it/s | ETA=0:38:18
+    -> Best! BPC=1.3734
+  [LayerNorm_HyperLSTM_1000] 29000/40000 | Val BPC=1.3782 | Val NLL=0.9551 | 6.5 it/s | ETA=0:37:04
+  [LayerNorm_HyperLSTM_1000] 29500/40000 | Val BPC=1.3760 | Val NLL=0.9536 | 6.5 it/s | ETA=0:35:50
+  [LayerNorm_HyperLSTM_1000] 30000/40000 | Val BPC=1.3762 | Val NLL=0.9537 | 6.5 it/s | ETA=0:34:36
+  [LayerNorm_HyperLSTM_1000] 30500/40000 | Val BPC=1.3788 | Val NLL=0.9555 | 6.5 it/s | ETA=0:33:22
+  [LayerNorm_HyperLSTM_1000] 31000/40000 | Val BPC=1.3764 | Val NLL=0.9539 | 6.5 it/s | ETA=0:32:08
+  [LayerNorm_HyperLSTM_1000] 31500/40000 | Val BPC=1.3763 | Val NLL=0.9538 | 6.5 it/s | ETA=0:30:54
+  [LayerNorm_HyperLSTM_1000] 32000/40000 | Val BPC=1.3807 | Val NLL=0.9570 | 6.5 it/s | ETA=0:29:40
+  [LayerNorm_HyperLSTM_1000] 32500/40000 | Val BPC=1.3741 | Val NLL=0.9523 | 6.5 it/s | ETA=0:28:26
+  [LayerNorm_HyperLSTM_1000] 33000/40000 | Val BPC=1.3761 | Val NLL=0.9537 | 6.5 it/s | ETA=0:27:12
+  [LayerNorm_HyperLSTM_1000] 33500/40000 | Val BPC=1.3811 | Val NLL=0.9572 | 6.5 it/s | ETA=0:25:58
+  [LayerNorm_HyperLSTM_1000] 34000/40000 | Val BPC=1.3797 | Val NLL=0.9563 | 6.5 it/s | ETA=0:24:44
+  [LayerNorm_HyperLSTM_1000] 34500/40000 | Val BPC=1.3697 | Val NLL=0.9492 | 6.5 it/s | ETA=0:23:30
+    -> Best! BPC=1.3697
+  [LayerNorm_HyperLSTM_1000] 35000/40000 | Val BPC=1.3725 | Val NLL=0.9512 | 6.5 it/s | ETA=0:22:16
+  [LayerNorm_HyperLSTM_1000] 35500/40000 | Val BPC=1.3740 | Val NLL=0.9522 | 6.5 it/s | ETA=0:21:02
+  [LayerNorm_HyperLSTM_1000] 36000/40000 | Val BPC=1.3779 | Val NLL=0.9548 | 6.5 it/s | ETA=0:19:48
+  [LayerNorm_HyperLSTM_1000] 36500/40000 | Val BPC=1.3761 | Val NLL=0.9537 | 6.5 it/s | ETA=0:18:34
+  [LayerNorm_HyperLSTM_1000] 37000/40000 | Val BPC=1.3728 | Val NLL=0.9514 | 6.5 it/s | ETA=0:17:20
+  [LayerNorm_HyperLSTM_1000] 37500/40000 | Val BPC=1.3766 | Val NLL=0.9540 | 6.5 it/s | ETA=0:16:06
+  [LayerNorm_HyperLSTM_1000] 38000/40000 | Val BPC=1.3803 | Val NLL=0.9567 | 6.5 it/s | ETA=0:14:52
+  [LayerNorm_HyperLSTM_1000] 38500/40000 | Val BPC=1.3783 | Val NLL=0.9552 | 6.5 it/s | ETA=0:13:38
+  [LayerNorm_HyperLSTM_1000] 39000/40000 | Val BPC=1.3731 | Val NLL=0.9516 | 6.5 it/s | ETA=0:12:24
+  [LayerNorm_HyperLSTM_1000] 39500/40000 | Val BPC=1.3753 | Val NLL=0.9531 | 6.5 it/s | ETA=0:11:10
+  [LayerNorm_HyperLSTM_1000] 40000/40000 | Val BPC=1.3739 | Val NLL=0.9522 | 6.5 it/s | ETA=0:00:00
+  [LayerNorm_HyperLSTM_1000] Test BPC=1.2837 | Test NLL=0.8897

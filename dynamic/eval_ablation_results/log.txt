@@ -1,0 +1,608 @@
+Loading PTB...
+PTB: vocab=50, train=5101615, val=399779
+Device: cuda
+======================================================================
+ABLATION STUDY on PTB
+embed=64, hidden=1000, batch=128, seq=100, steps=20000
+======================================================================
+
+======================================================================
+EXPERIMENT 1: Recurrent Dropout
+  A: LSTM baseline (no dropout) - keep_prob=1.0
+  B: LSTM with dropout - keep_prob=0.9
+======================================================================
+
+  Training [A1_Baseline] init=orthogonal...
+    [A1_Baseline] 1/20000 | BPC=5.6319 | 0.0 it/s | ETA=...
+    [A1_Baseline] 500/20000 | BPC=2.8516 | 9.5 it/s | ETA=0:34:16
+    [A1_Baseline] 1000/20000 | BPC=2.5413 | 9.8 it/s | ETA=0:32:12
+    [A1_Baseline] 1500/20000 | BPC=2.2602 | 9.6 it/s | ETA=0:32:09
+    [A1_Baseline] 2000/20000 | BPC=2.1336 | 9.4 it/s | ETA=0:31:53
+    [A1_Baseline] 2500/20000 | BPC=2.0415 | 9.6 it/s | ETA=0:30:30
+    [A1_Baseline] 3000/20000 | BPC=1.9594 | 9.2 it/s | ETA=0:30:51
+    [A1_Baseline] 3500/20000 | BPC=1.9260 | 9.3 it/s | ETA=0:29:29
+    [A1_Baseline] 4000/20000 | BPC=1.8928 | 9.1 it/s | ETA=0:29:26
+    [A1_Baseline] 4500/20000 | BPC=1.8724 | 10.1 it/s | ETA=0:25:35
+    [A1_Baseline] 5000/20000 | BPC=1.8224 | 10.0 it/s | ETA=0:25:00
+    [A1_Baseline] 5500/20000 | BPC=1.8407 | 10.0 it/s | ETA=0:24:10
+    [A1_Baseline] 6000/20000 | BPC=1.7819 | 9.9 it/s | ETA=0:23:29
+    [A1_Baseline] 6500/20000 | BPC=1.7558 | 9.9 it/s | ETA=0:22:49
+    [A1_Baseline] 7000/20000 | BPC=1.7484 | 9.9 it/s | ETA=0:21:47
+    [A1_Baseline] 7500/20000 | BPC=1.7396 | 10.1 it/s | ETA=0:20:34
+    [A1_Baseline] 8000/20000 | BPC=1.7413 | 9.6 it/s | ETA=0:20:50
+    [A1_Baseline] 8500/20000 | BPC=1.7447 | 8.5 it/s | ETA=0:22:37
+    [A1_Baseline] 9000/20000 | BPC=1.7153 | 8.6 it/s | ETA=0:21:26
+    [A1_Baseline] 9500/20000 | BPC=1.7356 | 8.7 it/s | ETA=0:20:03
+    [A1_Baseline] 10000/20000 | BPC=1.6968 | 8.7 it/s | ETA=0:19:09
+    [A1_Baseline] 10500/20000 | BPC=1.7010 | 8.7 it/s | ETA=0:18:08
+    [A1_Baseline] 11000/20000 | BPC=1.6602 | 8.7 it/s | ETA=0:17:14
+    [A1_Baseline] 11500/20000 | BPC=1.6937 | 8.7 it/s | ETA=0:16:18
+    [A1_Baseline] 12000/20000 | BPC=1.7342 | 8.7 it/s | ETA=0:15:15
+    [A1_Baseline] 12500/20000 | BPC=1.6579 | 8.7 it/s | ETA=0:14:25
+    [A1_Baseline] 13000/20000 | BPC=1.6856 | 8.8 it/s | ETA=0:13:15
+    [A1_Baseline] 13500/20000 | BPC=1.6858 | 8.7 it/s | ETA=0:12:27
+    [A1_Baseline] 14000/20000 | BPC=1.6181 | 8.7 it/s | ETA=0:11:28
+    [A1_Baseline] 14500/20000 | BPC=1.6730 | 8.7 it/s | ETA=0:10:29
+    [A1_Baseline] 15000/20000 | BPC=1.7125 | 8.7 it/s | ETA=0:09:33
+    [A1_Baseline] 15500/20000 | BPC=1.6971 | 8.7 it/s | ETA=0:08:36
+    [A1_Baseline] 16000/20000 | BPC=1.6359 | 8.7 it/s | ETA=0:07:37
+    [A1_Baseline] 16500/20000 | BPC=1.6804 | 8.7 it/s | ETA=0:06:43
+    [A1_Baseline] 17000/20000 | BPC=1.6417 | 8.7 it/s | ETA=0:05:43
+    [A1_Baseline] 17500/20000 | BPC=1.6544 | 8.7 it/s | ETA=0:04:47
+    [A1_Baseline] 18000/20000 | BPC=1.6715 | 8.7 it/s | ETA=0:03:50
+    [A1_Baseline] 18500/20000 | BPC=1.6138 | 8.7 it/s | ETA=0:02:52
+    [A1_Baseline] 19000/20000 | BPC=1.6048 | 8.7 it/s | ETA=0:01:54
+    [A1_Baseline] 19500/20000 | BPC=1.6851 | 8.7 it/s | ETA=0:00:57
+    [A1_Baseline] 20000/20000 | BPC=1.6124 | 10.4 it/s | ETA=0:00:00
+  -> [A1_Baseline] Best Val BPC=1.6048
+
+  Training [A1_Hyper] init=orthogonal...
+Loading PTB...
+PTB: vocab=50, train=5101615, val=399779
+Device: cuda
+======================================================================
+ABLATION STUDY on PTB
+embed=64, hidden=1000, batch=128, seq=100, steps=20000
+======================================================================
+
+======================================================================
+EXPERIMENT 1: Recurrent Dropout
+  A: LSTM baseline (no dropout) - keep_prob=1.0
+  B: LSTM with dropout - keep_prob=0.9
+======================================================================
+
+  Training [A1_Baseline] init=orthogonal...
+    [A1_Baseline] 1/20000 | BPC=5.6322 | 0.0 it/s | ETA=...
+    [A1_Baseline] 500/20000 | BPC=2.8413 | 10.2 it/s | ETA=0:31:48
+    [A1_Baseline] 1000/20000 | BPC=2.4610 | 10.7 it/s | ETA=0:29:41
+    [A1_Baseline] 1500/20000 | BPC=2.2563 | 10.4 it/s | ETA=0:29:31
+    [A1_Baseline] 2000/20000 | BPC=2.1254 | 10.1 it/s | ETA=0:29:41
+    [A1_Baseline] 2500/20000 | BPC=1.9928 | 10.6 it/s | ETA=0:27:25
+    [A1_Baseline] 3000/20000 | BPC=1.9222 | 10.2 it/s | ETA=0:27:50
+    [A1_Baseline] 3500/20000 | BPC=1.9076 | 10.0 it/s | ETA=0:27:22
+    [A1_Baseline] 4000/20000 | BPC=1.8672 | 10.2 it/s | ETA=0:26:10
+    [A1_Baseline] 4500/20000 | BPC=1.8225 | 10.5 it/s | ETA=0:24:41
+    [A1_Baseline] 5000/20000 | BPC=1.8229 | 10.3 it/s | ETA=0:24:12
+    [A1_Baseline] 5500/20000 | BPC=1.8619 | 10.6 it/s | ETA=0:22:47
+    [A1_Baseline] 6000/20000 | BPC=1.8121 | 10.2 it/s | ETA=0:22:58
+    [A1_Baseline] 6500/20000 | BPC=1.7647 | 10.8 it/s | ETA=0:20:52
+    [A1_Baseline] 7000/20000 | BPC=1.7899 | 10.2 it/s | ETA=0:21:18
+    [A1_Baseline] 7500/20000 | BPC=1.7750 | 10.3 it/s | ETA=0:20:07
+    [A1_Baseline] 8000/20000 | BPC=1.7121 | 10.2 it/s | ETA=0:19:32
+    [A1_Baseline] 8500/20000 | BPC=1.7285 | 10.4 it/s | ETA=0:18:20
+    [A1_Baseline] 9000/20000 | BPC=1.7660 | 10.2 it/s | ETA=0:17:58
+    [A1_Baseline] 9500/20000 | BPC=1.7068 | 10.1 it/s | ETA=0:17:15
+    [A1_Baseline] 10000/20000 | BPC=1.7070 | 10.1 it/s | ETA=0:16:27
+    [A1_Baseline] 10500/20000 | BPC=1.6970 | 10.3 it/s | ETA=0:15:22
+    [A1_Baseline] 11000/20000 | BPC=1.6830 | 10.2 it/s | ETA=0:14:38
+    [A1_Baseline] 11500/20000 | BPC=1.6961 | 10.2 it/s | ETA=0:13:50
+    [A1_Baseline] 12000/20000 | BPC=1.6855 | 10.2 it/s | ETA=0:13:02
+    [A1_Baseline] 12500/20000 | BPC=1.6719 | 10.4 it/s | ETA=0:11:57
+    [A1_Baseline] 13000/20000 | BPC=1.6610 | 10.7 it/s | ETA=0:10:53
+    [A1_Baseline] 13500/20000 | BPC=1.6840 | 10.6 it/s | ETA=0:10:14
+    [A1_Baseline] 14000/20000 | BPC=1.6273 | 10.2 it/s | ETA=0:09:47
+    [A1_Baseline] 14500/20000 | BPC=1.6384 | 10.0 it/s | ETA=0:09:08
+    [A1_Baseline] 15000/20000 | BPC=1.6612 | 10.2 it/s | ETA=0:08:09
+    [A1_Baseline] 15500/20000 | BPC=1.6861 | 10.0 it/s | ETA=0:07:28
+    [A1_Baseline] 16000/20000 | BPC=1.6379 | 10.4 it/s | ETA=0:06:26
+    [A1_Baseline] 16500/20000 | BPC=1.6587 | 10.3 it/s | ETA=0:05:40
+    [A1_Baseline] 17000/20000 | BPC=1.6308 | 10.2 it/s | ETA=0:04:53
+    [A1_Baseline] 17500/20000 | BPC=1.6086 | 10.4 it/s | ETA=0:04:00
+    [A1_Baseline] 18000/20000 | BPC=1.6019 | 10.2 it/s | ETA=0:03:15
+    [A1_Baseline] 18500/20000 | BPC=1.6509 | 10.7 it/s | ETA=0:02:20
+    [A1_Baseline] 19000/20000 | BPC=1.6172 | 10.8 it/s | ETA=0:01:32
+    [A1_Baseline] 19500/20000 | BPC=1.6339 | 10.4 it/s | ETA=0:00:47
+    [A1_Baseline] 20000/20000 | BPC=1.5987 | 10.5 it/s | ETA=0:00:00
+  -> [A1_Baseline] Best Val BPC=1.5987
+
+  Training [A1_Hyper] init=orthogonal...
+    [A1_Hyper] 1/20000 | BPC=5.6290 | 0.0 it/s | ETA=...
+    [A1_Hyper] 500/20000 | BPC=2.6662 | 3.4 it/s | ETA=1:36:58
+    [A1_Hyper] 1000/20000 | BPC=2.2482 | 3.4 it/s | ETA=1:34:24
+    [A1_Hyper] 1500/20000 | BPC=2.0977 | 3.5 it/s | ETA=1:28:46
+    [A1_Hyper] 2000/20000 | BPC=1.9758 | 4.4 it/s | ETA=1:07:31
+    [A1_Hyper] 2500/20000 | BPC=1.9409 | 4.8 it/s | ETA=1:01:12
+    [A1_Hyper] 3000/20000 | BPC=1.9358 | 4.7 it/s | ETA=0:59:50
+    [A1_Hyper] 3500/20000 | BPC=1.8409 | 4.7 it/s | ETA=0:58:43
+    [A1_Hyper] 4000/20000 | BPC=1.8204 | 4.7 it/s | ETA=0:56:30
+    [A1_Hyper] 4500/20000 | BPC=1.8116 | 4.7 it/s | ETA=0:55:10
+    [A1_Hyper] 5000/20000 | BPC=1.7724 | 4.8 it/s | ETA=0:52:28
+    [A1_Hyper] 5500/20000 | BPC=1.7754 | 4.7 it/s | ETA=0:51:30
+    [A1_Hyper] 6000/20000 | BPC=1.7961 | 4.7 it/s | ETA=0:49:48
+    [A1_Hyper] 6500/20000 | BPC=1.7871 | 4.8 it/s | ETA=0:47:14
+    [A1_Hyper] 7000/20000 | BPC=1.7691 | 4.7 it/s | ETA=0:46:14
+    [A1_Hyper] 7500/20000 | BPC=1.7838 | 4.6 it/s | ETA=0:45:15
+    [A1_Hyper] 8000/20000 | BPC=1.7681 | 4.7 it/s | ETA=0:42:31
+    [A1_Hyper] 8500/20000 | BPC=1.7608 | 4.8 it/s | ETA=0:39:56
+    [A1_Hyper] 9000/20000 | BPC=1.7045 | 4.8 it/s | ETA=0:38:28
+    [A1_Hyper] 9500/20000 | BPC=1.6886 | 4.7 it/s | ETA=0:37:09
+    [A1_Hyper] 10000/20000 | BPC=1.6856 | 4.7 it/s | ETA=0:35:45
+    [A1_Hyper] 10500/20000 | BPC=1.7304 | 4.6 it/s | ETA=0:34:35
+    [A1_Hyper] 11000/20000 | BPC=1.6683 | 4.6 it/s | ETA=0:32:38
+    [A1_Hyper] 11500/20000 | BPC=1.6674 | 4.6 it/s | ETA=0:30:49
+    [A1_Hyper] 12000/20000 | BPC=1.6516 | 4.5 it/s | ETA=0:29:47
+    [A1_Hyper] 12500/20000 | BPC=1.6592 | 4.5 it/s | ETA=0:27:59
+    [A1_Hyper] 13000/20000 | BPC=1.6902 | 4.6 it/s | ETA=0:25:14
+    [A1_Hyper] 13500/20000 | BPC=1.6514 | 4.7 it/s | ETA=0:23:11
+    [A1_Hyper] 14000/20000 | BPC=1.6599 | 4.5 it/s | ETA=0:22:03
+    [A1_Hyper] 14500/20000 | BPC=1.6625 | 4.6 it/s | ETA=0:19:47
+    [A1_Hyper] 15000/20000 | BPC=1.6660 | 4.7 it/s | ETA=0:17:38
+    [A1_Hyper] 15500/20000 | BPC=1.6719 | 4.6 it/s | ETA=0:16:13
+    [A1_Hyper] 16000/20000 | BPC=1.6299 | 4.6 it/s | ETA=0:14:25
+    [A1_Hyper] 16500/20000 | BPC=1.6381 | 4.7 it/s | ETA=0:12:18
+    [A1_Hyper] 17000/20000 | BPC=1.5969 | 4.8 it/s | ETA=0:10:23
+    [A1_Hyper] 17500/20000 | BPC=1.6534 | 4.5 it/s | ETA=0:09:11
+    [A1_Hyper] 18000/20000 | BPC=1.6619 | 4.5 it/s | ETA=0:07:22
+    [A1_Hyper] 18500/20000 | BPC=1.6555 | 4.8 it/s | ETA=0:05:11
+    [A1_Hyper] 19000/20000 | BPC=1.6373 | 4.7 it/s | ETA=0:03:34
+    [A1_Hyper] 19500/20000 | BPC=1.6138 | 4.6 it/s | ETA=0:01:49
+    [A1_Hyper] 20000/20000 | BPC=1.6488 | 4.7 it/s | ETA=0:00:00
+  -> [A1_Hyper] Best Val BPC=1.5969
+
+======================================================================
+EXPERIMENT 2: LayerNorm Position
+  A: LN before activation (CORRECT - paper Eq.9)
+  B: LN after activation (WRONG - common mistake)
+======================================================================
+
+  Training [A2_LN_before] init=orthogonal...
+    [A2_LN_before] 1/20000 | BPC=5.6856 | 0.0 it/s | ETA=...
+    [A2_LN_before] 500/20000 | BPC=2.8843 | 9.2 it/s | ETA=0:35:27
+    [A2_LN_before] 1000/20000 | BPC=2.3849 | 9.1 it/s | ETA=0:34:53
+    [A2_LN_before] 1500/20000 | BPC=2.2320 | 8.9 it/s | ETA=0:34:38
+    [A2_LN_before] 2000/20000 | BPC=2.0958 | 8.9 it/s | ETA=0:33:35
+    [A2_LN_before] 2500/20000 | BPC=2.0359 | 8.8 it/s | ETA=0:33:18
+    [A2_LN_before] 3000/20000 | BPC=1.9364 | 9.0 it/s | ETA=0:31:21
+    [A2_LN_before] 3500/20000 | BPC=1.8695 | 9.0 it/s | ETA=0:30:37
+    [A2_LN_before] 4000/20000 | BPC=1.8711 | 9.1 it/s | ETA=0:29:22
+    [A2_LN_before] 4500/20000 | BPC=1.8609 | 8.8 it/s | ETA=0:29:23
+    [A2_LN_before] 5000/20000 | BPC=1.8446 | 8.5 it/s | ETA=0:29:19
+    [A2_LN_before] 5500/20000 | BPC=1.7947 | 8.4 it/s | ETA=0:28:47
+    [A2_LN_before] 6000/20000 | BPC=1.8164 | 8.6 it/s | ETA=0:26:59
+    [A2_LN_before] 6500/20000 | BPC=1.8045 | 8.8 it/s | ETA=0:25:34
+    [A2_LN_before] 7000/20000 | BPC=1.8106 | 8.9 it/s | ETA=0:24:22
+    [A2_LN_before] 7500/20000 | BPC=1.7588 | 9.0 it/s | ETA=0:23:14
+    [A2_LN_before] 8000/20000 | BPC=1.7533 | 9.1 it/s | ETA=0:22:05
+    [A2_LN_before] 8500/20000 | BPC=1.6899 | 9.0 it/s | ETA=0:21:15
+    [A2_LN_before] 9000/20000 | BPC=1.7615 | 8.8 it/s | ETA=0:20:52
+    [A2_LN_before] 9500/20000 | BPC=1.7366 | 8.7 it/s | ETA=0:20:04
+    [A2_LN_before] 10000/20000 | BPC=1.6955 | 9.0 it/s | ETA=0:18:27
+    [A2_LN_before] 10500/20000 | BPC=1.6821 | 9.1 it/s | ETA=0:17:24
+    [A2_LN_before] 11000/20000 | BPC=1.6740 | 9.4 it/s | ETA=0:15:57
+    [A2_LN_before] 11500/20000 | BPC=1.7022 | 9.3 it/s | ETA=0:15:12
+    [A2_LN_before] 12000/20000 | BPC=1.6811 | 8.8 it/s | ETA=0:15:07
+    [A2_LN_before] 12500/20000 | BPC=1.6600 | 9.1 it/s | ETA=0:13:42
+    [A2_LN_before] 13000/20000 | BPC=1.6686 | 9.1 it/s | ETA=0:12:47
+    [A2_LN_before] 13500/20000 | BPC=1.6329 | 9.0 it/s | ETA=0:12:03
+    [A2_LN_before] 14000/20000 | BPC=1.6826 | 8.8 it/s | ETA=0:11:21
+    [A2_LN_before] 14500/20000 | BPC=1.6429 | 8.8 it/s | ETA=0:10:27
+    [A2_LN_before] 15000/20000 | BPC=1.6500 | 8.8 it/s | ETA=0:09:30
+    [A2_LN_before] 15500/20000 | BPC=1.6395 | 8.9 it/s | ETA=0:08:23
+    [A2_LN_before] 16000/20000 | BPC=1.6213 | 8.8 it/s | ETA=0:07:34
+    [A2_LN_before] 16500/20000 | BPC=1.6006 | 8.8 it/s | ETA=0:06:37
+    [A2_LN_before] 17000/20000 | BPC=1.6353 | 8.8 it/s | ETA=0:05:41
+    [A2_LN_before] 17500/20000 | BPC=1.5954 | 8.7 it/s | ETA=0:04:46
+    [A2_LN_before] 18000/20000 | BPC=1.6046 | 8.4 it/s | ETA=0:03:57
+    [A2_LN_before] 18500/20000 | BPC=1.6389 | 8.9 it/s | ETA=0:02:48
+    [A2_LN_before] 19000/20000 | BPC=1.6125 | 8.8 it/s | ETA=0:01:53
+    [A2_LN_before] 19500/20000 | BPC=1.6096 | 8.9 it/s | ETA=0:00:56
+    [A2_LN_before] 20000/20000 | BPC=1.6197 | 8.9 it/s | ETA=0:00:00
+  -> [A2_LN_before] Best Val BPC=1.5954
+
+  Training [A2_LN_after] init=orthogonal...
+    [A2_LN_after] 1/20000 | BPC=5.8904 | 0.0 it/s | ETA=...
+    [A2_LN_after] 500/20000 | BPC=5.8690 | 9.5 it/s | ETA=0:34:20
+    [A2_LN_after] 1000/20000 | BPC=5.8990 | 9.5 it/s | ETA=0:33:15
+    [A2_LN_after] 1500/20000 | BPC=5.8946 | 9.4 it/s | ETA=0:32:54
+    [A2_LN_after] 2000/20000 | BPC=5.9060 | 9.4 it/s | ETA=0:31:50
+    [A2_LN_after] 2500/20000 | BPC=5.8935 | 9.4 it/s | ETA=0:30:56
+    [A2_LN_after] 3000/20000 | BPC=5.8965 | 9.4 it/s | ETA=0:30:13
+    [A2_LN_after] 3500/20000 | BPC=5.9056 | 9.5 it/s | ETA=0:28:49
+    [A2_LN_after] 4000/20000 | BPC=5.8795 | 9.6 it/s | ETA=0:27:47
+    [A2_LN_after] 4500/20000 | BPC=5.8968 | 9.5 it/s | ETA=0:27:16
+    [A2_LN_after] 5000/20000 | BPC=5.9000 | 9.3 it/s | ETA=0:26:54
+    [A2_LN_after] 5500/20000 | BPC=5.8936 | 9.3 it/s | ETA=0:25:58
+    [A2_LN_after] 6000/20000 | BPC=5.9085 | 9.5 it/s | ETA=0:24:37
+    [A2_LN_after] 6500/20000 | BPC=5.8987 | 9.6 it/s | ETA=0:23:22
+    [A2_LN_after] 7000/20000 | BPC=5.9036 | 9.3 it/s | ETA=0:23:21
+    [A2_LN_after] 7500/20000 | BPC=5.8940 | 9.5 it/s | ETA=0:21:53
+    [A2_LN_after] 8000/20000 | BPC=5.8886 | 9.5 it/s | ETA=0:21:07
+    [A2_LN_after] 8500/20000 | BPC=5.9068 | 9.5 it/s | ETA=0:20:16
+    [A2_LN_after] 9000/20000 | BPC=5.8791 | 9.3 it/s | ETA=0:19:37
+    [A2_LN_after] 9500/20000 | BPC=5.8908 | 9.7 it/s | ETA=0:18:06
+    [A2_LN_after] 10000/20000 | BPC=5.9085 | 9.9 it/s | ETA=0:16:51
+    [A2_LN_after] 10500/20000 | BPC=5.8968 | 9.9 it/s | ETA=0:16:01
+    [A2_LN_after] 11000/20000 | BPC=5.8890 | 9.8 it/s | ETA=0:15:18
+    [A2_LN_after] 11500/20000 | BPC=5.8848 | 9.3 it/s | ETA=0:15:14
+    [A2_LN_after] 12000/20000 | BPC=5.8864 | 9.4 it/s | ETA=0:14:14
+    [A2_LN_after] 12500/20000 | BPC=5.8826 | 9.4 it/s | ETA=0:13:21
+    [A2_LN_after] 13000/20000 | BPC=5.8882 | 9.0 it/s | ETA=0:12:59
+    [A2_LN_after] 13500/20000 | BPC=5.8977 | 8.5 it/s | ETA=0:12:46
+    [A2_LN_after] 14000/20000 | BPC=5.8939 | 8.1 it/s | ETA=0:12:16
+    [A2_LN_after] 14500/20000 | BPC=5.8742 | 8.0 it/s | ETA=0:11:28
+    [A2_LN_after] 15000/20000 | BPC=5.8950 | 7.9 it/s | ETA=0:10:33
+    [A2_LN_after] 15500/20000 | BPC=5.8908 | 8.0 it/s | ETA=0:09:20
+    [A2_LN_after] 16000/20000 | BPC=5.8874 | 8.1 it/s | ETA=0:08:16
+    [A2_LN_after] 16500/20000 | BPC=5.8976 | 7.8 it/s | ETA=0:07:31
+    [A2_LN_after] 17000/20000 | BPC=5.9049 | 8.0 it/s | ETA=0:06:14
+    [A2_LN_after] 17500/20000 | BPC=5.8913 | 7.9 it/s | ETA=0:05:14
+    [A2_LN_after] 18000/20000 | BPC=5.9083 | 7.9 it/s | ETA=0:04:11
+    [A2_LN_after] 18500/20000 | BPC=5.9111 | 8.0 it/s | ETA=0:03:06
+    [A2_LN_after] 19000/20000 | BPC=5.8971 | 7.9 it/s | ETA=0:02:06
+    [A2_LN_after] 19500/20000 | BPC=5.8946 | 7.9 it/s | ETA=0:01:02
+    [A2_LN_after] 20000/20000 | BPC=5.8948 | 7.9 it/s | ETA=0:00:00
+  -> [A2_LN_after] Best Val BPC=5.8690
+
+======================================================================
+EXPERIMENT 3: Weight Initialization
+  A: Orthogonal initialization (paper)
+  B: Default Xavier initialization
+======================================================================
+
+  Training [A3_Orth] init=orthogonal...
+    [A3_Orth] 1/20000 | BPC=5.6300 | 0.0 it/s | ETA=...
+    [A3_Orth] 500/20000 | BPC=2.6591 | 4.3 it/s | ETA=1:16:24
+    [A3_Orth] 1000/20000 | BPC=2.2492 | 4.3 it/s | ETA=1:13:07
+    [A3_Orth] 1500/20000 | BPC=2.1131 | 4.3 it/s | ETA=1:12:13
+    [A3_Orth] 2000/20000 | BPC=2.0081 | 4.1 it/s | ETA=1:12:50
+    [A3_Orth] 2500/20000 | BPC=1.9327 | 4.2 it/s | ETA=1:08:39
+    [A3_Orth] 3000/20000 | BPC=1.9021 | 4.3 it/s | ETA=1:05:11
+    [A3_Orth] 3500/20000 | BPC=1.8818 | 4.4 it/s | ETA=1:02:36
+    [A3_Orth] 4000/20000 | BPC=1.8701 | 3.0 it/s | ETA=1:27:53
+    [A3_Orth] 4500/20000 | BPC=1.8745 | 2.8 it/s | ETA=1:32:07
+    [A3_Orth] 5000/20000 | BPC=1.7880 | 3.0 it/s | ETA=1:24:10
+    [A3_Orth] 5500/20000 | BPC=1.7975 | 3.7 it/s | ETA=1:05:09
+    [A3_Orth] 6000/20000 | BPC=1.7592 | 3.0 it/s | ETA=1:17:16
+    [A3_Orth] 6500/20000 | BPC=1.7475 | 3.0 it/s | ETA=1:14:26
+    [A3_Orth] 7000/20000 | BPC=1.8264 | 2.9 it/s | ETA=1:15:32
+    [A3_Orth] 7500/20000 | BPC=1.7248 | 2.5 it/s | ETA=1:24:27
+    [A3_Orth] 8000/20000 | BPC=1.7206 | 3.1 it/s | ETA=1:03:42
+    [A3_Orth] 8500/20000 | BPC=1.6954 | 3.2 it/s | ETA=0:59:45
+    [A3_Orth] 9000/20000 | BPC=1.7430 | 3.4 it/s | ETA=0:53:23
+    [A3_Orth] 9500/20000 | BPC=1.6910 | 2.6 it/s | ETA=1:06:16
+    [A3_Orth] 10000/20000 | BPC=1.6954 | 3.9 it/s | ETA=0:43:05
+    [A3_Orth] 10500/20000 | BPC=1.7187 | 4.3 it/s | ETA=0:36:46
+    [A3_Orth] 11000/20000 | BPC=1.6622 | 4.6 it/s | ETA=0:32:21
+    [A3_Orth] 11500/20000 | BPC=1.6632 | 4.7 it/s | ETA=0:30:19
+    [A3_Orth] 12000/20000 | BPC=1.7213 | 4.7 it/s | ETA=0:28:33
+    [A3_Orth] 12500/20000 | BPC=1.6907 | 4.7 it/s | ETA=0:26:28
+    [A3_Orth] 13000/20000 | BPC=1.6481 | 4.7 it/s | ETA=0:24:56
+    [A3_Orth] 13500/20000 | BPC=1.7060 | 4.6 it/s | ETA=0:23:31
+    [A3_Orth] 14000/20000 | BPC=1.6987 | 4.7 it/s | ETA=0:21:19
+    [A3_Orth] 14500/20000 | BPC=1.6921 | 4.5 it/s | ETA=0:20:08
+    [A3_Orth] 15000/20000 | BPC=1.6287 | 4.6 it/s | ETA=0:18:09
+    [A3_Orth] 15500/20000 | BPC=1.6458 | 4.7 it/s | ETA=0:15:57
+    [A3_Orth] 16000/20000 | BPC=1.6604 | 4.6 it/s | ETA=0:14:23
+    [A3_Orth] 16500/20000 | BPC=1.6454 | 4.3 it/s | ETA=0:13:41
+    [A3_Orth] 17000/20000 | BPC=1.6325 | 4.2 it/s | ETA=0:11:55
+    [A3_Orth] 17500/20000 | BPC=1.6174 | 4.0 it/s | ETA=0:10:30
+    [A3_Orth] 18000/20000 | BPC=1.6319 | 4.1 it/s | ETA=0:08:02
+    [A3_Orth] 18500/20000 | BPC=1.5877 | 4.2 it/s | ETA=0:05:58
+    [A3_Orth] 19000/20000 | BPC=1.6442 | 4.2 it/s | ETA=0:04:00
+    [A3_Orth] 19500/20000 | BPC=1.6186 | 4.2 it/s | ETA=0:01:59
+    [A3_Orth] 20000/20000 | BPC=1.5970 | 4.2 it/s | ETA=0:00:00
+  -> [A3_Orth] Best Val BPC=1.5877
+
+  Training [A3_Xavier] init=default...
+    [A3_Xavier] 1/20000 | BPC=5.6248 | 0.0 it/s | ETA=...
+    [A3_Xavier] 500/20000 | BPC=2.8338 | 4.3 it/s | ETA=1:16:01
+    [A3_Xavier] 1000/20000 | BPC=2.3447 | 4.1 it/s | ETA=1:17:46
+    [A3_Xavier] 1500/20000 | BPC=2.1588 | 3.8 it/s | ETA=1:21:23
+    [A3_Xavier] 2000/20000 | BPC=2.0041 | 3.7 it/s | ETA=1:20:08
+    [A3_Xavier] 2500/20000 | BPC=1.9279 | 4.2 it/s | ETA=1:10:11
+    [A3_Xavier] 3000/20000 | BPC=1.8993 | 4.3 it/s | ETA=1:06:39
+    [A3_Xavier] 3500/20000 | BPC=1.8958 | 4.0 it/s | ETA=1:09:33
+    [A3_Xavier] 4000/20000 | BPC=1.8928 | 4.0 it/s | ETA=1:06:38
+    [A3_Xavier] 4500/20000 | BPC=1.8362 | 3.9 it/s | ETA=1:06:55
+    [A3_Xavier] 5000/20000 | BPC=1.8229 | 3.8 it/s | ETA=1:06:00
+    [A3_Xavier] 5500/20000 | BPC=1.7710 | 3.7 it/s | ETA=1:05:42
+    [A3_Xavier] 6000/20000 | BPC=1.7564 | 3.7 it/s | ETA=1:02:16
+    [A3_Xavier] 6500/20000 | BPC=1.7271 | 3.9 it/s | ETA=0:57:54
+    [A3_Xavier] 7000/20000 | BPC=1.7370 | 3.9 it/s | ETA=0:55:11
+    [A3_Xavier] 7500/20000 | BPC=1.7500 | 3.9 it/s | ETA=0:53:17
+    [A3_Xavier] 8000/20000 | BPC=1.7196 | 4.0 it/s | ETA=0:49:48
+    [A3_Xavier] 8500/20000 | BPC=1.7713 | 4.0 it/s | ETA=0:47:54
+    [A3_Xavier] 9000/20000 | BPC=1.6725 | 4.0 it/s | ETA=0:45:48
+    [A3_Xavier] 9500/20000 | BPC=1.6685 | 4.4 it/s | ETA=0:39:25
+    [A3_Xavier] 10000/20000 | BPC=1.6824 | 4.4 it/s | ETA=0:38:11
+    [A3_Xavier] 10500/20000 | BPC=1.7395 | 4.4 it/s | ETA=0:35:42
+    [A3_Xavier] 11000/20000 | BPC=1.7220 | 4.4 it/s | ETA=0:34:12
+    [A3_Xavier] 11500/20000 | BPC=1.6811 | 4.4 it/s | ETA=0:32:29
+    [A3_Xavier] 12000/20000 | BPC=1.6867 | 4.4 it/s | ETA=0:30:02
+    [A3_Xavier] 12500/20000 | BPC=1.6923 | 4.6 it/s | ETA=0:26:56
+    [A3_Xavier] 13000/20000 | BPC=1.6732 | 4.6 it/s | ETA=0:25:12
+    [A3_Xavier] 13500/20000 | BPC=1.6869 | 4.3 it/s | ETA=0:25:15
+    [A3_Xavier] 14000/20000 | BPC=1.6221 | 4.4 it/s | ETA=0:22:52
+    [A3_Xavier] 14500/20000 | BPC=1.6709 | 4.5 it/s | ETA=0:20:15
+    [A3_Xavier] 15000/20000 | BPC=1.7148 | 4.5 it/s | ETA=0:18:40
+    [A3_Xavier] 15500/20000 | BPC=1.6195 | 4.4 it/s | ETA=0:17:01
+    [A3_Xavier] 16000/20000 | BPC=1.6433 | 3.0 it/s | ETA=0:21:55
+    [A3_Xavier] 16500/20000 | BPC=1.6545 | 4.5 it/s | ETA=0:13:06
+    [A3_Xavier] 17000/20000 | BPC=1.5908 | 4.6 it/s | ETA=0:10:57
+    [A3_Xavier] 17500/20000 | BPC=1.6270 | 4.5 it/s | ETA=0:09:11
+    [A3_Xavier] 18000/20000 | BPC=1.5922 | 4.6 it/s | ETA=0:07:18
+    [A3_Xavier] 18500/20000 | BPC=1.6605 | 4.4 it/s | ETA=0:05:40
+    [A3_Xavier] 19000/20000 | BPC=1.5647 | 4.5 it/s | ETA=0:03:43
+    [A3_Xavier] 19500/20000 | BPC=1.5874 | 4.5 it/s | ETA=0:01:50
+    [A3_Xavier] 20000/20000 | BPC=1.5751 | 4.6 it/s | ETA=0:00:00
+  -> [A3_Xavier] Best Val BPC=1.5647
+
+======================================================================
+EXPERIMENT 4: Hyper Embedding Size (Nz)
+  A: Nz=1  (minimal capacity)
+  B: Nz=4  (paper default)
+  C: Nz=16 (larger capacity)
+======================================================================
+
+  Training [A4_Nz1] init=orthogonal...
+    [A4_Nz1] 1/20000 | BPC=5.6346 | 0.0 it/s | ETA=...
+    [A4_Nz1] 500/20000 | BPC=2.8371 | 4.5 it/s | ETA=1:12:44
+    [A4_Nz1] 1000/20000 | BPC=2.4004 | 4.5 it/s | ETA=1:09:52
+    [A4_Nz1] 1500/20000 | BPC=2.1801 | 4.3 it/s | ETA=1:10:56
+    [A4_Nz1] 2000/20000 | BPC=1.9848 | 4.2 it/s | ETA=1:11:30
+    [A4_Nz1] 2500/20000 | BPC=1.9656 | 4.3 it/s | ETA=1:08:29
+    [A4_Nz1] 3000/20000 | BPC=1.8904 | 4.3 it/s | ETA=1:06:19
+    [A4_Nz1] 3500/20000 | BPC=1.7813 | 4.2 it/s | ETA=1:04:48
+    [A4_Nz1] 4000/20000 | BPC=1.8863 | 4.4 it/s | ETA=1:01:15
+    [A4_Nz1] 4500/20000 | BPC=1.8198 | 4.4 it/s | ETA=0:58:24
+    [A4_Nz1] 5000/20000 | BPC=1.8090 | 4.3 it/s | ETA=0:58:12
+    [A4_Nz1] 5500/20000 | BPC=1.7607 | 4.3 it/s | ETA=0:56:02
+    [A4_Nz1] 6000/20000 | BPC=1.7403 | 4.2 it/s | ETA=0:55:06
+    [A4_Nz1] 6500/20000 | BPC=1.7498 | 4.2 it/s | ETA=0:53:23
+    [A4_Nz1] 7000/20000 | BPC=1.7549 | 4.3 it/s | ETA=0:50:39
+    [A4_Nz1] 7500/20000 | BPC=1.7594 | 4.3 it/s | ETA=0:48:44
+    [A4_Nz1] 8000/20000 | BPC=1.7557 | 4.3 it/s | ETA=0:46:24
+    [A4_Nz1] 8500/20000 | BPC=1.7153 | 4.2 it/s | ETA=0:45:15
+    [A4_Nz1] 9000/20000 | BPC=1.7288 | 4.3 it/s | ETA=0:42:58
+    [A4_Nz1] 9500/20000 | BPC=1.7181 | 4.2 it/s | ETA=0:42:04
+    [A4_Nz1] 10000/20000 | BPC=1.6672 | 3.5 it/s | ETA=0:47:50
+    [A4_Nz1] 10500/20000 | BPC=1.7269 | 3.7 it/s | ETA=0:43:14
+    [A4_Nz1] 11000/20000 | BPC=1.6873 | 4.2 it/s | ETA=0:35:34
+    [A4_Nz1] 11500/20000 | BPC=1.6988 | 4.3 it/s | ETA=0:33:02
+    [A4_Nz1] 12000/20000 | BPC=1.6702 | 4.4 it/s | ETA=0:30:36
+    [A4_Nz1] 12500/20000 | BPC=1.6744 | 4.2 it/s | ETA=0:29:48
+    [A4_Nz1] 13000/20000 | BPC=1.6630 | 4.2 it/s | ETA=0:27:39
+    [A4_Nz1] 13500/20000 | BPC=1.6922 | 4.2 it/s | ETA=0:25:58
+    [A4_Nz1] 14000/20000 | BPC=1.6499 | 4.2 it/s | ETA=0:23:52
+    [A4_Nz1] 14500/20000 | BPC=1.6061 | 4.4 it/s | ETA=0:21:02
+    [A4_Nz1] 15000/20000 | BPC=1.6295 | 4.5 it/s | ETA=0:18:42
+    [A4_Nz1] 15500/20000 | BPC=1.6261 | 4.5 it/s | ETA=0:16:42
+    [A4_Nz1] 16000/20000 | BPC=1.6676 | 4.6 it/s | ETA=0:14:30
+    [A4_Nz1] 16500/20000 | BPC=1.6151 | 4.5 it/s | ETA=0:12:57
+    [A4_Nz1] 17000/20000 | BPC=1.6442 | 4.4 it/s | ETA=0:11:22
+    [A4_Nz1] 17500/20000 | BPC=1.5940 | 4.5 it/s | ETA=0:09:10
+    [A4_Nz1] 18000/20000 | BPC=1.5555 | 4.6 it/s | ETA=0:07:16
+    [A4_Nz1] 18500/20000 | BPC=1.6287 | 4.6 it/s | ETA=0:05:27
+    [A4_Nz1] 19000/20000 | BPC=1.6264 | 4.5 it/s | ETA=0:03:42
+    [A4_Nz1] 19500/20000 | BPC=1.6395 | 4.6 it/s | ETA=0:01:47
+    [A4_Nz1] 20000/20000 | BPC=1.6153 | 4.6 it/s | ETA=0:00:00
+  -> [A4_Nz1] Best Val BPC=1.5555
+
+  Training [A4_Nz4] init=orthogonal...
+    [A4_Nz4] 1/20000 | BPC=5.6319 | 0.0 it/s | ETA=...
+    [A4_Nz4] 500/20000 | BPC=2.7247 | 4.7 it/s | ETA=1:09:48
+    [A4_Nz4] 1000/20000 | BPC=2.2468 | 4.7 it/s | ETA=1:07:00
+    [A4_Nz4] 1500/20000 | BPC=2.0455 | 4.7 it/s | ETA=1:06:04
+    [A4_Nz4] 2000/20000 | BPC=1.9629 | 4.6 it/s | ETA=1:05:06
+    [A4_Nz4] 2500/20000 | BPC=1.9448 | 4.7 it/s | ETA=1:02:40
+    [A4_Nz4] 3000/20000 | BPC=1.9062 | 4.6 it/s | ETA=1:01:47
+    [A4_Nz4] 3500/20000 | BPC=1.9192 | 4.8 it/s | ETA=0:57:48
+    [A4_Nz4] 4000/20000 | BPC=1.7940 | 4.7 it/s | ETA=0:57:08
+    [A4_Nz4] 4500/20000 | BPC=1.8898 | 4.7 it/s | ETA=0:54:59
+    [A4_Nz4] 5000/20000 | BPC=1.8030 | 3.2 it/s | ETA=1:16:56
+    [A4_Nz4] 5500/20000 | BPC=1.8406 | 4.6 it/s | ETA=0:52:54
+    [A4_Nz4] 6000/20000 | BPC=1.8266 | 4.8 it/s | ETA=0:49:06
+    [A4_Nz4] 6500/20000 | BPC=1.8021 | 4.7 it/s | ETA=0:47:56
+    [A4_Nz4] 7000/20000 | BPC=1.8323 | 4.8 it/s | ETA=0:44:56
+    [A4_Nz4] 7500/20000 | BPC=1.7640 | 4.8 it/s | ETA=0:43:42
+    [A4_Nz4] 8000/20000 | BPC=1.7302 | 4.7 it/s | ETA=0:42:16
+    [A4_Nz4] 8500/20000 | BPC=1.7313 | 4.7 it/s | ETA=0:40:38
+    [A4_Nz4] 9000/20000 | BPC=1.7380 | 4.6 it/s | ETA=0:39:44
+    [A4_Nz4] 9500/20000 | BPC=1.7470 | 4.6 it/s | ETA=0:38:20
+    [A4_Nz4] 10000/20000 | BPC=1.7540 | 4.6 it/s | ETA=0:36:37
+    [A4_Nz4] 10500/20000 | BPC=1.7356 | 4.7 it/s | ETA=0:34:00
+    [A4_Nz4] 11000/20000 | BPC=1.6948 | 4.6 it/s | ETA=0:32:22
+    [A4_Nz4] 11500/20000 | BPC=1.6674 | 4.6 it/s | ETA=0:30:54
+    [A4_Nz4] 12000/20000 | BPC=1.6512 | 4.5 it/s | ETA=0:29:20
+    [A4_Nz4] 12500/20000 | BPC=1.6532 | 4.5 it/s | ETA=0:27:49
+    [A4_Nz4] 13000/20000 | BPC=1.6841 | 4.4 it/s | ETA=0:26:22
+    [A4_Nz4] 13500/20000 | BPC=1.7030 | 4.4 it/s | ETA=0:24:30
+    [A4_Nz4] 14000/20000 | BPC=1.5978 | 4.8 it/s | ETA=0:21:02
+    [A4_Nz4] 14500/20000 | BPC=1.6341 | 4.7 it/s | ETA=0:19:36
+    [A4_Nz4] 15000/20000 | BPC=1.6219 | 4.8 it/s | ETA=0:17:31
+    [A4_Nz4] 15500/20000 | BPC=1.6156 | 4.6 it/s | ETA=0:16:18
+    [A4_Nz4] 16000/20000 | BPC=1.6200 | 4.8 it/s | ETA=0:13:56
+    [A4_Nz4] 16500/20000 | BPC=1.6457 | 4.6 it/s | ETA=0:12:35
+    [A4_Nz4] 17000/20000 | BPC=1.6349 | 4.7 it/s | ETA=0:10:37
+    [A4_Nz4] 17500/20000 | BPC=1.6014 | 4.6 it/s | ETA=0:08:59
+    [A4_Nz4] 18000/20000 | BPC=1.6071 | 4.5 it/s | ETA=0:07:19
+    [A4_Nz4] 18500/20000 | BPC=1.6196 | 4.6 it/s | ETA=0:05:29
+    [A4_Nz4] 19000/20000 | BPC=1.6784 | 4.7 it/s | ETA=0:03:31
+    [A4_Nz4] 19500/20000 | BPC=1.6081 | 5.0 it/s | ETA=0:01:39
+    [A4_Nz4] 20000/20000 | BPC=1.6474 | 5.0 it/s | ETA=0:00:00
+  -> [A4_Nz4] Best Val BPC=1.5978
+
+  Training [A4_Nz16] init=orthogonal...
+    [A4_Nz16] 1/20000 | BPC=5.6229 | 0.0 it/s | ETA=...
+    [A4_Nz16] 500/20000 | BPC=2.5390 | 4.5 it/s | ETA=1:11:45
+    [A4_Nz16] 1000/20000 | BPC=2.2002 | 3.8 it/s | ETA=1:23:45
+    [A4_Nz16] 1500/20000 | BPC=2.0600 | 5.0 it/s | ETA=1:02:16
+    [A4_Nz16] 2000/20000 | BPC=1.9845 | 4.9 it/s | ETA=1:01:08
+    [A4_Nz16] 2500/20000 | BPC=1.9763 | 5.0 it/s | ETA=0:58:41
+    [A4_Nz16] 3000/20000 | BPC=1.9463 | 4.8 it/s | ETA=0:58:35
+    [A4_Nz16] 3500/20000 | BPC=1.8576 | 4.9 it/s | ETA=0:56:15
+    [A4_Nz16] 4000/20000 | BPC=1.8749 | 4.8 it/s | ETA=0:55:44
+    [A4_Nz16] 4500/20000 | BPC=1.8684 | 3.5 it/s | ETA=1:13:17
+    [A4_Nz16] 5000/20000 | BPC=1.7981 | 3.4 it/s | ETA=1:14:31
+    [A4_Nz16] 5500/20000 | BPC=1.7947 | 3.5 it/s | ETA=1:09:49
+    [A4_Nz16] 6000/20000 | BPC=1.8231 | 3.4 it/s | ETA=1:09:08
+    [A4_Nz16] 6500/20000 | BPC=1.8016 | 3.6 it/s | ETA=1:03:05
+    [A4_Nz16] 7000/20000 | BPC=1.7610 | 3.4 it/s | ETA=1:02:56
+    [A4_Nz16] 7500/20000 | BPC=1.7936 | 3.4 it/s | ETA=1:01:02
+    [A4_Nz16] 8000/20000 | BPC=1.7458 | 3.4 it/s | ETA=0:59:32
+    [A4_Nz16] 8500/20000 | BPC=1.7717 | 3.6 it/s | ETA=0:53:08
+    [A4_Nz16] 9000/20000 | BPC=1.7558 | 3.5 it/s | ETA=0:51:54
+    [A4_Nz16] 9500/20000 | BPC=1.7064 | 3.2 it/s | ETA=0:54:48
+    [A4_Nz16] 10000/20000 | BPC=1.7246 | 3.3 it/s | ETA=0:50:22
+    [A4_Nz16] 10500/20000 | BPC=1.6898 | 3.5 it/s | ETA=0:45:40
+    [A4_Nz16] 11000/20000 | BPC=1.6828 | 3.5 it/s | ETA=0:43:08
+    [A4_Nz16] 11500/20000 | BPC=1.7200 | 3.6 it/s | ETA=0:39:11
+    [A4_Nz16] 12000/20000 | BPC=1.7071 | 3.8 it/s | ETA=0:35:30
+    [A4_Nz16] 12500/20000 | BPC=1.6952 | 4.6 it/s | ETA=0:27:12
+    [A4_Nz16] 13000/20000 | BPC=1.6515 | 4.4 it/s | ETA=0:26:21
+    [A4_Nz16] 13500/20000 | BPC=1.6907 | 4.4 it/s | ETA=0:24:32
+    [A4_Nz16] 14000/20000 | BPC=1.6255 | 4.3 it/s | ETA=0:23:13
+    [A4_Nz16] 14500/20000 | BPC=1.7086 | 3.0 it/s | ETA=0:30:19
+    [A4_Nz16] 15000/20000 | BPC=1.6504 | 4.6 it/s | ETA=0:18:04
+    [A4_Nz16] 15500/20000 | BPC=1.6943 | 4.6 it/s | ETA=0:16:13
+    [A4_Nz16] 16000/20000 | BPC=1.6556 | 4.6 it/s | ETA=0:14:23
+    [A4_Nz16] 16500/20000 | BPC=1.6794 | 3.9 it/s | ETA=0:15:06
+    [A4_Nz16] 17000/20000 | BPC=1.6414 | 4.3 it/s | ETA=0:11:44
+    [A4_Nz16] 17500/20000 | BPC=1.6335 | 4.9 it/s | ETA=0:08:27
+    [A4_Nz16] 18000/20000 | BPC=1.6692 | 4.9 it/s | ETA=0:06:44
+    [A4_Nz16] 18500/20000 | BPC=1.6379 | 4.9 it/s | ETA=0:05:03
+    [A4_Nz16] 19000/20000 | BPC=1.6008 | 4.8 it/s | ETA=0:03:29
+    [A4_Nz16] 19500/20000 | BPC=1.6110 | 4.8 it/s | ETA=0:01:44
+    [A4_Nz16] 20000/20000 | BPC=1.6541 | 4.9 it/s | ETA=0:00:00
+  -> [A4_Nz16] Best Val BPC=1.6008
+
+======================================================================
+EXPERIMENT 5: Dropout Rate (keep_prob)
+  Testing BaselineLSTM with different dropout rates
+  Note: BaselineLSTM here uses simple output dropout
+======================================================================
+
+  Training [A5_Baseline] init=orthogonal...
+    [A5_Baseline] 1/20000 | BPC=5.6323 | 0.0 it/s | ETA=...
+    [A5_Baseline] 500/20000 | BPC=2.8922 | 11.9 it/s | ETA=0:27:19
+    [A5_Baseline] 1000/20000 | BPC=2.4787 | 11.8 it/s | ETA=0:26:51
+    [A5_Baseline] 1500/20000 | BPC=2.2624 | 11.7 it/s | ETA=0:26:17
+    [A5_Baseline] 2000/20000 | BPC=2.1621 | 12.0 it/s | ETA=0:25:05
+    [A5_Baseline] 2500/20000 | BPC=2.0448 | 13.4 it/s | ETA=0:21:48
+    [A5_Baseline] 3000/20000 | BPC=1.9930 | 11.5 it/s | ETA=0:24:34
+    [A5_Baseline] 3500/20000 | BPC=1.9352 | 11.8 it/s | ETA=0:23:24
+    [A5_Baseline] 4000/20000 | BPC=1.9278 | 12.5 it/s | ETA=0:21:20
+    [A5_Baseline] 4500/20000 | BPC=1.8915 | 14.0 it/s | ETA=0:18:28
+    [A5_Baseline] 5000/20000 | BPC=1.8569 | 12.3 it/s | ETA=0:20:21
+    [A5_Baseline] 5500/20000 | BPC=1.8123 | 11.7 it/s | ETA=0:20:39
+    [A5_Baseline] 6000/20000 | BPC=1.7930 | 11.8 it/s | ETA=0:19:42
+    [A5_Baseline] 6500/20000 | BPC=1.8217 | 11.6 it/s | ETA=0:19:24
+    [A5_Baseline] 7000/20000 | BPC=1.8277 | 12.8 it/s | ETA=0:16:59
+    [A5_Baseline] 7500/20000 | BPC=1.7706 | 12.4 it/s | ETA=0:16:45
+    [A5_Baseline] 8000/20000 | BPC=1.7389 | 12.7 it/s | ETA=0:15:45
+    [A5_Baseline] 8500/20000 | BPC=1.7198 | 11.7 it/s | ETA=0:16:19
+    [A5_Baseline] 9000/20000 | BPC=1.7035 | 12.0 it/s | ETA=0:15:14
+    [A5_Baseline] 9500/20000 | BPC=1.6950 | 12.1 it/s | ETA=0:14:29
+    [A5_Baseline] 10000/20000 | BPC=1.7013 | 11.7 it/s | ETA=0:14:12
+    [A5_Baseline] 10500/20000 | BPC=1.7013 | 12.4 it/s | ETA=0:12:44
+    [A5_Baseline] 11000/20000 | BPC=1.6922 | 11.9 it/s | ETA=0:12:39
+    [A5_Baseline] 11500/20000 | BPC=1.6908 | 10.2 it/s | ETA=0:13:50
+    [A5_Baseline] 12000/20000 | BPC=1.7245 | 10.5 it/s | ETA=0:12:41
+    [A5_Baseline] 12500/20000 | BPC=1.6926 | 11.5 it/s | ETA=0:10:49
+    [A5_Baseline] 13000/20000 | BPC=1.6487 | 11.8 it/s | ETA=0:09:53
+    [A5_Baseline] 13500/20000 | BPC=1.6228 | 11.8 it/s | ETA=0:09:08
+    [A5_Baseline] 14000/20000 | BPC=1.6692 | 11.4 it/s | ETA=0:08:45
+    [A5_Baseline] 14500/20000 | BPC=1.6934 | 13.0 it/s | ETA=0:07:02
+    [A5_Baseline] 15000/20000 | BPC=1.6667 | 12.5 it/s | ETA=0:06:40
+    [A5_Baseline] 15500/20000 | BPC=1.6371 | 11.5 it/s | ETA=0:06:30
+    [A5_Baseline] 16000/20000 | BPC=1.6464 | 11.7 it/s | ETA=0:05:42
+    [A5_Baseline] 16500/20000 | BPC=1.6631 | 13.2 it/s | ETA=0:04:25
+    [A5_Baseline] 17000/20000 | BPC=1.5771 | 11.6 it/s | ETA=0:04:17
+    [A5_Baseline] 17500/20000 | BPC=1.6523 | 12.8 it/s | ETA=0:03:15
+    [A5_Baseline] 18000/20000 | BPC=1.6514 | 12.3 it/s | ETA=0:02:42
+    [A5_Baseline] 18500/20000 | BPC=1.6275 | 11.3 it/s | ETA=0:02:13
+    [A5_Baseline] 19000/20000 | BPC=1.6161 | 11.8 it/s | ETA=0:01:25
+    [A5_Baseline] 19500/20000 | BPC=1.6548 | 12.8 it/s | ETA=0:00:38
+    [A5_Baseline] 20000/20000 | BPC=1.6247 | 12.3 it/s | ETA=0:00:00
+  -> [A5_Baseline] Best Val BPC=1.5771
+
+  Training [A5_SmallInit] init=normal...
+    [A5_SmallInit] 1/20000 | BPC=5.6245 | 0.0 it/s | ETA=...
+    [A5_SmallInit] 500/20000 | BPC=2.8336 | 11.8 it/s | ETA=0:27:26
+    [A5_SmallInit] 1000/20000 | BPC=2.4837 | 11.9 it/s | ETA=0:26:34
+    [A5_SmallInit] 1500/20000 | BPC=2.2379 | 12.4 it/s | ETA=0:24:57
+    [A5_SmallInit] 2000/20000 | BPC=2.0562 | 12.2 it/s | ETA=0:24:40
+    [A5_SmallInit] 2500/20000 | BPC=2.0263 | 12.5 it/s | ETA=0:23:16
+    [A5_SmallInit] 3000/20000 | BPC=1.9579 | 11.9 it/s | ETA=0:23:49
+    [A5_SmallInit] 3500/20000 | BPC=1.9401 | 12.7 it/s | ETA=0:21:42
+    [A5_SmallInit] 4000/20000 | BPC=1.8602 | 14.1 it/s | ETA=0:18:52
+    [A5_SmallInit] 4500/20000 | BPC=1.8423 | 12.4 it/s | ETA=0:20:53
+    [A5_SmallInit] 5000/20000 | BPC=1.8255 | 12.4 it/s | ETA=0:20:07
+    [A5_SmallInit] 5500/20000 | BPC=1.8125 | 12.7 it/s | ETA=0:18:59
+    [A5_SmallInit] 6000/20000 | BPC=1.8156 | 12.5 it/s | ETA=0:18:41
+    [A5_SmallInit] 6500/20000 | BPC=1.7488 | 12.0 it/s | ETA=0:18:40
+    [A5_SmallInit] 7000/20000 | BPC=1.7619 | 11.8 it/s | ETA=0:18:17
+    [A5_SmallInit] 7500/20000 | BPC=1.7835 | 11.9 it/s | ETA=0:17:26
+    [A5_SmallInit] 8000/20000 | BPC=1.7137 | 9.3 it/s | ETA=0:21:29
+    [A5_SmallInit] 8500/20000 | BPC=1.7275 | 10.4 it/s | ETA=0:18:30
+    [A5_SmallInit] 9000/20000 | BPC=1.7067 | 12.7 it/s | ETA=0:14:28
+    [A5_SmallInit] 9500/20000 | BPC=1.6926 | 12.0 it/s | ETA=0:14:37
+    [A5_SmallInit] 10000/20000 | BPC=1.6716 | 10.9 it/s | ETA=0:15:14
+    [A5_SmallInit] 10500/20000 | BPC=1.6855 | 10.6 it/s | ETA=0:14:57
+    [A5_SmallInit] 11000/20000 | BPC=1.6843 | 10.2 it/s | ETA=0:14:39
+    [A5_SmallInit] 11500/20000 | BPC=1.7029 | 10.9 it/s | ETA=0:12:58
+    [A5_SmallInit] 12000/20000 | BPC=1.6149 | 11.4 it/s | ETA=0:11:39
+    [A5_SmallInit] 12500/20000 | BPC=1.6327 | 10.4 it/s | ETA=0:12:01
+    [A5_SmallInit] 13000/20000 | BPC=1.6418 | 10.3 it/s | ETA=0:11:22
+    [A5_SmallInit] 13500/20000 | BPC=1.6168 | 11.2 it/s | ETA=0:09:40
+    [A5_SmallInit] 14000/20000 | BPC=1.6628 | 11.5 it/s | ETA=0:08:41
+    [A5_SmallInit] 14500/20000 | BPC=1.6975 | 12.3 it/s | ETA=0:07:27
+    [A5_SmallInit] 15000/20000 | BPC=1.6785 | 11.3 it/s | ETA=0:07:23
+    [A5_SmallInit] 15500/20000 | BPC=1.7022 | 11.3 it/s | ETA=0:06:38
+    [A5_SmallInit] 16000/20000 | BPC=1.6808 | 12.1 it/s | ETA=0:05:30
+    [A5_SmallInit] 16500/20000 | BPC=1.6538 | 12.0 it/s | ETA=0:04:51
+    [A5_SmallInit] 17000/20000 | BPC=1.6052 | 11.9 it/s | ETA=0:04:12
+    [A5_SmallInit] 17500/20000 | BPC=1.6266 | 12.7 it/s | ETA=0:03:16
+    [A5_SmallInit] 18000/20000 | BPC=1.6386 | 12.2 it/s | ETA=0:02:43
+    [A5_SmallInit] 18500/20000 | BPC=1.6181 | 12.0 it/s | ETA=0:02:04
+    [A5_SmallInit] 19000/20000 | BPC=1.6267 | 11.7 it/s | ETA=0:01:25
+    [A5_SmallInit] 19500/20000 | BPC=1.6396 | 11.7 it/s | ETA=0:00:42
+    [A5_SmallInit] 20000/20000 | BPC=1.6320 | 12.0 it/s | ETA=0:00:00
+  -> [A5_SmallInit] Best Val BPC=1.6052
+
+======================================================================
+ABLATION SUMMARY
+======================================================================
+
+Exp1_Dropout:
+  Baseline (no dropout): BPC = 1.5987
+  HyperLSTM           : BPC = 1.5969
+
+Exp2_LNPosition:
+  LN_before           : BPC = 1.5954
+  LN_after            : BPC = 5.8690
+
+Exp3_Init:
+  Orthogonal          : BPC = 1.5877
+  Xavier              : BPC = 1.5647
+
+Exp4_Nz:
+  Nz=1                : BPC = 1.5555
+  Nz=4                : BPC = 1.5978
+  Nz=16               : BPC = 1.6008
+
+Exp5_Reg:
+  Orthogonal          : BPC = 1.5771
+  Normal_small        : BPC = 1.6052
+
+Saved: eval_ablation_results/ablation_summary.csv
