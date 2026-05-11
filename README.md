@@ -1,12 +1,12 @@
 # HyperNetworks
 
 [![TensorFlow](https://img.shields.io/badge/TensorFlow-2.x-FF6F00?logo=tensorflow&logoColor=white)](#part-1--static-hypernetworks-tensorflow-vision)
-[![PyTorch](https://img.shields.io/badge/PyTorch-demo-EE4C2C?logo=pytorch&logoColor=white)](#part-2--hyperlstm-demo-pytorch-char-level)
+[![PyTorch](https://img.shields.io/badge/PyTorch-dynamic-EE4C2C?logo=pytorch&logoColor=white)](#part-2--dynamic-hypernetworks-pytorch-sequence-modeling)
 
 This repository studies **hypernetworks** along two complementary lines:
 
 1. **Static hypernetworks (TensorFlow 2)** — convolution layers whose kernels are generated from learned embeddings for small-scale image classification.
-2. **Dynamic hypernetworks (PyTorch)** — a classroom-ready **HyperLSTM** demo (Ha et al., Appendix A.2.2) for character-level sequence modeling, compared to a vanilla LSTM.
+2. **Dynamic hypernetworks (PyTorch)** — **HyperLSTM-style** sequence modeling experiments (PTB, enwik8, Shakespeare) with training/eval/ablation scripts.
 
 The two tracks use **different stacks** (TensorFlow vs PyTorch). Install and run the part you need using the sections below.
 
@@ -27,10 +27,9 @@ The two tracks use **different stacks** (TensorFlow vs PyTorch). Install and run
   - [Vision models](#vision-models)
   - [Running experiments (TensorFlow)](#running-experiments-tensorflow)
   - [Checkpoints and evaluation (TensorFlow)](#checkpoints-and-evaluation-tensorflow)
-- [Part 2 — HyperLSTM demo (PyTorch, char-level)](#part-2--hyperlstm-demo-pytorch-char-level)
+- [Part 2 — Dynamic hypernetworks (PyTorch, sequence modeling)](#part-2--dynamic-hypernetworks-pytorch-sequence-modeling)
   - [Installation (PyTorch)](#installation-pytorch)
   - [Quick start (PyTorch)](#quick-start-pytorch)
-  - [Output artifacts (PyTorch)](#output-artifacts-pytorch)
 - [Repository layout (overview)](#repository-layout-overview)
 
 ---
@@ -84,7 +83,7 @@ Supported datasets:
 - `mnist`, `fashion_mnist`, `cifar10` — via `tf.keras.datasets`
 - `svhn` — `.mat` files under `../data/svhn` by default (`train_32x32.mat`, `test_32x32.mat`)
 
-Loaders live in `my_datasets/`. Labels are one-hot; images are normalized to `[0, 1]`.
+Loaders live in `static/my_datasets/`. Labels are one-hot; images are normalized to `[0, 1]`.
 
 ### Vision models
 
@@ -94,47 +93,23 @@ Loaders live in `my_datasets/`. Labels are one-hot; images are normalized to `[0
 | `resnet50` | Subclassed ResNet-v2 with `BottleneckBlock` |
 | `wrn40_2` | WideResNet-40-2: 3×3 stem, 16 channels, 3 stages, 6 `BasicBlock`s per stage, widths 32→64→128 |
 
-Hypernetwork pieces are in `model/utils.py`: `HyperConv2D`, `SharedHyperConvMLP`. With `hyper_mode=True`, selected layers use hyper-convolutions instead of plain `Conv2D`.
+Hypernetwork pieces are in `static/model/utils.py`: `HyperConv2D`, `SharedHyperConvMLP`. With `hyper_mode=True`, selected layers use hyper-convolutions instead of plain `Conv2D`.
 
 ### Running experiments (TensorFlow)
 
-**Notebook:** open `static_hypernetwork.ipynb`.
+**Notebook:** open `static/static_hypernetwork.ipynb`.
 
-**Or use `Solver`:**
+**CLI grid runner (recommended):**
 
-```python
-from pathlib import Path
+```powershell
+# Train baseline + hyper side-by-side (same grid)
+python static/static_hypernetwork.py train --datasets cifar10 --models wrn40_2 --hyper-modes both
 
-from solve.static_hypernet import Solver
-
-
-def build_run_paths(dataset, model, hyper_mode=False):
-    run_name = f"{dataset}_{model}"
-    if hyper_mode:
-        run_name += "_hyper"
-    run_root = Path("runs") / run_name
-    return {
-        "logpath": str(run_root / "logs"),
-        "save_dir": str(run_root / "checkpoints"),
-    }
-
-
-run_paths = build_run_paths("cifar10", "wrn40_2", hyper_mode=True)
-
-solver = Solver(
-    dataset="cifar10",
-    model="wrn40_2",
-    max_epoch=20,
-    hyper_mode=True,
-    logpath=run_paths["logpath"],
-    save_dir=run_paths["save_dir"],
-    show_sample=False,
-    show_filters=False,
-)
-solver.train()
+# Evaluate the best validation checkpoint on test split
+python static/static_hypernetwork.py eval --datasets cifar10 --models wrn40_2 --hyper-modes both
 ```
 
-Main `Solver` arguments (`solve/static_hypernet.py`): `dataset` (`mnist` \| `fashion_mnist` \| `cifar10` \| `svhn`), `model` (`simplecnn` \| `resnet50` \| `wrn40_2`), `max_epoch`, `hyper_mode`, `logpath`, `save_dir`, `val_split` (default `0.1`), `resume`, `eval_only`, `show_sample`, `show_filters`, `run_final_test_from_best`.
+The underlying training/evaluation logic lives in `static/solve/static_hypernet.py` (class `Solver`).
 
 Useful defaults: batch size `1024`, Adam, initial LR `5e-4`, exponential decay `0.99`, global gradient clip norm `100.0`, seed `42`.
 
@@ -156,35 +131,31 @@ Under `save_dir`: `latest/`, `best/`, `history/`, `training_state.json`. After t
 
 ---
 
-## Part 2 — HyperLSTM demo (PyTorch, char-level)
+## Part 2 — Dynamic hypernetworks (PyTorch, sequence modeling)
 
-PyTorch demo of [*HyperNetworks*](https://arxiv.org/abs/1609.09106), focused on the **HyperLSTM** dynamic hypernetwork (Appendix A.2.2). Train, compare to LSTM, save checkpoints and logs, generate text samples, and run a polished CLI demo.
+PyTorch experiments inspired by [*HyperNetworks*](https://arxiv.org/abs/1609.09106), focused on **HyperLSTM-style** dynamic modulation for character/byte-level modeling (e.g., PTB, enwik8, Shakespeare). This track includes training scripts, evaluation, ablations, and plotting utilities under `dynamic/`.
 
-### Layout (PyTorch demo)
+### Layout (PyTorch)
 
 | Path | Role |
 |------|------|
-| `dynamic_hypernetwork/hyperlstm.py` | `HyperLSTMCell` and `HyperLSTM` |
-| `dynamic_hypernetwork/models.py` | Character-level `LSTM` and `HyperLSTM` with one interface |
-| `dynamic_hypernetwork/data.py` | Built-in corpus loader and optional Tiny Shakespeare download |
-| `dynamic_hypernetwork/training.py` | Training loop, evaluation, checkpoint I/O, sampling |
-| `run_char_experiment.py` | CLI for training and generation |
-| `compare_models.py` | Side-by-side LSTM vs HyperLSTM |
-| `demo_commands.sh` | Canned commands for live demo |
-| `BAO_CAO_DEMO_VI.md` | Vietnamese write-up you can adapt for submission |
-
-**Paper alignment:** HyperLSTM follows the efficient modulation idea in Eq. (10)–(13): a smaller hyper LSTM reads `[h_{t-1}, x_t]`, produces embeddings `z`, and generates scaling (and dynamic biases) for the main LSTM’s projections so effective weights vary in time **without** materializing a full new weight matrix every step.
+| `dynamic/train_all_ptb_unified.py` | Train PTB variants (baseline/LN/HyperLSTM, etc.) |
+| `dynamic/train_all_enwik8.py` | Train enwik8 variants |
+| `dynamic/train_shakespeare.py` | Train Shakespeare baselines |
+| `dynamic/train_shakespeare_hyper.py` | Train Shakespeare HyperLSTM variants |
+| `dynamic/eval_all.py` | Evaluate all datasets and write summaries |
+| `dynamic/eval_ablation.py` | Ablation study runner |
+| `dynamic/plot_training_curves.py` | Plot training curves from logs |
+| `dynamic/plot_evaluation.py` | Plot evaluation charts |
+| `dynamic/data/` | Dataset files/splits (e.g., PTB) |
+| `dynamic/model_weights/` | Saved checkpoints (organized by dataset) |
+| `dynamic/logs/` | Training logs/progress logs |
+| `dynamic/eval_results_summary.csv` | Aggregated evaluation summary |
+| `dynamic/ablation_summary.csv` | Aggregated ablation summary |
 
 ### Installation (PyTorch)
 
-**Conda (recommended for the demo):**
-
-```bash
-conda env create -f environment.yml
-conda activate hypernetwork-demo
-```
-
-**pip only** (use a **separate** virtualenv; do not use the TensorFlow `requirements.txt` for this track):
+Use a **separate** virtualenv; do not reuse the TensorFlow `requirements.txt` for this track.
 
 ```bash
 python -m venv venv-pt
@@ -194,48 +165,16 @@ pip install "torch>=1.12"
 
 ### Quick start (PyTorch)
 
-Train HyperLSTM quickly on the built-in corpus:
+From the repo root:
 
 ```bash
-python run_char_experiment.py train \
-  --model hyperlstm \
-  --device cpu \
-  --output-dir artifacts/hyperlstm_quick_demo \
-  --steps 120 \
-  --eval-every 30 \
-  --sample-every 60
+cd dynamic
+python train_shakespeare_hyper.py
+python eval_all.py
+python plot_evaluation.py
 ```
 
-Compare on Tiny Shakespeare:
-
-```bash
-python compare_models.py \
-  --download-tinyshakespeare \
-  --device cpu \
-  --output-dir artifacts/shakespeare_comparison \
-  --steps 300 \
-  --eval-every 50 \
-  --sample-every 150 \
-  --prompt "ROMEO:"
-```
-
-Generate from the best checkpoint:
-
-```bash
-python run_char_experiment.py generate \
-  --checkpoint artifacts/shakespeare_comparison/hyperlstm/best.pt \
-  --device cpu \
-  --prompt "ROMEO:" \
-  --length 400
-```
-
-### Output artifacts (PyTorch)
-
-Each run can save: `config.json`, `history.jsonl`, `best.pt`, `last.pt`, `summary.json`, `final_sample.txt`, `samples/sample_step_*.txt`.
-
-**Suggested submission flow:** run `compare_models.py` → open `artifacts/.../comparison.md` → show samples from both models → use `BAO_CAO_DEMO_VI.md` as the written explanation.
-
-**Notes:** Educational PyTorch code, faithful to the HyperLSTM idea but not a line-by-line port of the original research code. For stronger results, use a larger corpus and increase `steps`, `hidden-size`, and `hyper-hidden-size`.
+For more dataset-specific instructions (PTB/enwik8, checkpoints), see `dynamic/README.md`.
 
 ---
 
@@ -243,17 +182,29 @@ Each run can save: `config.json`, `history.jsonl`, `best.pt`, `last.pt`, `summar
 
 ```text
 HyperNetworks/
-├── dynamic_hypernetwork/     # PyTorch: HyperLSTM demo
-├── model/                    # TensorFlow: CNN / ResNet / utils
-├── my_datasets/              # TensorFlow: loaders
-├── solve/
-│   └── static_hypernet.py    # TensorFlow: Solver
-├── utils/
-├── static_hypernetwork.ipynb
-├── run_char_experiment.py
-├── compare_models.py
-├── demo_commands.sh
-├── environment.yml           # Conda env for PyTorch demo
-├── requirements.txt          # pip deps for TensorFlow vision
-└── BAO_CAO_DEMO_VI.md
+├── assets/                   # README visuals (GIFs/figures)
+├── documentations/           # Paper PDF(s)
+│   └── 1609.09106v4.pdf
+├── static/                   # TensorFlow 2: static hypernetworks (vision)
+│   ├── model/                # CNN / ResNet / HyperConv2D utils
+│   ├── my_datasets/          # MNIST/Fashion-MNIST/CIFAR-10/SVHN loaders
+│   ├── solve/                # Training/eval (Solver)
+│   ├── utils/                # Visualization helpers
+│   ├── static_hypernetwork.py
+│   ├── static_hypernetwork.ipynb
+│   └── run_static_hypernetwork.sh
+├── dynamic/                  # PyTorch: dynamic hypernetworks (HyperLSTM-style)
+│   ├── README.md
+│   ├── data/                 # PTB splits, etc.
+│   ├── logs/                 # Training logs
+│   ├── model_weights/         # Checkpoints (by dataset)
+│   ├── evaluation_charts/     # Generated plots
+│   ├── eval_ablation_results/ # Ablation outputs
+│   ├── train_*.py             # Training entrypoints (PTB/enwik8/Shakespeare)
+│   ├── eval_*.py              # Evaluation/ablation
+│   ├── plot_*.py              # Plotting utilities
+│   ├── eval_results_summary.csv
+│   └── ablation_summary.csv
+├── requirements.txt          # pip deps for TensorFlow (static track)
+└── README.md
 ```
