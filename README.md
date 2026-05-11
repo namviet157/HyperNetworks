@@ -44,14 +44,14 @@ TensorFlow 2 code for **static hypernetworks** in image classification: baseline
 Quick visuals from the repo’s experiments and notes:
 
 <p align="center">
-  <img src="assets/hyper_tuning_mnist.png" width="49%" alt="Hyper tuning on MNIST" />
+  <img src="assets/hyper_tuning_mnist.png" alt="Hyper tuning on MNIST" />
 </p>
 <p align="center">
   <i>Hyperparameter Tuning on MNIST: Baseline vs. Hypernetwork</i>
 </p>
 
 <p align="center">
-  <img src="assets/hyper_tuning_fashion_mnist.png" width="49%" alt="Hyper tuning on Fashion-MNIST" />
+  <img src="assets/hyper_tuning_fashion_mnist.png" alt="Hyper tuning on Fashion-MNIST" />
 </p>
 <p align="center">
   <i>Hyperparameter Tuning on Fashion-MNIST: Baseline vs. Hypernetwork</i>
