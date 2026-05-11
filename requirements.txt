@@ -1,0 +1,9 @@
+numpy
+tensorflow>=2.15.0
+matplotlib
+tensorboard
+scipy
+pillow
+keras>=3.0
+ipykernel
+torch
